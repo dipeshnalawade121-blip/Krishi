@@ -1,860 +1,181 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>कृषी - आता आपले कृषीसेवा केंद्र होणार डिजिटल</title>
+    <title>Krishi Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons for potential use -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Reset and base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* Custom font import for better Devanagari rendering, though Inter is the default */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #e0e6ed;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+            background-color: #f0fff0; /* Very light, almost white green */
+            overflow-x: hidden; /* Prevent horizontal scroll on mobile */
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        /* Header */
-        .header {
-            background: rgba(15, 15, 35, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            position: fixed;
+        
+        /* Custom gradient for the top section to replicate the image's blur effect */
+        .top-gradient {
+            background: radial-gradient(circle at 50% 0%, rgba(199, 255, 199, 0.8) 0%, rgba(255, 255, 255, 0) 60%);
+            height: 300px;
             width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-decoration: none;
-        }
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-        }
-        .nav-links a {
-            text-decoration: none;
-            color: #b0b8c4;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 10px 0;
-            position: relative;
-        }
-        .nav-links a:hover {
-            color: #00d4ff;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-        .nav-links a::after {
-            content: '';
             position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            transition: width 0.3s;
+            z-index: 0;
         }
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .btn {
-            padding: 12px 24px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
+
+        /* Custom button styling for the Login button gradient */
+        .login-button {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            box-shadow: 0 4px 15px rgba(66, 165, 80, 0.5);
             transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #0f0f23;
+        .login-button:hover {
+             box-shadow: 0 6px 20px rgba(66, 165, 80, 0.7);
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        
+        /* Custom button styling for the Register button */
+        .register-button {
+            background-color: white;
+            border: 1px solid #C8E6C9; /* Light green border */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
-        .btn-secondary {
-            background: transparent;
-            color: #00d4ff;
-            border: 2px solid #00d4ff;
+
+        /* Placeholder style for the instruction box to match the light, soft green */
+        .instruction-box {
+            background-color: rgba(220, 250, 220, 0.7); /* Slightly transparent light green */
+            border: 1px solid rgba(200, 240, 200, 0.8);
+            backdrop-filter: blur(2px);
         }
-        .btn-secondary:hover {
-            background: #00d4ff;
-            color: #0f0f23;
-        }
-        .btn-logout {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            border: none;
-        }
-        .btn-logout:hover {
-            background: linear-gradient(135deg, #ff5252, #d32f2f);
-        }
-        /* Main content */
-        main {
-            margin-top: 80px;
-            min-height: calc(100vh - 160px);
-        }
-        .page {
-            display: none;
-            padding: 60px 0;
-        }
-        .page.active {
-            display: block;
-        }
-        /* Hero/Landing */
-        .hero {
-            text-align: center;
-            padding: 100px 0;
-            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
-        }
-        .logo-big {
-            font-size: 5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
-            to { text-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
-        }
-        .subtitle {
-            font-size: 1.8rem;
-            color: #b0b8c4;
-            margin-bottom: 30px;
-            font-weight: 300;
-        }
-        .hero h1 {
-            font-size: 2.2rem;
-            color: #e0e6ed;
-            margin-bottom: 20px;
-            font-weight: 300;
-        }
-        .hero p {
-            font-size: 1.3rem;
-            color: #b0b8c4;
-            margin-bottom: 40px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 25px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        /* Form pages */
-        .form-page {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        .form-page h1 {
-            font-size: 2.5rem;
-            color: #e0e6ed;
-            margin-bottom: 40px;
-            font-weight: 300;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            background: rgba(26, 26, 46, 0.5);
-            padding: 40px;
-            border-radius: 25px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        input, textarea {
-            padding: 18px;
-            background: rgba(15, 15, 35, 0.8);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 15px;
-            font-size: 1rem;
-            color: #e0e6ed;
-            transition: all 0.3s;
-        }
-        input::placeholder, textarea::placeholder {
-            color: #8a9aa8;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .form-note {
-            font-size: 0.95rem;
-            color: #8a9aa8;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .back-btn {
-            margin-top: 30px;
-            width: 200px;
-            justify-content: center;
-        }
-        /* Dashboard */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 30px;
-            padding: 40px 0;
-        }
-        .sidebar {
-            background: rgba(26, 26, 46, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.1);
-            border-radius: 20px;
-            padding: 30px;
-            height: fit-content;
-        }
-        .sidebar h2 {
-            color: #00d4ff;
-            margin-bottom: 20px;
-        }
-        .sidebar ul {
-            list-style: none;
-        }
-        .sidebar li {
-            margin-bottom: 15px;
-        }
-        .sidebar a {
-            color: #b0b8c4;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            color: #00d4ff;
-        }
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 40px;
-        }
-        .welcome {
-            text-align: center;
-            padding: 20px;
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 20px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-        }
-        .stat-card {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            color: #e0e6ed;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .product-section {
-            background: rgba(26, 26, 46, 0.4);
-            border-radius: 20px;
-            padding: 30px;
-        }
-        .product-section h2 {
-            color: #e0e6ed;
-            margin-bottom: 20px;
-        }
-        .add-product-btn {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #0f0f23;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            display: block;
-        }
-        .add-product-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
-        }
-        .product-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-        }
-        .product-card {
-            background: rgba(26, 26, 46, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.1);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            transition: transform 0.3s;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-        .product-image {
-            width: 100%;
-            height: 160px;
-            background: rgba(15, 15, 35, 0.8);
-            border-radius: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-        }
-        .price {
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: bold;
-            margin: 15px 0;
-        }
-        .delete-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            width: 100%;
-        }
-        /* Store page */
-        .store-hero {
-            text-align: center;
-            padding: 60px 0;
-            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.05) 0%, transparent 70%);
-        }
-        .store-hero h1 {
-            font-size: 3rem;
-            color: #e0e6ed;
-            margin-bottom: 10px;
-        }
-        .store-hero p {
-            font-size: 1.2rem;
-            color: #b0b8c4;
-        }
-        .store-products {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 40px;
-            padding: 40px 0;
-        }
-        .store-product {
-            background: rgba(26, 26, 46, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.1);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            transition: transform 0.3s;
-        }
-        .store-product:hover {
-            transform: translateY(-5px);
-        }
-        .buy-btn {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: #0f0f23;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 15px;
-            font-weight: 600;
-        }
-        .buy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
-        }
-        /* Footer */
-        .footer {
-            background: rgba(15, 15, 35, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px 0 20px;
-            text-align: center;
-            border-top: 1px solid rgba(0, 212, 255, 0.2);
-            color: #8a9aa8;
-            font-size: 0.9rem;
-        }
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: #b0b8c4;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .footer-links a:hover {
-            color: #00d4ff;
-        }
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                display: none; /* Hide sidebar on mobile */
-            }
-            .product-list, .store-products {
-                grid-template-columns: 1fr;
-            }
-            .logo-big {
-                font-size: 3.5rem;
-            }
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            form {
-                padding: 30px 20px;
-            }
-        }
+        
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav container">
-            <a href="#" class="logo" onclick="showPage('landing')">🌾 कृषी</a>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#" onclick="showPage('dashboard')">माझं दुकान</a></li>
-                <li><a href="#" onclick="showPage('store')">दुकान पहा</a></li>
-            </ul>
-            <div class="user-info" id="userInfo">
-                <!-- Dynamic user info -->
+<body class="min-h-screen flex flex-col items-center">
+
+    <!-- Top Gradient Effect -->
+    <div class="top-gradient"></div>
+
+    <!-- Main Content Container (fixed width for mobile app feel) -->
+    <div class="relative z-10 w-full max-w-sm p-4">
+
+        <!-- Header -->
+        <header class="flex justify-between items-center py-4">
+            <div class="text-xl font-bold text-green-700 flex items-center">
+                <i data-lucide="leaf" class="w-6 h-6 mr-1 text-green-600"></i>
+                krishi
             </div>
-        </nav>
-    </header>
+        </header>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Landing Page -->
-        <div id="landing" class="page active">
-            <section class="hero container">
-                <div class="logo-big">🌾 कृषी</div>
-                <div class="subtitle">आता आपले कृषीसेवा केंद्र होणार डिजिटल</div>
-                <h1>तुमचं कृषी केंद्र आता ऑनलाइन करा — सोपं, जलद आणि पूर्णपणे मोफत!</h1>
-                <p>काही मिनिटांत तुमचं डिजिटल दुकान तयार करा आणि अधिक शेतकऱ्यांपर्यंत पोहोचा.</p>
-                <div class="hero-buttons">
-                    <button class="btn btn-primary" onclick="showPage('register')">🚀 नवीन नोंदणी करा</button>
-                    <button class="btn btn-secondary" onclick="showPage('login')">🔑 लॉगिन करा</button>
-                </div>
-            </section>
+        <!-- Title Section -->
+        <div class="text-center mt-4 mb-10">
+            <h1 class="text-8xl font-black text-gray-800" style="font-weight: 900;">कृषी</h1>
+            <!-- Subtitle/Tagline (Visual placeholder for the text in the image) -->
+            <p class="text-sm mt-3 text-gray-600 px-4">
+                आपकी कृषि ज़रूरतों का डिजिटल केंद्र
+            </p>
         </div>
 
-        <!-- Register Page -->
-        <div id="register" class="page">
-            <section class="container">
-                <div class="form-page">
-                    <h1>नवीन नोंदणी</h1>
-                    <form id="registerForm">
-                        <input type="text" id="regName" placeholder="नाव" required>
-                        <div class="form-row">
-                            <input type="tel" id="regMobile" placeholder="मोबाईल नंबर" required pattern="[0-9]{10}">
-                            <input type="text" id="regOtp" placeholder="OTP" required maxlength="6">
-                        </div>
-                        <input type="text" id="regStoreName" placeholder="दुकानाचे नाव" required>
-                        <textarea id="regStoreDesc" placeholder="दुकानाचे वर्णन" rows="3"></textarea>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">नोंदणी करा</button>
-                    </form>
-                    <p class="form-note">OTP काय? नोंदणीनंतर तुमच्या मोबाईलवर OTP येईल. (प्रात्यक्षिक)</p>
-                    <button class="btn btn-secondary back-btn" onclick="showPage('landing')">मागे जा</button>
-                </div>
-            </section>
+        <!-- Instructions/Message Box -->
+        <div class="instruction-box p-4 mt-8 rounded-2xl shadow-lg">
+            <!-- Text replicated as a block of regional content -->
+            <p class="text-xs leading-relaxed text-gray-700">
+                नए उपयोगकर्ता: 'Register' पर क्लिक करें और अपनी जानकारी भरें। 
+                मौजूदा उपयोगकर्ता: 'Login' पर क्लिक करके सीधे आगे बढ़ें। यह मंच किसानों और कृषी-केंद्रों के लिए है।
+            </p>
+            <p class="text-xs mt-2 text-gray-500 font-bold">
+                 'Registration' / 'Login' process to access service.
+            </p>
         </div>
 
-        <!-- Login Page -->
-        <div id="login" class="page">
-            <section class="container">
-                <div class="form-page">
-                    <h1>लॉगिन</h1>
-                    <form id="loginForm">
-                        <input type="tel" id="loginMobile" placeholder="मोबाईल नंबर" required pattern="[0-9]{10}">
-                        <input type="text" id="loginOtp" placeholder="OTP" required maxlength="6">
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">लॉगिन करा</button>
-                    </form>
-                    <p class="form-note">OTP काय? लॉगिन करण्यासाठी OTP प्रविष्ट करा. (प्रात्यक्षिक)</p>
-                    <button class="btn btn-secondary back-btn" onclick="showPage('landing')">मागे जा</button>
-                </div>
-            </section>
+        <!-- Login/Register Section -->
+        <div class="mt-6 p-4 rounded-2xl">
+            <!-- New User Register -->
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-sm font-semibold text-gray-600 mr-4">New user:</p>
+                <button class="register-button flex-grow py-3 px-6 text-green-700 font-bold rounded-full hover:bg-green-50">
+                    Register
+                </button>
+            </div>
+
+            <!-- Existing User Login -->
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-semibold text-gray-600 mr-4">Existing user:</p>
+                <button class="login-button flex-grow py-3 px-6 text-white font-bold rounded-full hover:shadow-xl">
+                    Login
+                </button>
+            </div>
         </div>
 
-        <!-- Dashboard Page -->
-        <div id="dashboard" class="page">
-            <div class="container">
-                <div class="dashboard">
-                    <aside class="sidebar">
-                        <h2>मेनू</h2>
-                        <ul>
-                            <li><a href="#" class="active" onclick="showSubPage('stats')">स्टॅट्स</a></li>
-                            <li><a href="#" onclick="showSubPage('products')">उत्पादने</a></li>
-                            <li><a href="#" onclick="showSubPage('addProduct')">नवीन जोडा</a></li>
-                        </ul>
-                    </aside>
-                    <div class="main-content">
-                        <div id="subPageContent">
-                            <!-- Dynamic sub-content -->
-                        </div>
+        <!-- --- USER FLOW STEPS --- -->
+        <div class="mt-12 mb-8 w-full p-4 bg-white rounded-xl shadow-inner">
+            <h2 class="text-lg font-extrabold text-center text-green-800 mb-6 uppercase tracking-wider">
+                Digital Krishi Store in 4 Steps
+            </h2>
+            
+            <!-- STEP 1: Create a Profile -->
+            <div class="flex">
+                <div class="flex flex-col items-center mr-6">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg">1</div>
+                    <div class="w-0.5 h-12 bg-green-300"></div>
+                </div>
+                <div class="pt-0.5 pb-4">
+                    <h3 class="font-bold text-gray-800">Create a Profile</h3>
+                    <p class="text-sm text-gray-500">Sign up and tell us about your farm or business.</p>
+                </div>
+            </div>
+            
+            <!-- STEP 2: Create a Digital Krishi Store -->
+            <div class="flex">
+                <div class="flex flex-col items-center mr-6">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg">2</div>
+                    <div class="w-0.5 h-12 bg-green-300"></div>
+                </div>
+                <div class="pt-0.5 pb-4">
+                    <h3 class="font-bold text-gray-800">Create a Digital Krishi Store</h3>
+                    <p class="text-sm text-gray-500">Add your products, seeds, or fertilizers to your digital catalog.</p>
+                </div>
+            </div>
+            
+            <!-- STEP 3: Publish Your Online Store -->
+            <div class="flex">
+                <div class="flex flex-col items-center mr-6">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg">3</div>
+                    <div class="w-0.5 h-12 bg-green-300"></div>
+                </div>
+                <div class="pt-0.5 pb-4">
+                    <h3 class="font-bold text-gray-800">Publish Your Online Store</h3>
+                    <p class="text-sm text-gray-500">Set shipping options and payment methods, then go live!</p>
+                </div>
+            </div>
+            
+            <!-- STEP 4: Your Digital Store Ready! -->
+            <div class="flex">
+                <div class="flex flex-col items-center mr-6">
+                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-lime-600 text-white font-bold shadow-xl">
+                         <i data-lucide="check" class="w-4 h-4"></i>
                     </div>
                 </div>
+                <div class="pt-0.5 pb-4">
+                    <h3 class="font-extrabold text-lime-700">Your Digital Store Ready!</h3>
+                    <p class="text-sm text-lime-600 font-medium">Manage orders, track sales, and grow your krishi business!</p>
+                </div>
             </div>
         </div>
+        <!-- --- END USER FLOW STEPS --- -->
+        
+    </div>
 
-        <!-- Store Page -->
-        <div id="store" class="page">
-            <section class="container">
-                <div class="store-hero">
-                    <h1 id="storeTitle">कृषी दुकान</h1>
-                    <p id="storeDesc">ताजे कृषी उत्पादने</p>
-                </div>
-                <div class="store-products" id="storeProducts">
-                    <!-- Dynamic store products -->
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-links">
-                <a href="#">संपर्क</a>
-                <a href="#">विनियम आणि अटी</a>
-                <a href="#">गोपनीयता धोरण</a>
-                <a href="#">सहाय्य</a>
-            </div>
-            <p>&copy; 2025 कृषी. सर्व हक्क सांभाळलेले. | विकसित केलेले xAI द्वारे प्रेरित.</p>
-        </div>
-    </footer>
-
+    <!-- Initialize Lucide Icons -->
     <script>
-        // App State
-        let currentUser = null;
-        let users = JSON.parse(localStorage.getItem('krishiUsers')) || {};
-        let products = JSON.parse(localStorage.getItem('krishiProducts')) || {};
-        let sales = JSON.parse(localStorage.getItem('krishiSales')) || 0;
-        let currentSubPage = 'stats';
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            checkLogin();
-            if (currentUser) {
-                loadDashboardSubPage();
-            }
-            updateStats();
-        });
-
-        // Page Navigation
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            updateNavActive(pageId);
-            if (pageId === 'dashboard' && currentUser) {
-                loadDashboardSubPage();
-            } else if (pageId === 'store') {
-                loadStore();
-            }
-            if (!currentUser && (pageId === 'dashboard')) {
-                showPage('landing');
-                alert('कृपया आधी लॉगिन करा!');
-            }
-            window.scrollTo(0, 0);
-        }
-
-        function updateNavActive(pageId) {
-            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-            const activeLink = document.querySelector(`.nav-links a[onclick="showPage('${pageId}')"]`);
-            if (activeLink) activeLink.classList.add('active');
-        }
-
-        // Dashboard Sub-pages
-        function showSubPage(subId) {
-            currentSubPage = subId;
-            loadDashboardSubPage();
-            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-            const activeSub = document.querySelector(`.sidebar a[onclick="showSubPage('${subId}')"]`);
-            if (activeSub) activeSub.classList.add('active');
-        }
-
-        function loadDashboardSubPage() {
-            const content = document.getElementById('subPageContent');
-            const welcome = `<div class="welcome"><h1 id="welcomeMsg">स्वागत आहे!</h1></div>`;
-            if (currentSubPage === 'stats') {
-                content.innerHTML = welcome + `
-                    <div class="stats">
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalProducts">0</div>
-                            <div>एकूण उत्पादने</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalViews">0</div>
-                            <div>दुकानाचे दर्शन</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalSales">0</div>
-                            <div>एकूण विक्री</div>
-                        </div>
-                    </div>
-                `;
-                updateWelcome();
-                updateStats();
-            } else if (currentSubPage === 'products') {
-                content.innerHTML = welcome + `
-                    <div class="product-section">
-                        <h2>माझी उत्पादने</h2>
-                        <div class="product-list" id="productList"></div>
-                    </div>
-                `;
-                updateWelcome();
-                loadProducts();
-            } else if (currentSubPage === 'addProduct') {
-                content.innerHTML = welcome + `
-                    <div class="product-section">
-                        <h2>नवीन उत्पादन जोडा</h2>
-                        <form id="addProductForm">
-                            <input type="text" id="productName" placeholder="उत्पादनाचे नाव" required>
-                            <input type="number" id="productPrice" placeholder="किंमत (रु.)" required>
-                            <textarea id="productDesc" placeholder="वर्णन" rows="3" required></textarea>
-                            <input type="file" id="productImage" accept="image/*">
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">जोडा</button>
-                        </form>
-                    </div>
-                `;
-                updateWelcome();
-                document.getElementById('addProductForm').addEventListener('submit', handleAddProduct);
-            }
-        }
-
-        // Register
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const mobile = document.getElementById('regMobile').value;
-            const otp = document.getElementById('regOtp').value;
-            const storeName = document.getElementById('regStoreName').value;
-            const storeDesc = document.getElementById('regStoreDesc').value;
-
-            if (users[mobile]) {
-                alert('मोबाईल नंबर आधीच नोंदणीकृत आहे!');
-                return;
-            }
-
-            if (otp.length !== 6) {
-                alert('अयोग्य OTP! 6 अंकी OTP प्रविष्ट करा.');
-                return;
-            }
-
-            users[mobile] = { name, otp, storeName, storeDesc };
-            products[mobile] = [];
-            localStorage.setItem('krishiUsers', JSON.stringify(users));
-            localStorage.setItem('krishiProducts', JSON.stringify(products));
-            alert('नोंदणी यशस्वी! आता लॉगिन करा.');
-            document.getElementById('registerForm').reset();
-            showPage('login');
-        });
-
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const mobile = document.getElementById('loginMobile').value;
-            const otp = document.getElementById('loginOtp').value;
-
-            if (users[mobile] && users[mobile].otp === otp) {
-                currentUser = mobile;
-                localStorage.setItem('krishiCurrentUser', mobile);
-                updateUserInfo();
-                document.getElementById('loginForm').reset();
-                showPage('dashboard');
-            } else {
-                alert('अयोग्य मोबाईल नंबर किंवा OTP!');
-            }
-        });
-
-        // Add Product
-        function handleAddProduct(e) {
-            e.preventDefault();
-            if (!currentUser) return;
-
-            const name = document.getElementById('productName').value;
-            const price = document.getElementById('productPrice').value;
-            const desc = document.getElementById('productDesc').value;
-            const imageFile = document.getElementById('productImage').files[0];
-
-            const imageUrl = imageFile ? URL.createObjectURL(imageFile) : '🌾';
-
-            const product = { id: Date.now(), name, price, desc, image: imageUrl };
-            products[currentUser].push(product);
-            localStorage.setItem('krishiProducts', JSON.stringify(products));
-            updateStats();
-            e.target.reset();
-            alert('उत्पादन यशस्वीरीत्या जोडले!');
-            showSubPage('products'); // Switch to products view
-        }
-
-        // Load Products
-        function loadProducts() {
-            if (!currentUser || !products[currentUser]) return;
-            const list = document.getElementById('productList');
-            if (!list) return;
-            list.innerHTML = products[currentUser].map(p => `
-                <div class="product-card">
-                    <div class="product-image">${p.image.startsWith('http') || p.image.startsWith('blob') ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:15px;">` : `<div style="font-size:3rem;">${p.image}</div>`}</div>
-                    <h3>${p.name}</h3>
-                    <p>${p.desc}</p>
-                    <div class="price">₹${p.price}</div>
-                    <button class="delete-btn" onclick="deleteProduct(${p.id})">काढा</button>
-                </div>
-            `).join('');
-        }
-
-        function deleteProduct(id) {
-            if (confirm('हा उत्पादन काढायचा का?')) {
-                products[currentUser] = products[currentUser].filter(p => p.id !== id);
-                localStorage.setItem('krishiProducts', JSON.stringify(products));
-                loadProducts();
-                updateStats();
-            }
-        }
-
-        // Load Store
-        function loadStore() {
-            const demoUser = Object.keys(users)[0];
-            if (!demoUser || !products[demoUser]) {
-                document.getElementById('storeProducts').innerHTML = '<p style="text-align:center;color:#b0b8c4;font-size:1.2rem;">अजून उत्पादने नाहीत.</p>';
-                document.getElementById('storeTitle').textContent = 'कृषी दुकान';
-                document.getElementById('storeDesc').textContent = 'ताजे कृषी उत्पादने';
-                return;
-            }
-            document.getElementById('storeTitle').textContent = users[demoUser].storeName;
-            document.getElementById('storeDesc').textContent = users[demoUser].storeDesc;
-            const container = document.getElementById('storeProducts');
-            container.innerHTML = products[demoUser].map(p => `
-                <div class="store-product">
-                    <div class="product-image">${p.image.startsWith('http') || p.image.startsWith('blob') ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:220px;object-fit:cover;border-radius:15px;">` : `<div style="font-size:3rem;">${p.image}</div>`}</div>
-                    <h3>${p.name}</h3>
-                    <p>${p.desc}</p>
-                    <div class="price">₹${p.price}</div>
-                    <button class="buy-btn" onclick="buyProduct('${demoUser}', ${p.id})">खरेदी करा</button>
-                </div>
-            `).join('');
-        }
-
-        function buyProduct(userMobile, productId) {
-            sales++;
-            localStorage.setItem('krishiSales', sales);
-            alert('खरेदी यशस्वी! (प्रात्यक्षिक)');
-            updateStats();
-        }
-
-        // Utils
-        function checkLogin() {
-            const savedUser = localStorage.getItem('krishiCurrentUser');
-            if (savedUser && users[savedUser]) {
-                currentUser = savedUser;
-                updateUserInfo();
-                showPage('dashboard');
-            }
-        }
-
-        function updateUserInfo() {
-            const userInfo = document.getElementById('userInfo');
-            if (currentUser) {
-                const user = users[currentUser];
-                userInfo.innerHTML = `
-                    <span style="color:#b0b8c4;">हाय, ${user.name}!</span>
-                    <button class="btn btn-logout" onclick="logout()">बाहेर पडा</button>
-                `;
-            } else {
-                userInfo.innerHTML = `
-                    <button class="btn btn-secondary" onclick="showPage('login')">लॉगिन</button>
-                `;
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('krishiCurrentUser');
-            updateUserInfo();
-            showPage('landing');
-        }
-
-        function updateWelcome() {
-            if (currentUser) {
-                document.getElementById('welcomeMsg').textContent = `स्वागत आहे, ${users[currentUser].name}!`;
-            }
-        }
-
-        function updateStats() {
-            if (!currentUser) return;
-            const totalProductsEl = document.getElementById('totalProducts');
-            if (totalProductsEl) totalProductsEl.textContent = products[currentUser]?.length || 0;
-            const totalViewsEl = document.getElementById('totalViews');
-            if (totalViewsEl) totalViewsEl.textContent = Math.floor(Math.random() * 1000);
-            const totalSalesEl = document.getElementById('totalSales');
-            if (totalSalesEl) totalSalesEl.textContent = sales;
-        }
+        // Initialize icons for the final step 'check' mark
+        lucide.createIcons();
     </script>
 </body>
 </html>
+
