@@ -202,24 +202,25 @@
                 </button>
             </div>
 
-            <form class="space-y-4">
+            <form id="registration-form" class="space-y-4">
                 <!-- Mobile Number & OTP -->
                 <div class="flex space-x-2">
-                    <input type="tel" placeholder="Mobile Number" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
-                    <button type="button" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get OTP</button>
+                    <input type="tel" id="reg-mobile" placeholder="Mobile Number" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
+                    <button type="button" id="reg-send-otp" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get OTP</button>
                 </div>
+                <div id="reg-recaptcha-container" style="display:none;"></div>
                 
                 <!-- OTP Input & Status -->
                 <div class="flex space-x-2">
-                    <input type="number" placeholder="Paste OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
-                    <div class="w-2/5 flex items-center justify-center rounded-xl bg-red-100 text-red-700 text-sm font-medium border border-red-300">
+                    <input type="number" id="reg-otp" placeholder="Paste OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
+                    <div id="reg-status" class="w-2/5 flex items-center justify-center rounded-xl bg-red-100 text-red-700 text-sm font-medium border border-red-300">
                         Unverified
                     </div>
                 </div>
 
                 <!-- Password Fields -->
-                <input type="password" placeholder="Create Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
-                <input type="password" placeholder="Confirm Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                <input type="password" id="reg-password" placeholder="Create Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                <input type="password" id="reg-password-confirm" placeholder="Confirm Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
                 
                 <!-- Submit Button -->
                 <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button hover:shadow-xl">
@@ -243,12 +244,13 @@
                 </button>
             </div>
 
-            <form class="space-y-4">
+            <form id="login-form" class="space-y-4">
                 <!-- Registered Mobile Number -->
-                <input type="tel" placeholder="Registered Mo. No." class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
+                <input type="tel" id="login-mobile" placeholder="Registered Mo. No." class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
+                <div id="login-recaptcha-container" style="display:none;"></div>
                 
                 <!-- Password Option -->
-                <input type="password" placeholder="Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
                 
                 <!-- OR Divider -->
                 <div class="flex items-center">
@@ -259,8 +261,8 @@
 
                 <!-- OTP Option (Placeholder for getting OTP if not using password) -->
                 <div class="flex space-x-2">
-                    <input type="number" placeholder="Enter OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
-                    <button type="button" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get New OTP</button>
+                    <input type="number" id="login-otp" placeholder="Enter OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
+                    <button type="button" id="login-send-otp" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get New OTP</button>
                 </div>
                 
                 <!-- Submit Button -->
@@ -299,6 +301,166 @@
         });
 
     </script>
+
+    <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
+    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7s02po42gQ-frJT2G6wfvGa-zLysTAVQ",
+      authDomain: "myotpapp-50067.firebaseapp.com",
+      projectId: "myotpapp-50067",
+      storageBucket: "myotpapp-50067.firebasestorage.app",
+      messagingSenderId: "489896198277",
+      appId: "1:489896198277:web:c911e919fc7b59556c69ec",
+      measurementId: "G-FTY81KQE5S"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+
+    // Recaptcha Verifiers
+    window.regVerifier = new RecaptchaVerifier('reg-recaptcha-container', {
+      'size': 'invisible'
+    }, auth);
+    window.loginVerifier = new RecaptchaVerifier('login-recaptcha-container', {
+      'size': 'invisible'
+    }, auth);
+
+    window.regVerifier.render();
+    window.loginVerifier.render();
+
+    let regConfirmation;
+    let loginConfirmation;
+    let regVerified = false;
+    let loginVerified = false;
+
+    // Registration Send OTP
+    document.getElementById('reg-send-otp').addEventListener('click', async () => {
+      const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
+      if (phoneInput.length !== 10) {
+        alert('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+      const phoneNumber = '+91' + phoneInput;
+      try {
+        regConfirmation = await signInWithPhoneNumber(auth, phoneNumber, window.regVerifier);
+        alert('OTP sent to your mobile!');
+        const status = document.getElementById('reg-status');
+        status.innerHTML = 'OTP Sent';
+        status.className = 'w-2/5 flex items-center justify-center rounded-xl bg-blue-100 text-blue-700 text-sm font-medium border border-blue-300';
+      } catch (error) {
+        console.error(error);
+        alert('Error sending OTP: ' + error.message);
+      }
+    });
+
+    // Registration OTP Verify
+    document.getElementById('reg-otp').addEventListener('input', async (e) => {
+      const code = e.target.value;
+      if (code.length === 6 && regConfirmation) {
+        try {
+          const result = await regConfirmation.confirm(code);
+          regVerified = true;
+          const status = document.getElementById('reg-status');
+          status.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
+          status.className = 'w-2/5 flex items-center justify-center rounded-xl bg-green-100 text-green-700 text-sm font-medium border border-green-300';
+          lucide.createIcons();
+          e.target.value = '';
+          console.log('Verified user:', result.user);
+        } catch (error) {
+          console.error(error);
+          alert('Invalid OTP: ' + error.message);
+          e.target.value = '';
+        }
+      }
+    });
+
+    // Registration Form Submit
+    document.getElementById('registration-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!regVerified) {
+        alert('Please verify your phone number first.');
+        return;
+      }
+      const pw1 = document.getElementById('reg-password').value;
+      const pw2 = document.getElementById('reg-password-confirm').value;
+      if (pw1.length < 6 || pw1 !== pw2) {
+        alert('Passwords must match and be at least 6 characters.');
+        return;
+      }
+      alert('Account created successfully! Welcome to Krishi.');
+      closeModal('registration-modal');
+      document.getElementById('registration-form').reset();
+      regVerified = false;
+      document.getElementById('reg-status').innerHTML = 'Unverified';
+      document.getElementById('reg-status').className = 'w-2/5 flex items-center justify-center rounded-xl bg-red-100 text-red-700 text-sm font-medium border border-red-300';
+    });
+
+    // Login Send OTP
+    document.getElementById('login-send-otp').addEventListener('click', async () => {
+      const phoneInput = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
+      if (phoneInput.length !== 10) {
+        alert('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+      const phoneNumber = '+91' + phoneInput;
+      try {
+        loginConfirmation = await signInWithPhoneNumber(auth, phoneNumber, window.loginVerifier);
+        alert('OTP sent to your mobile!');
+        const btn = document.getElementById('login-send-otp');
+        btn.textContent = 'OTP Sent';
+        btn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-blue-100 text-blue-700 text-sm font-medium border border-blue-300 cursor-not-allowed';
+        btn.disabled = true;
+      } catch (error) {
+        console.error(error);
+        alert('Error sending OTP: ' + error.message);
+      }
+    });
+
+    // Login OTP Verify
+    document.getElementById('login-otp').addEventListener('input', async (e) => {
+      const code = e.target.value;
+      if (code.length === 6 && loginConfirmation) {
+        try {
+          const result = await loginConfirmation.confirm(code);
+          loginVerified = true;
+          const btn = document.getElementById('login-send-otp');
+          btn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
+          btn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-green-100 text-green-700 text-sm font-medium border border-green-300';
+          lucide.createIcons();
+          e.target.value = '';
+          console.log('Verified user:', result.user);
+        } catch (error) {
+          console.error(error);
+          alert('Invalid OTP: ' + error.message);
+          e.target.value = '';
+        }
+      }
+    });
+
+    // Login Form Submit
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pw = document.getElementById('login-password').value;
+      if (pw || loginVerified) {
+        alert('Logged in successfully!');
+        closeModal('login-modal');
+        document.getElementById('login-form').reset();
+        loginVerified = false;
+        document.getElementById('login-send-otp').textContent = 'Get New OTP';
+        document.getElementById('login-send-otp').className = 'w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition';
+        document.getElementById('login-send-otp').disabled = false;
+      } else {
+        alert('Enter password or verify OTP.');
+      }
+    });
+
+    </script>
 </body>
 </html>
-
