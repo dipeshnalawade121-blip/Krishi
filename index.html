@@ -53,6 +53,20 @@
             border: 1px solid rgba(200, 240, 200, 0.8);
             backdrop-filter: blur(2px);
         }
+
+        /* Modal specific styling for animation */
+        .modal-enter-active, .modal-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .modal-enter-from, .modal-leave-to {
+            opacity: 0;
+        }
+        .modal-content-enter-active, .modal-content-leave-active {
+            transition: transform 0.3s ease;
+        }
+        .modal-content-enter-from, .modal-content-leave-to {
+            transform: translateY(100%);
+        }
         
     </style>
 </head>
@@ -77,7 +91,7 @@
             <h1 class="text-8xl font-black text-gray-800" style="font-weight: 900;">कृषी</h1>
             <!-- Subtitle/Tagline (Visual placeholder for the text in the image) -->
             <p class="text-sm mt-3 text-gray-600 px-4">
-                आपकी कृषि ज़रूरतों का डिजिटल केंद्र
+                आपकी कृषी ज़रूरतों का डिजीटल केंद्र
             </p>
         </div>
 
@@ -98,7 +112,9 @@
             <!-- New User Register -->
             <div class="flex items-center justify-between mb-4">
                 <p class="text-sm font-semibold text-gray-600 mr-4">New user:</p>
-                <button class="register-button flex-grow py-3 px-6 text-green-700 font-bold rounded-full hover:bg-green-50">
+                <button 
+                    class="register-button flex-grow py-3 px-6 text-green-700 font-bold rounded-full hover:bg-green-50"
+                    onclick="openModal('registration-modal')">
                     Register
                 </button>
             </div>
@@ -106,7 +122,9 @@
             <!-- Existing User Login -->
             <div class="flex items-center justify-between">
                 <p class="text-sm font-semibold text-gray-600 mr-4">Existing user:</p>
-                <button class="login-button flex-grow py-3 px-6 text-white font-bold rounded-full hover:shadow-xl">
+                <button 
+                    class="login-button flex-grow py-3 px-6 text-white font-bold rounded-full hover:shadow-xl"
+                    onclick="openModal('login-modal')">
                     Login
                 </button>
             </div>
@@ -171,10 +189,115 @@
         
     </div>
 
-    <!-- Initialize Lucide Icons -->
+    <!-- ======================================================= -->
+    <!-- Registration Modal (Hidden by default) -->
+    <!-- ======================================================= -->
+    <div id="registration-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50" onclick="closeModal('registration-modal')">
+        <div class="modal-content-leave-to w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl transition-all duration-300 ease-in-out transform translate-y-0" onclick="event.stopPropagation()">
+            
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-green-700">New User Registration</h2>
+                <button class="text-gray-400 hover:text-red-500" onclick="closeModal('registration-modal')">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form class="space-y-4">
+                <!-- Mobile Number & OTP -->
+                <div class="flex space-x-2">
+                    <input type="tel" placeholder="Mobile Number" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
+                    <button type="button" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get OTP</button>
+                </div>
+                
+                <!-- OTP Input & Status -->
+                <div class="flex space-x-2">
+                    <input type="number" placeholder="Paste OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
+                    <div class="w-2/5 flex items-center justify-center rounded-xl bg-red-100 text-red-700 text-sm font-medium border border-red-300">
+                        Unverified
+                    </div>
+                </div>
+
+                <!-- Password Fields -->
+                <input type="password" placeholder="Create Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                <input type="password" placeholder="Confirm Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button hover:shadow-xl">
+                    Create Account
+                </button>
+            </form>
+
+        </div>
+    </div>
+    
+    <!-- ======================================================= -->
+    <!-- Login Modal (Hidden by default) -->
+    <!-- ======================================================= -->
+    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50" onclick="closeModal('login-modal')">
+        <div class="modal-content-leave-to w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl transition-all duration-300 ease-in-out transform translate-y-0" onclick="event.stopPropagation()">
+            
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-green-700">Existing User Login</h2>
+                <button class="text-gray-400 hover:text-red-500" onclick="closeModal('login-modal')">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form class="space-y-4">
+                <!-- Registered Mobile Number -->
+                <input type="tel" placeholder="Registered Mo. No." class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
+                
+                <!-- Password Option -->
+                <input type="password" placeholder="Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                
+                <!-- OR Divider -->
+                <div class="flex items-center">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="flex-shrink mx-4 text-gray-500 text-sm font-semibold">OR</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+
+                <!-- OTP Option (Placeholder for getting OTP if not using password) -->
+                <div class="flex space-x-2">
+                    <input type="number" placeholder="Enter OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
+                    <button type="button" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get New OTP</button>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button hover:shadow-xl">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Initialize Lucide Icons and Modal Logic -->
     <script>
-        // Initialize icons for the final step 'check' mark
         lucide.createIcons();
+        
+        // Function to open the specified modal
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling the background
+        }
+
+        // Function to close the specified modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Handle ESC key to close modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal('registration-modal');
+                closeModal('login-modal');
+            }
+        });
+
     </script>
 </body>
 </html>
