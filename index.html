@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="mr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krishi.Site - तुमचं कृषी केंद्र ऑनलाइन</title>
+    <title>कृषी - आता आपले कृषीसेवा केंद्र होणार डिजिटल</title>
     <style>
         /* Reset and base styles */
         * {
@@ -14,8 +14,8 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #e0e6ed;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -26,9 +26,10 @@
         }
         /* Header */
         .header {
-            background: white;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(10px);
             padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             position: fixed;
             width: 100%;
             top: 0;
@@ -42,7 +43,9 @@
         .logo {
             font-size: 2rem;
             font-weight: bold;
-            color: #4CAF50;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-decoration: none;
         }
         .nav-links {
@@ -52,12 +55,13 @@
         }
         .nav-links a {
             text-decoration: none;
-            color: #333;
+            color: #b0b8c4;
             font-weight: 500;
-            transition: color 0.3s;
+            transition: all 0.3s;
         }
         .nav-links a:hover {
-            color: #4CAF50;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
         .user-info {
             display: flex;
@@ -65,10 +69,10 @@
             gap: 10px;
         }
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 1rem;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
@@ -76,37 +80,38 @@
             align-items: center;
             gap: 8px;
             font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         .btn-primary {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0f0f23;
         }
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
         }
         .btn-secondary {
             background: transparent;
-            color: #4CAF50;
-            border: 2px solid #4CAF50;
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
         }
         .btn-secondary:hover {
-            background: #4CAF50;
-            color: white;
+            background: #00d4ff;
+            color: #0f0f23;
         }
         .btn-logout {
-            background: #e74c3c;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
             color: white;
             border: none;
         }
         .btn-logout:hover {
-            background: #c0392b;
+            background: linear-gradient(135deg, #ff5252, #d32f2f);
         }
         /* Main sections */
         .section {
             display: none;
             min-height: 100vh;
-            padding-top: 80px;
+            padding-top: 100px;
             align-items: center;
             justify-content: center;
         }
@@ -114,55 +119,71 @@
             display: flex;
         }
         .card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            padding: 50px;
             max-width: 500px;
             width: 100%;
             text-align: center;
         }
         .hero-card {
-            max-width: 800px;
-            padding: 60px 40px;
+            max-width: 900px;
+            padding: 80px 50px;
         }
         .logo-big {
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: bold;
-            color: #4CAF50;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 20px;
         }
+        .subtitle {
+            font-size: 1.5rem;
+            color: #b0b8c4;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
         h1 {
-            font-size: 1.8rem;
-            color: #2c3e50;
+            font-size: 2rem;
+            color: #e0e6ed;
             margin-bottom: 15px;
             font-weight: 300;
         }
         p {
-            font-size: 1.1rem;
-            color: #7f8c8d;
-            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: #b0b8c4;
+            margin-bottom: 30px;
         }
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
         input, textarea, select {
-            padding: 12px;
-            border: 2px solid #ecf0f1;
-            border-radius: 10px;
+            padding: 15px;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            color: #e0e6ed;
+            transition: all 0.3s;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #8a9aa8;
         }
         input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
         }
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 20px;
         }
         /* Dashboard */
         .dashboard {
@@ -171,126 +192,103 @@
         }
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
             margin-bottom: 40px;
         }
         .stat-card {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: #e0e6ed;
+            padding: 25px;
+            border-radius: 20px;
             text-align: center;
         }
         .stat-number {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .product-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
         }
         .product-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
         }
         .product-image {
             width: 100%;
-            height: 150px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            height: 160px;
+            background: rgba(15, 15, 35, 0.8);
+            border-radius: 15px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 3rem;
         }
         .add-product-btn {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            color: white;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0f0f23;
             border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
+            padding: 15px 35px;
+            border-radius: 30px;
             cursor: pointer;
             font-size: 1.1rem;
-            margin: 20px 0;
+            margin: 25px 0;
         }
         .add-product-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
         }
         /* Store page */
         .store-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
         .store-products {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 30px;
         }
         .store-product {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
         }
         .price {
-            font-size: 1.5rem;
-            color: #4CAF50;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-weight: bold;
-            margin: 10px 0;
+            margin: 15px 0;
         }
         .buy-btn {
-            background: #4CAF50;
-            color: white;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0f0f23;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 12px 24px;
+            border-radius: 25px;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-weight: 600;
         }
         .buy-btn:hover {
-            background: #45a049;
-        }
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .close {
-            float: right;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #aaa;
-        }
-        .close:hover {
-            color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
         }
         /* Responsive */
         @media (max-width: 768px) {
@@ -306,12 +304,18 @@
             .product-list, .store-products {
                 grid-template-columns: 1fr;
             }
+            .logo-big {
+                font-size: 3rem;
+            }
+            .subtitle {
+                font-size: 1.2rem;
+            }
         }
         /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px);
             }
             to {
                 opacity: 1;
@@ -319,7 +323,12 @@
             }
         }
         .section {
-            animation: fadeInUp 0.6s ease-out;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        /* Glow effect */
+        .card:hover {
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
         }
     </style>
 </head>
@@ -327,7 +336,7 @@
     <!-- Header -->
     <header class="header">
         <nav class="nav container">
-            <a href="#" class="logo" onclick="showSection('landing')">🌾 Krishi.Site</a>
+            <a href="#" class="logo" onclick="showSection('landing')">🌾 कृषी</a>
             <ul class="nav-links">
                 <li><a href="#" onclick="showSection('dashboard')">माझं दुकान</a></li>
                 <li><a href="#" onclick="showSection('store')">दुकान पहा</a></li>
@@ -342,13 +351,51 @@
     <section id="landing" class="section active">
         <div class="container">
             <div class="hero-card card">
-                <div class="logo-big">🌾 Krishi.Site</div>
+                <div class="logo-big">🌾 कृषी</div>
+                <div class="subtitle">आता आपले कृषीसेवा केंद्र होणार डिजिटल</div>
                 <h1>तुमचं कृषी केंद्र आता ऑनलाइन करा — सोपं, जलद आणि पूर्णपणे मोफत!</h1>
                 <p>काही मिनिटांत तुमचं डिजिटल दुकान तयार करा आणि अधिक शेतकऱ्यांपर्यंत पोहोचा.</p>
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="showModal('register')">🚀 नवीन नोंदणी करा</button>
-                    <button class="btn btn-secondary" onclick="showModal('login')">🔑 लॉगिन करा</button>
+                <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="showSection('register')">🚀 नवीन नोंदणी करा</button>
+                    <button class="btn btn-secondary" onclick="showSection('login')">🔑 लॉगिन करा</button>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Register Section -->
+    <section id="register" class="section">
+        <div class="container">
+            <div class="card">
+                <h1>नवीन नोंदणी</h1>
+                <form id="registerForm">
+                    <input type="text" id="regName" placeholder="नाव" required>
+                    <div class="form-row">
+                        <input type="tel" id="regMobile" placeholder="मोबाईल नंबर" required pattern="[0-9]{10}">
+                        <input type="text" id="regOtp" placeholder="OTP" required maxlength="6">
+                    </div>
+                    <input type="text" id="regStoreName" placeholder="दुकानाचे नाव" required>
+                    <textarea id="regStoreDesc" placeholder="दुकानाचे वर्णन" rows="3"></textarea>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">नोंदणी करा</button>
+                </form>
+                <p style="margin-top: 20px; font-size: 0.9rem; color: #8a9aa8;">OTP काय? नोंदणीनंतर तुमच्या मोबाईलवर OTP येईल. (प्रात्यक्षिक)</p>
+                <button class="btn btn-secondary" onclick="showSection('landing')" style="margin-top: 15px;">मागे जा</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login" class="section">
+        <div class="container">
+            <div class="card">
+                <h1>लॉगिन</h1>
+                <form id="loginForm">
+                    <input type="tel" id="loginMobile" placeholder="मोबाईल नंबर" required pattern="[0-9]{10}">
+                    <input type="text" id="loginOtp" placeholder="OTP" required maxlength="6">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">लॉगिन करा</button>
+                </form>
+                <p style="margin-top: 20px; font-size: 0.9rem; color: #8a9aa8;">OTP काय? लॉगिन करण्यासाठी OTP प्रविष्ट करा. (प्रात्यक्षिक)</p>
+                <button class="btn btn-secondary" onclick="showSection('landing')" style="margin-top: 15px;">मागे जा</button>
             </div>
         </div>
     </section>
@@ -371,9 +418,26 @@
                     <div>एकूण विक्री</div>
                 </div>
             </div>
-            <button class="add-product-btn" onclick="showModal('addProduct')">➕ नवीन उत्पादन जोडा</button>
+            <button class="add-product-btn" onclick="showSection('addProduct')">➕ नवीन उत्पादन जोडा</button>
             <div class="product-list" id="productList">
                 <!-- Dynamic products -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Product Section -->
+    <section id="addProduct" class="section">
+        <div class="container">
+            <div class="card">
+                <h1>नवीन उत्पादन जोडा</h1>
+                <form id="addProductForm">
+                    <input type="text" id="productName" placeholder="उत्पादनाचे नाव" required>
+                    <input type="number" id="productPrice" placeholder="किंमत (रु.)" required>
+                    <textarea id="productDesc" placeholder="वर्णन" rows="3" required></textarea>
+                    <input type="file" id="productImage" accept="image/*">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">जोडा</button>
+                </form>
+                <button class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-top: 15px;">मागे जा</button>
             </div>
         </div>
     </section>
@@ -382,7 +446,7 @@
     <section id="store" class="section">
         <div class="container">
             <div class="store-header">
-                <h1 id="storeTitle">Krishi दुकान</h1>
+                <h1 id="storeTitle">कृषी दुकान</h1>
                 <p id="storeDesc">ताजे कृषी उत्पादने</p>
             </div>
             <div class="store-products" id="storeProducts">
@@ -390,50 +454,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Register Modal -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('register')">&times;</span>
-            <h2>Register</h2>
-            <form id="registerForm">
-                <input type="text" id="regName" placeholder="नाव" required>
-                <input type="email" id="regEmail" placeholder="ईमेल" required>
-                <input type="password" id="regPassword" placeholder="परवलीचा शब्द" required>
-                <input type="text" id="regStoreName" placeholder="दुकानाचे नाव" required>
-                <textarea id="regStoreDesc" placeholder="दुकानाचे वर्णन" rows="3"></textarea>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">नोंदणी करा</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('login')">&times;</span>
-            <h2>Login</h2>
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="ईमेल" required>
-                <input type="password" id="loginPassword" placeholder="परवलीचा शब्द" required>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">लॉगिन करा</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Product Modal -->
-    <div id="addProductModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('addProduct')">&times;</span>
-            <h2>नवीन उत्पादन जोडा</h2>
-            <form id="addProductForm">
-                <input type="text" id="productName" placeholder="उत्पादनाचे नाव" required>
-                <input type="number" id="productPrice" placeholder="किंमत (रु.)" required>
-                <textarea id="productDesc" placeholder="वर्णन" rows="3" required></textarea>
-                <input type="file" id="productImage" accept="image/*">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">जोडा</button>
-            </form>
-        </div>
-    </div>
 
     <script>
         // App State
@@ -457,67 +477,60 @@
                 updateWelcome();
             } else if (sectionId === 'store') {
                 loadStore();
+            } else if (sectionId === 'addProduct' && !currentUser) {
+                showSection('landing');
+                alert('कृपया आधी लॉगिन करा!');
+                return;
             }
-            if (!currentUser && sectionId !== 'landing') {
+            if (!currentUser && (sectionId === 'dashboard' || sectionId === 'addProduct')) {
                 showSection('landing');
                 alert('कृपया आधी लॉगिन करा!');
             }
         }
 
-        // Modals
-        function showModal(modalId) {
-            document.getElementById(modalId + 'Modal').classList.add('active');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId + 'Modal').classList.remove('active');
-        }
-
-        // Close modal on outside click
-        window.onclick = (e) => {
-            if (e.target.classList.contains('modal')) {
-                e.target.classList.remove('active');
-            }
-        };
-
         // Register
         document.getElementById('registerForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
+            const mobile = document.getElementById('regMobile').value;
+            const otp = document.getElementById('regOtp').value;
             const storeName = document.getElementById('regStoreName').value;
             const storeDesc = document.getElementById('regStoreDesc').value;
 
-            if (users[email]) {
-                alert('ईमेल आधीच नोंदणीकृत आहे!');
+            if (users[mobile]) {
+                alert('मोबाईल नंबर आधीच नोंदणीकृत आहे!');
                 return;
             }
 
-            users[email] = { name, password, storeName, storeDesc };
-            products[email] = [];
+            // Simulate OTP verification (always true for demo)
+            if (otp.length !== 6) {
+                alert('अयोग्य OTP! 6 अंकी OTP प्रविष्ट करा.');
+                return;
+            }
+
+            users[mobile] = { name, otp, storeName, storeDesc }; // Store OTP instead of password
+            products[mobile] = [];
             localStorage.setItem('krishiUsers', JSON.stringify(users));
             localStorage.setItem('krishiProducts', JSON.stringify(products));
             alert('नोंदणी यशस्वी! आता लॉगिन करा.');
-            closeModal('register');
             document.getElementById('registerForm').reset();
+            showSection('login');
         });
 
         // Login
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+            const mobile = document.getElementById('loginMobile').value;
+            const otp = document.getElementById('loginOtp').value;
 
-            if (users[email] && users[email].password === password) {
-                currentUser = email;
-                localStorage.setItem('krishiCurrentUser', email);
+            if (users[mobile] && users[mobile].otp === otp) {
+                currentUser = mobile;
+                localStorage.setItem('krishiCurrentUser', mobile);
                 updateUserInfo();
-                closeModal('login');
-                showSection('dashboard');
                 document.getElementById('loginForm').reset();
+                showSection('dashboard');
             } else {
-                alert('अयोग्य ईमेल किंवा परवलीचा शब्द!');
+                alert('अयोग्य मोबाईल नंबर किंवा OTP!');
             }
         });
 
@@ -531,16 +544,15 @@
             const desc = document.getElementById('productDesc').value;
             const imageFile = document.getElementById('productImage').files[0];
 
-            // Simulate image upload (in real app, upload to server)
-            const imageUrl = imageFile ? URL.createObjectURL(imageFile) : '🌾'; // Fallback emoji
+            const imageUrl = imageFile ? URL.createObjectURL(imageFile) : '🌾';
 
             const product = { id: Date.now(), name, price, desc, image: imageUrl };
             products[currentUser].push(product);
             localStorage.setItem('krishiProducts', JSON.stringify(products));
             loadProducts();
             updateStats();
-            closeModal('addProduct');
             document.getElementById('addProductForm').reset();
+            showSection('dashboard');
             alert('उत्पादन यशस्वीरीत्या जोडले!');
         });
 
@@ -550,7 +562,7 @@
             const list = document.getElementById('productList');
             list.innerHTML = products[currentUser].map(p => `
                 <div class="product-card">
-                    <div class="product-image">${p.image.startsWith('http') || p.image.startsWith('blob') ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">` : p.image}</div>
+                    <div class="product-image">${p.image.startsWith('http') || p.image.startsWith('blob') ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:15px;">` : `<div style="font-size:3rem;">${p.image}</div>`}</div>
                     <h3>${p.name}</h3>
                     <p>${p.desc}</p>
                     <div class="price">₹${p.price}</div>
@@ -568,19 +580,19 @@
             }
         }
 
-        // Load Store (Public view, simulate one store for demo)
+        // Load Store
         function loadStore() {
-            const demoUser = Object.keys(users)[0]; // Use first user for demo store
-            if (!demoUser || !products[demoUser]) {
-                document.getElementById('storeProducts').innerHTML = '<p>अजून उत्पादने नाहीत.</p>';
+            const demoUser = Object.keys(users)[0];
+            if (!demoUser || !products[dataUser]) {
+                document.getElementById('storeProducts').innerHTML = '<p style="text-align:center;color:#b0b8c4;">अजून उत्पादने नाहीत.</p>';
                 return;
             }
-            document.getElementById('storeTitle').textContent = users[demoUser].storeName;
-            document.getElementById('storeDesc').textContent = users[demoUser].storeDesc;
+            document.getElementById('storeTitle').textContent = users[dataUser].storeName;
+            document.getElementById('storeDesc').textContent = users[dataUser].storeDesc;
             const container = document.getElementById('storeProducts');
-            container.innerHTML = products[demoUser].map(p => `
+            container.innerHTML = products[dataUser].map(p => `
                 <div class="store-product">
-                    <div class="product-image">${p.image.startsWith('http') || p.image.startsWith('blob') ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:200px;object-fit:cover;border-radius:10px;">` : `<div style="font-size:3rem;">${p.image}</div>`}</div>
+                    <div class="product-image">${p.image.startsWith('http') || p.image.startsWith('blob') ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:220px;object-fit:cover;border-radius:15px;">` : `<div style="font-size:3rem;">${p.image}</div>`}</div>
                     <h3>${p.name}</h3>
                     <p>${p.desc}</p>
                     <div class="price">₹${p.price}</div>
@@ -589,8 +601,7 @@
             `).join('');
         }
 
-        function buyProduct(userEmail, productId) {
-            // Simulate sale
+        function buyProduct(userMobile, productId) {
             sales++;
             localStorage.setItem('krishiSales', sales);
             alert('खरेदी यशस्वी! (प्रात्यक्षिक)');
@@ -612,12 +623,12 @@
             if (currentUser) {
                 const user = users[currentUser];
                 userInfo.innerHTML = `
-                    <span>हाय, ${user.name}!</span>
+                    <span style="color:#b0b8c4;">हाय, ${user.name}!</span>
                     <button class="btn btn-logout" onclick="logout()">बाहेर पडा</button>
                 `;
             } else {
                 userInfo.innerHTML = `
-                    <button class="btn btn-secondary" onclick="showModal('login')">लॉगिन</button>
+                    <button class="btn btn-secondary" onclick="showSection('login')">लॉगिन</button>
                 `;
             }
         }
@@ -638,7 +649,7 @@
         function updateStats() {
             if (!currentUser) return;
             document.getElementById('totalProducts').textContent = products[currentUser]?.length || 0;
-            document.getElementById('totalViews').textContent = Math.floor(Math.random() * 1000); // Simulated
+            document.getElementById('totalViews').textContent = Math.floor(Math.random() * 1000);
             document.getElementById('totalSales').textContent = sales;
         }
     </script>
