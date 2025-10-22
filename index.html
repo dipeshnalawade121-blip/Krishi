@@ -68,6 +68,9 @@
         .modal-content-enter-active, .modal-content-leave-active {
             transition: transform 0.3s ease;
         }
+        .modal-content-enter-active, .modal-content-leave-active {
+            transition: transform 0.3s ease;
+        }
         .modal-content-enter-from, .modal-content-leave-to {
             transform: translateY(100%);
         }
@@ -212,7 +215,6 @@
                     <input type="tel" id="reg-mobile" placeholder="Mobile Number" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
                     <button type="button" id="reg-send-otp" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get OTP</button>
                 </div>
-                <div id="reg-recaptcha-container" style="display:none;"></div>
                 
                 <!-- OTP Input & Status -->
                 <div class="flex space-x-2">
@@ -249,24 +251,12 @@
             <form id="login-form" class="space-y-4">
                 <!-- Registered Mobile Number -->
                 <input type="tel" id="login-mobile" placeholder="Registered Mo. No." class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
-                <div id="login-recaptcha-container" style="display:none;"></div>
                 
                 <!-- Password Option -->
                 <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
                 
-                <!-- OR Divider -->
-                <div class="flex items-center">
-                    <div class="flex-grow border-t border-gray-300"></div>
-                    <span class="flex-shrink mx-4 text-gray-500 text-sm font-semibold">OR</span>
-                    <div class="flex-grow border-t border-gray-300"></div>
-                </div>
-
-                <!-- OTP Option (Placeholder for getting OTP if not using password) -->
-                <div class="flex space-x-2">
-                    <input type="number" id="login-otp" placeholder="Enter OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
-                    <button type="button" id="login-send-otp" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get New OTP</button>
-                </div>
-                <button id="login-verify-btn" type="button" class="w-full py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 disabled:bg-gray-400 transition" disabled style="display: none;">Verify OTP</button>
+                <!-- Forgot Password Link -->
+                <p class="text-xs text-right text-blue-500 cursor-pointer hover:underline" onclick="openForgotPassword()">Forgot Password?</p>
                 
                 <!-- Submit Button -->
                 <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button hover:shadow-xl">
@@ -276,16 +266,87 @@
         </div>
     </div>
 
+    <!-- ======================================================= -->
+    <!-- Forgot Password Modal (Hidden by default) -->
+    <!-- ======================================================= -->
+    <div id="forgot-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50" onclick="closeModal('forgot-modal')">
+        <div class="modal-content-leave-to w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl transition-all duration-300 ease-in-out transform translate-y-0" onclick="event.stopPropagation()">
+            
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-green-700">Forgot Password</h2>
+                <button class="text-gray-400 hover:text-red-500" onclick="closeModal('forgot-modal')">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="forgot-form" class="space-y-4">
+                <!-- Mobile Number & OTP -->
+                <div class="flex space-x-2">
+                    <input type="tel" id="forgot-mobile" placeholder="Registered Mobile Number" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="10">
+                    <button type="button" id="forgot-send-otp" class="w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition">Get OTP</button>
+                </div>
+                
+                <!-- OTP Input & Status -->
+                <div class="flex space-x-2">
+                    <input type="number" id="forgot-otp" placeholder="Enter OTP" class="w-3/5 p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500" maxlength="6">
+                    <button id="forgot-verify-btn" type="button" class="w-2/5 bg-blue-100 text-blue-700 font-semibold rounded-xl hover:bg-blue-200 transition" disabled>Verify OTP</button>
+                </div>
+
+                <!-- New Password Fields -->
+                <input type="password" id="forgot-password" placeholder="New Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                <input type="password" id="forgot-password-confirm" placeholder="Confirm New Password" class="w-full p-3 border border-green-200 rounded-xl focus:ring-green-500 focus:border-green-500">
+                
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button hover:shadow-xl">
+                    Reset Password
+                </button>
+            </form>
+
+        </div>
+    </div>
+
 
     <!-- Initialize Lucide Icons and Modal Logic -->
     <script>
         lucide.createIcons();
+        
+        // Fast2SMS API Key
+        const API_KEY = 'UuiWpwZHovQ2LdI6CP9KjJM4Vgk7Oz1lcmSrtTAF3BGasqRyX5N3AKX95VTnW2Czt8MuYyfGeDlh1omk';
+        
+        // Function to generate OTP
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000);
+        }
+        
+        // Function to send OTP via Fast2SMS
+        async function sendOTP(phone, otp) {
+            const message = `Your Krishi OTP is ${otp}. Do not share.`;
+            const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${API_KEY}&route=otpt&message=${encodeURIComponent(message)}&numbers=${phone}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.return === true) {
+                    return true;
+                } else {
+                    throw new Error('Failed to send OTP');
+                }
+            } catch (error) {
+                console.error(error);
+                throw error;
+            }
+        }
         
         // Function to open the specified modal
         function openModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; // Prevent scrolling the background
+        }
+        
+        // Function to open forgot password modal
+        function openForgotPassword() {
+            closeModal('login-modal');
+            openModal('forgot-modal');
         }
 
         // Function to close the specified modal
@@ -297,6 +358,8 @@
                 resetRegistration();
             } else if (modalId === 'login-modal') {
                 resetLogin();
+            } else if (modalId === 'forgot-modal') {
+                resetForgot();
             }
         }
 
@@ -305,6 +368,7 @@
             if (e.key === 'Escape') {
                 closeModal('registration-modal');
                 closeModal('login-modal');
+                closeModal('forgot-modal');
             }
         });
 
@@ -323,251 +387,227 @@
                 clearInterval(window.regInterval);
                 delete window.regInterval;
             }
-            window.regConfirmation = null;
+            window.regOTP = null;
             window.regVerified = false;
         }
 
         function resetLogin() {
             document.getElementById('login-form').reset();
-            const sendBtn = document.getElementById('login-send-otp');
-            sendBtn.textContent = 'Get New OTP';
+        }
+
+        function resetForgot() {
+            document.getElementById('forgot-form').reset();
+            const sendBtn = document.getElementById('forgot-send-otp');
+            sendBtn.textContent = 'Get OTP';
             sendBtn.className = 'w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition';
             sendBtn.disabled = false;
-            const verifyBtn = document.getElementById('login-verify-btn');
-            verifyBtn.style.display = 'none';
+            const verifyBtn = document.getElementById('forgot-verify-btn');
             verifyBtn.innerHTML = 'Verify OTP';
-            verifyBtn.className = 'w-full py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 disabled:bg-gray-400 transition';
+            verifyBtn.className = 'w-2/5 bg-blue-100 text-blue-700 font-semibold rounded-xl hover:bg-blue-200 transition';
             verifyBtn.disabled = true;
-            document.getElementById('login-otp').disabled = false;
-            if (window.loginInterval) {
-                clearInterval(window.loginInterval);
-                delete window.loginInterval;
+            document.getElementById('forgot-otp').disabled = false;
+            if (window.forgotInterval) {
+                clearInterval(window.forgotInterval);
+                delete window.forgotInterval;
             }
-            window.loginConfirmation = null;
-            window.loginVerified = false;
+            window.forgotOTP = null;
+            window.forgotVerified = false;
         }
 
-    </script>
-
-    <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
-    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyC7s02po42gQ-frJT2G6wfvGa-zLysTAVQ",
-      authDomain: "myotpapp-50067.firebaseapp.com",
-      projectId: "myotpapp-50067",
-      storageBucket: "myotpapp-50067.firebasestorage.app",
-      messagingSenderId: "489896198277",
-      appId: "1:489896198277:web:c911e919fc7b59556c69ec",
-      measurementId: "G-FTY81KQE5S"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth(app);
-
-    // Recaptcha Verifiers
-        window.regVerifier = new RecaptchaVerifier(auth, 'reg-recaptcha-container', {
-            'size': 'invisible'
-        });
-        window.loginVerifier = new RecaptchaVerifier(auth, 'login-recaptcha-container', {
-            'size': 'invisible'
-        });
-
-    window.regVerifier.render();
-    window.loginVerifier.render();
-
-    window.regConfirmation = null;
-    window.loginConfirmation = null;
-    window.regVerified = false;
-    window.loginVerified = false;
-
-    const regOriginalClass = 'w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition';
-    const loginOriginalClass = 'w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition';
-
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function startCountdown(btn, seconds, originalText, originalClass, intervalKey, confirmationVar) {
-      if (window[intervalKey]) {
-        clearInterval(window[intervalKey]);
-      }
-      btn.disabled = true;
-      const timerSpan = document.createElement('span');
-      timerSpan.id = 'timer-span';
-      timerSpan.className = 'ml-1 font-medium';
-      btn.innerHTML = 'OTP sent successfully! ';
-      btn.appendChild(timerSpan);
-      timerSpan.innerHTML = formatTime(seconds);
-      btn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-blue-100 text-blue-700 text-sm font-medium border border-blue-300 p-1';
-      let timeLeft = seconds;
-      window[intervalKey] = setInterval(() => {
-        timeLeft--;
-        timerSpan.innerHTML = formatTime(timeLeft);
-        if (timeLeft < 0) {
-          clearInterval(window[intervalKey]);
-          delete window[intervalKey];
-          btn.innerHTML = originalText;
-          btn.className = originalClass;
-          btn.disabled = false;
-          window[confirmationVar] = null;
+        function formatTime(seconds) {
+          const mins = Math.floor(seconds / 60);
+          const secs = seconds % 60;
+          return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
-      }, 1000);
-    }
 
-    // Registration Send OTP
-    document.getElementById('reg-send-otp').addEventListener('click', async () => {
-      const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
-      if (phoneInput.length !== 10) {
-        alert('Please enter a valid 10-digit mobile number.');
-        return;
-      }
-      if (window.regConfirmation) {
-        return;
-      }
-      const phoneNumber = '+91' + phoneInput;
-      const sendBtn = document.getElementById('reg-send-otp');
-      try {
-        window.regConfirmation = await signInWithPhoneNumber(auth, phoneNumber, window.regVerifier);
-        startCountdown(sendBtn, 119, 'Get OTP', regOriginalClass, 'regInterval', 'regConfirmation');
-        alert('OTP sent to your mobile!');
-      } catch (error) {
-        console.error(error);
-        alert('Error sending OTP: ' + error.message);
-      }
-    });
+        function startCountdown(btn, seconds, originalText, originalClass, intervalKey) {
+          if (window[intervalKey]) {
+            clearInterval(window[intervalKey]);
+          }
+          btn.disabled = true;
+          const timerSpan = document.createElement('span');
+          timerSpan.id = 'timer-span';
+          timerSpan.className = 'ml-1 font-medium';
+          btn.innerHTML = 'OTP sent successfully! ';
+          btn.appendChild(timerSpan);
+          timerSpan.innerHTML = formatTime(seconds);
+          btn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-blue-100 text-blue-700 text-sm font-medium border border-blue-300 p-1';
+          let timeLeft = seconds;
+          window[intervalKey] = setInterval(() => {
+            timeLeft--;
+            timerSpan.innerHTML = formatTime(timeLeft);
+            if (timeLeft < 0) {
+              clearInterval(window[intervalKey]);
+              delete window[intervalKey];
+              btn.innerHTML = originalText;
+              btn.className = originalClass;
+              btn.disabled = false;
+            }
+          }, 1000);
+        }
 
-    // Registration OTP Input Listener
-    document.getElementById('reg-otp').addEventListener('input', (e) => {
-      const value = e.target.value;
-      const verifyBtn = document.getElementById('reg-verify-btn');
-      if (window.regConfirmation && value.length === 6 && /^\d{6}$/.test(value)) {
-        verifyBtn.disabled = false;
-      } else {
-        verifyBtn.disabled = true;
-      }
-    });
+        const regOriginalClass = 'w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition';
+        const forgotOriginalClass = 'w-2/5 bg-green-100 text-green-700 font-semibold rounded-xl hover:bg-green-200 transition';
 
-    // Registration Verify OTP
-    document.getElementById('reg-verify-btn').addEventListener('click', async () => {
-      const code = document.getElementById('reg-otp').value;
-      if (!window.regConfirmation) return;
-      try {
-        const result = await window.regConfirmation.confirm(code);
-        const verifyBtn = document.getElementById('reg-verify-btn');
-        verifyBtn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
-        verifyBtn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-green-100 text-green-700 text-sm font-medium border border-green-300';
-        verifyBtn.disabled = true;
-        document.getElementById('reg-otp').disabled = true;
-        document.getElementById('reg-otp').value = '';
-        lucide.createIcons();
-        alert('Phone number verified successfully!');
-        window.regVerified = true;
-        console.log('Verified user:', result.user);
-      } catch (error) {
-        console.error(error);
-        alert('Invalid OTP. Please try again.');
-        document.getElementById('reg-otp').value = '';
-        document.getElementById('reg-verify-btn').disabled = true;
-      }
-    });
+        // Registration Send OTP
+        document.getElementById('reg-send-otp').addEventListener('click', async () => {
+          const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
+          if (phoneInput.length !== 10) {
+            alert('Please enter a valid 10-digit mobile number.');
+            return;
+          }
+          if (window.regOTP) {
+            return;
+          }
+          const otp = generateOTP();
+          window.regOTP = otp;
+          const phoneNumber = phoneInput;
+          const sendBtn = document.getElementById('reg-send-otp');
+          try {
+            await sendOTP(phoneNumber, otp);
+            startCountdown(sendBtn, 119, 'Get OTP', regOriginalClass, 'regInterval');
+            alert('OTP sent to your mobile!');
+          } catch (error) {
+            console.error(error);
+            alert('Error sending OTP: ' + error.message);
+          }
+        });
 
-    // Registration Form Submit
-    document.getElementById('registration-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!window.regVerified) {
-        alert('Please verify your phone number first.');
-        return;
-      }
-      const pw1 = document.getElementById('reg-password').value;
-      const pw2 = document.getElementById('reg-password-confirm').value;
-      if (pw1.length < 6 || pw1 !== pw2) {
-        alert('Passwords must match and be at least 6 characters.');
-        return;
-      }
-      alert('Account created successfully! Welcome to Krishi.');
-      resetRegistration();
-      closeModal('registration-modal');
-    });
+        // Registration OTP Input Listener
+        document.getElementById('reg-otp').addEventListener('input', (e) => {
+          const value = e.target.value;
+          const verifyBtn = document.getElementById('reg-verify-btn');
+          if (window.regOTP && value.length === 6 && /^\d{6}$/.test(value)) {
+            verifyBtn.disabled = false;
+          } else {
+            verifyBtn.disabled = true;
+          }
+        });
 
-    // Login Send OTP
-    document.getElementById('login-send-otp').addEventListener('click', async () => {
-      const phoneInput = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
-      if (phoneInput.length !== 10) {
-        alert('Please enter a valid 10-digit mobile number.');
-        return;
-      }
-      if (window.loginConfirmation) {
-        return;
-      }
-      const phoneNumber = '+91' + phoneInput;
-      const sendBtn = document.getElementById('login-send-otp');
-      try {
-        window.loginConfirmation = await signInWithPhoneNumber(auth, phoneNumber, window.loginVerifier);
-        startCountdown(sendBtn, 119, 'Get New OTP', loginOriginalClass, 'loginInterval', 'loginConfirmation');
-        document.getElementById('login-verify-btn').style.display = 'block';
-        alert('OTP sent to your mobile!');
-      } catch (error) {
-        console.error(error);
-        alert('Error sending OTP: ' + error.message);
-      }
-    });
+        // Registration Verify OTP
+        document.getElementById('reg-verify-btn').addEventListener('click', async () => {
+          const code = parseInt(document.getElementById('reg-otp').value);
+          if (window.regOTP && code === window.regOTP) {
+            const verifyBtn = document.getElementById('reg-verify-btn');
+            verifyBtn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
+            verifyBtn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-green-100 text-green-700 text-sm font-medium border border-green-300';
+            verifyBtn.disabled = true;
+            document.getElementById('reg-otp').disabled = true;
+            document.getElementById('reg-otp').value = '';
+            lucide.createIcons();
+            alert('Phone number verified successfully!');
+            window.regVerified = true;
+          } else {
+            alert('Invalid OTP. Please try again.');
+            document.getElementById('reg-otp').value = '';
+            document.getElementById('reg-verify-btn').disabled = true;
+          }
+        });
 
-    // Login OTP Input Listener
-    document.getElementById('login-otp').addEventListener('input', (e) => {
-      const value = e.target.value;
-      const verifyBtn = document.getElementById('login-verify-btn');
-      if (window.loginConfirmation && value.length === 6 && /^\d{6}$/.test(value)) {
-        verifyBtn.disabled = false;
-      } else {
-        verifyBtn.disabled = true;
-      }
-    });
+        // Registration Form Submit
+        document.getElementById('registration-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (!window.regVerified) {
+            alert('Please verify your phone number first.');
+            return;
+          }
+          const pw1 = document.getElementById('reg-password').value;
+          const pw2 = document.getElementById('reg-password-confirm').value;
+          if (pw1.length < 6 || pw1 !== pw2) {
+            alert('Passwords must match and be at least 6 characters.');
+            return;
+          }
+          alert('Account created successfully! Welcome to Krishi.');
+          resetRegistration();
+          closeModal('registration-modal');
+        });
 
-    // Login Verify OTP
-    document.getElementById('login-verify-btn').addEventListener('click', async () => {
-      const code = document.getElementById('login-otp').value;
-      if (!window.loginConfirmation) return;
-      try {
-        const result = await window.loginConfirmation.confirm(code);
-        const verifyBtn = document.getElementById('login-verify-btn');
-        verifyBtn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
-        verifyBtn.className = 'w-full py-3 flex items-center justify-center rounded-xl bg-green-100 text-green-700 font-semibold border border-green-300';
-        verifyBtn.disabled = true;
-        document.getElementById('login-otp').disabled = true;
-        document.getElementById('login-otp').value = '';
-        lucide.createIcons();
-        alert('Phone number verified successfully!');
-        window.loginVerified = true;
-        console.log('Verified user:', result.user);
-      } catch (error) {
-        console.error(error);
-        alert('Invalid OTP. Please try again.');
-        document.getElementById('login-otp').value = '';
-        document.getElementById('login-verify-btn').disabled = true;
-      }
-    });
+        // Login Form Submit
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const mobile = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
+          const pw = document.getElementById('login-password').value;
+          if (mobile.length === 10 && pw.length >= 6) {
+            alert('Logged in successfully!');
+            resetLogin();
+            closeModal('login-modal');
+          } else {
+            alert('Please enter valid mobile number and password (at least 6 characters).');
+          }
+        });
 
-    // Login Form Submit
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const pw = document.getElementById('login-password').value;
-      if (pw || window.loginVerified) {
-        alert('Logged in successfully!');
-        resetLogin();
-        closeModal('login-modal');
-      } else {
-        alert('Enter password or verify OTP.');
-      }
-    });
+        // Forgot Password Send OTP
+        document.getElementById('forgot-send-otp').addEventListener('click', async () => {
+          const phoneInput = document.getElementById('forgot-mobile').value.replace(/[^0-9]/g, '');
+          if (phoneInput.length !== 10) {
+            alert('Please enter a valid 10-digit mobile number.');
+            return;
+          }
+          if (window.forgotOTP) {
+            return;
+          }
+          const otp = generateOTP();
+          window.forgotOTP = otp;
+          const phoneNumber = phoneInput;
+          const sendBtn = document.getElementById('forgot-send-otp');
+          try {
+            await sendOTP(phoneNumber, otp);
+            startCountdown(sendBtn, 119, 'Get OTP', forgotOriginalClass, 'forgotInterval');
+            alert('OTP sent to your mobile!');
+          } catch (error) {
+            console.error(error);
+            alert('Error sending OTP: ' + error.message);
+          }
+        });
+
+        // Forgot Password OTP Input Listener
+        document.getElementById('forgot-otp').addEventListener('input', (e) => {
+          const value = e.target.value;
+          const verifyBtn = document.getElementById('forgot-verify-btn');
+          if (window.forgotOTP && value.length === 6 && /^\d{6}$/.test(value)) {
+            verifyBtn.disabled = false;
+          } else {
+            verifyBtn.disabled = true;
+          }
+        });
+
+        // Forgot Password Verify OTP
+        document.getElementById('forgot-verify-btn').addEventListener('click', async () => {
+          const code = parseInt(document.getElementById('forgot-otp').value);
+          if (window.forgotOTP && code === window.forgotOTP) {
+            const verifyBtn = document.getElementById('forgot-verify-btn');
+            verifyBtn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
+            verifyBtn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-green-100 text-green-700 text-sm font-medium border border-green-300';
+            verifyBtn.disabled = true;
+            document.getElementById('forgot-otp').disabled = true;
+            document.getElementById('forgot-otp').value = '';
+            lucide.createIcons();
+            alert('Phone number verified successfully!');
+            window.forgotVerified = true;
+          } else {
+            alert('Invalid OTP. Please try again.');
+            document.getElementById('forgot-otp').value = '';
+            document.getElementById('forgot-verify-btn').disabled = true;
+          }
+        });
+
+        // Forgot Password Form Submit
+        document.getElementById('forgot-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (!window.forgotVerified) {
+            alert('Please verify your phone number first.');
+            return;
+          }
+          const pw1 = document.getElementById('forgot-password').value;
+          const pw2 = document.getElementById('forgot-password-confirm').value;
+          if (pw1.length < 6 || pw1 !== pw2) {
+            alert('Passwords must match and be at least 6 characters.');
+            return;
+          }
+          alert('Password reset successfully!');
+          resetForgot();
+          closeModal('forgot-modal');
+        });
 
     </script>
 </body>
