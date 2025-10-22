@@ -1,0 +1,58 @@
+/* Custom font import for better Devanagari rendering, though Inter is the default */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
+
+body {
+    font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+    background-color: #f0fff0; /* Very light, almost white green */
+    overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+}
+
+/* Custom gradient for the top section to replicate the image's blur effect */
+.top-gradient {
+    background: radial-gradient(circle at 50% 0%, rgba(199, 255, 199, 0.8) 0%, rgba(255, 255, 255, 0) 60%);
+    height: 300px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+/* Custom button styling for the Login button gradient */
+.login-button {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    box-shadow: 0 4px 15px rgba(66, 165, 80, 0.5);
+    transition: all 0.3s ease;
+}
+.login-button:hover {
+     box-shadow: 0 6px 20px rgba(66, 165, 80, 0.7);
+}
+
+/* Custom button styling for the Register button */
+.register-button {
+    background-color: white;
+    border: 1px solid #C8E6C9; /* Light green border */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+/* Placeholder style for the instruction box to match the light, soft green */
+.instruction-box {
+    background-color: rgba(220, 250, 220, 0.7); /* Slightly transparent light green */
+    border: 1px solid rgba(200, 240, 200, 0.8);
+    backdrop-filter: blur(2px);
+}
+
+/* Modal specific styling for animation */
+.modal-enter-active, .modal-leave-active {
+    transition: opacity 0.3s ease;
+}
+.modal-enter-from, .modal-leave-to {
+    opacity: 0;
+}
+.modal-content-enter-active, .modal-content-leave-active {
+    transition: transform 0.3s ease;
+}
+.modal-content-enter-from, .modal-content-leave-to {
+    transform: translateY(100%);
+}
