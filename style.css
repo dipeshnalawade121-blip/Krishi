@@ -1,4 +1,3 @@
-/* Custom font import for better Devanagari rendering, though Inter is the default */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
 
 body {
