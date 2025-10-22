@@ -368,12 +368,12 @@
     const auth = getAuth(app);
 
     // Recaptcha Verifiers
-    window.regVerifier = new RecaptchaVerifier('reg-recaptcha-container', {
-      'size': 'invisible'
-    }, auth);
-    window.loginVerifier = new RecaptchaVerifier('login-recaptcha-container', {
-      'size': 'invisible'
-    }, auth);
+        window.regVerifier = new RecaptchaVerifier(auth, 'reg-recaptcha-container', {
+            'size': 'invisible'
+        });
+        window.loginVerifier = new RecaptchaVerifier(auth, 'login-recaptcha-container', {
+            'size': 'invisible'
+        });
 
     window.regVerifier.render();
     window.loginVerifier.render();
