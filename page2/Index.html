@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishi Account Setup</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Custom font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        :root {
+            --primary-green: #059669; /* emerald-600 */
+            --light-green: #D1FAE5; /* emerald-100 */
+            --dark-text: #1E293B; /* slate-800 */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fdfb; /* Very light background matching the theme */
+        }
+
+        /* Modal backdrop for darkening background */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+
+        /* Ensure the map container can grow within the modal */
+        #leaflet-map {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
+
+    <div id="app" class="w-full max-w-lg bg-white shadow-xl rounded-xl p-6 sm:p-8">
+        
+        <!-- Header Section (Matching Krishi Logo Style) -->
+        <div class="flex items-center space-x-2 mb-8">
+            <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 0012 21a12.001 12.001 0 008.618-17.964z"></path>
+            </svg>
+            <h1 class="text-2xl font-bold text-dark-text">Create Your Digital Profile</h1>
+        </div>
+
+        <!-- Notification/Status Message Area -->
+        <div id="status-message" class="hidden p-3 mb-6 rounded-lg text-sm" role="alert"></div>
+
+        <!-- Profile Form -->
+        <form id="profile-form">
+            
+            <!-- Shop Name -->
+            <div class="mb-4">
+                <label for="shopName" class="block text-sm font-medium text-slate-700 mb-1">Enter Shop Name</label>
+                <input type="text" id="shopName" required maxlength="50"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                       placeholder="e.g., Kisan Fertilizer Store">
+            </div>
+
+            <!-- Your Name -->
+            <div class="mb-4">
+                <label for="userName" class="block text-sm font-medium text-slate-700 mb-1">Enter Your Name</label>
+                <input type="text" id="userName" required maxlength="50"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                       placeholder="Your Full Name">
+            </div>
+
+            <!-- Business WhatsApp Number -->
+            <div class="mb-4">
+                <label for="whatsappNumber" class="block text-sm font-medium text-slate-700 mb-1">Enter Business WhatsApp Number</label>
+                <div class="flex">
+                    <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-lg dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
+                        +91
+                    </span>
+                    <!-- minlength and maxlength enforce 10 digits -->
+                    <input type="tel" id="whatsappNumber" required minlength="10" maxlength="10"
+                           class="flex-1 p-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                           placeholder="10 digit number">
+                </div>
+            </div>
+
+            <!-- Email (Optional) -->
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Enter Email (Optional)</label>
+                <input type="email" id="email"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                       placeholder="optional@gmail.com">
+            </div>
+
+            <!-- Shop Address & Map Feature -->
+            <div class="mb-6">
+                <label for="shopAddress" class="block text-sm font-medium text-slate-700 mb-1">Enter Shop Address</label>
+                <textarea id="shopAddress" rows="3" required maxlength="200"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 mb-3"
+                       placeholder="Full physical address"></textarea>
+                
+                <!-- Map Feature Button (Now real) -->
+                <button type="button" id="map-button"
+                        class="w-full flex items-center justify-center space-x-2 p-3 text-sm font-semibold text-emerald-800 bg-emerald-100 rounded-lg hover:bg-emerald-200 transition duration-150 shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243m.707-10.957a8 8 0 1111.314 0z"></path></svg>
+                    <span>Select Shop Location on Map</span>
+                </button>
+            </div>
+
+            <!-- Save Button -->
+            <button type="submit" id="save-button"
+                    class="w-full p-3 text-lg font-bold text-white bg-emerald-600 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 disabled:bg-gray-400">
+                Save Profile
+            </button>
+        </form>
+
+        <!-- Display User ID for debugging/reference -->
+        <div class="mt-6 text-center text-xs text-gray-500">
+            <p>Your User ID: <span id="user-id">Loading...</span></p>
+        </div>
+    </div>
+    
+    <!-- Custom Validation Error Modal Structure (Hidden by default) -->
+    <div id="error-modal" class="modal-backdrop hidden">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-11/12 max-w-sm transform transition-all duration-300 scale-100">
+            <div class="flex items-center space-x-3 mb-4">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h3 class="text-xl font-bold text-slate-800">Validation Error</h3>
+            </div>
+            <p class="text-gray-600 mb-4">Please fix the following issues before saving your profile:</p>
+            <ul id="modal-error-list" class="list-disc list-inside text-sm text-red-700 space-y-1 pl-4 mb-6">
+                <!-- Errors will be inserted here -->
+            </ul>
+            <button id="close-modal-button"
+                    class="w-full p-3 text-md font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition duration-150">
+                Got It
+            </button>
+        </div>
+    </div>
+
+    <!-- Map Picker Modal Structure -->
+    <div id="map-picker-modal" class="modal-backdrop hidden">
+        <div class="bg-white p-4 rounded-xl shadow-2xl w-11/12 max-w-xl h-4/5 sm:h-3/4 transform transition-all duration-300 flex flex-col">
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Select Shop Location</h3>
+            <p class="text-gray-600 text-sm mb-4">Drag the marker or click on the map to set your precise shop address.</p>
+            <!-- Leaflet map container -->
+            <div id="leaflet-map" class="flex-grow rounded-lg shadow-inner mb-4"></div>
+            <div class="flex flex-col space-y-3">
+                <p class="text-sm font-medium text-slate-700">Selected Location: <span id="selected-coords" class="font-normal text-slate-600">N/A</span></p>
+                <button id="confirm-location-button"
+                        class="w-full p-3 text-md font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition duration-150">
+                    Confirm & Update Address Field
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Leaflet JS for Map -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Firebase Initialization and Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Set Firestore logging to Debug
+        setLogLevel('Debug');
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        let firebaseConfig = {};
+        let initialAuthToken = '';
+
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
+            if (typeof __initial_auth_token !== 'undefined') {
+                initialAuthToken = __initial_auth_token;
+            }
+        } catch (e) {
+            console.error("Error parsing Firebase config or token:", e);
+        }
+
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        const form = document.getElementById('profile-form');
+        const saveButton = document.getElementById('save-button');
+        const statusMessage = document.getElementById('status-message');
+        const errorModal = document.getElementById('error-modal');
+        const modalErrorList = document.getElementById('modal-error-list');
+        const closeModalButton = document.getElementById('close-modal-button');
+        
+        // Input fields
+        const inputShopName = document.getElementById('shopName');
+        const inputUserName = document.getElementById('userName');
+        const inputWhatsappNumber = document.getElementById('whatsappNumber');
+        const inputEmail = document.getElementById('email');
+        const inputShopAddress = document.getElementById('shopAddress');
+        const userIdDisplay = document.getElementById('user-id');
+        
+        // Map Elements and Variables
+        const mapButton = document.getElementById('map-button');
+        const mapPickerModal = document.getElementById('map-picker-modal');
+        const selectedCoordsDisplay = document.getElementById('selected-coords');
+        const confirmLocationButton = document.getElementById('confirm-location-button');
+        let map = null;
+        let marker = null;
+        let currentCoords = { lat: null, lng: null, fullAddress: '' };
+
+
+        // --- Modal Functions ---
+
+        /** Shows the custom error modal with specific messages. */
+        function showModal(messages) {
+            modalErrorList.innerHTML = messages.map(msg => `<li>${msg}</li>`).join('');
+            errorModal.classList.remove('hidden');
+        }
+
+        /** Hides the custom error modal. */
+        function closeModal() {
+            errorModal.classList.add('hidden');
+        }
+
+        // Event listener for closing modal
+        closeModalButton.addEventListener('click', closeModal);
+
+        
+        /**
+         * Displays a status message to the user (for successful save or init errors).
+         * @param {string} message - The message content.
+         * @param {string} type - 'success', 'error', or 'info'.
+         */
+        function displayStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `p-3 mb-6 rounded-lg text-sm transition-all duration-300 ${type === 'success' ? 'bg-green-100 text-green-800' : type === 'error' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`;
+            statusMessage.classList.remove('hidden');
+
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // --- Validation Functions ---
+
+        /** Checks if the WhatsApp number is exactly 10 digits. */
+        function isWhatsappValid() {
+            // Remove non-digit characters and enforce max length in JS for safety, though HTML handles it.
+            inputWhatsappNumber.value = inputWhatsappNumber.value.replace(/[^0-9]/g, '').substring(0, 10);
+            const number = inputWhatsappNumber.value.trim();
+            return number.length === 10;
+        }
+
+        /** Checks if the email is empty or ends with '@gmail.com'. */
+        function isEmailValid() {
+            const email = inputEmail.value.trim();
+            return email === '' || email.endsWith('@gmail.com');
+        }
+        
+        /**
+         * Saves the profile data to Firestore.
+         */
+        async function saveProfile(event) {
+            event.preventDefault();
+            
+            // 1. Gather all validation errors
+            const errors = [];
+
+            // Check if all required HTML fields are filled
+            if (!inputShopName.value.trim()) { errors.push("Shop Name is required."); }
+            if (!inputUserName.value.trim()) { errors.push("Your Name is required."); }
+            if (!inputShopAddress.value.trim()) { errors.push("Shop Address is required."); }
+
+            // Check custom validation rules
+            if (!isWhatsappValid()) { 
+                errors.push("Check put correct number: Business WhatsApp number must be exactly 10 digits."); 
+                // Add a temporary visual indicator
+                inputWhatsappNumber.classList.add('border-red-500');
+            } else {
+                inputWhatsappNumber.classList.remove('border-red-500');
+            }
+
+            if (!isEmailValid()) {
+                errors.push("Use correct email: Email must be either empty or in the correct '@gmail.com' format.");
+                // Add a temporary visual indicator
+                inputEmail.classList.add('border-red-500');
+            } else {
+                inputEmail.classList.remove('border-red-500');
+            }
+
+            // 2. Handle Errors
+            if (errors.length > 0) {
+                showModal(errors);
+                return; // Stop the save process
+            }
+            
+            // 3. Proceed with save if no errors
+            if (!userId || !db) {
+                displayStatus("Authentication or database not ready. Please wait.", 'error');
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving...';
+            
+            try {
+                const profileData = {
+                    shopName: inputShopName.value.trim(),
+                    userName: inputUserName.value.trim(),
+                    whatsappNumber: inputWhatsappNumber.value.trim(),
+                    email: inputEmail.value.trim(),
+                    // Save the full text from the textarea, which includes coords if map was used
+                    shopAddress: inputShopAddress.value.trim(), 
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'profile_data', 'shop_profile');
+                await setDoc(docRef, profileData);
+
+                displayStatus('Profile saved successfully!', 'success');
+            } catch (error) {
+                console.error("Error writing document: ", error);
+                displayStatus('Error saving profile. Check console for details.', 'error');
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Profile';
+            }
+        }
+
+        /**
+         * Loads profile data using an onSnapshot listener for real-time updates.
+         */
+        function loadProfile() {
+            if (!userId || !db || !isAuthReady) {
+                console.log("Waiting for auth/db to be ready to load profile.");
+                return;
+            }
+
+            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'profile_data', 'shop_profile');
+            
+            // Set up a real-time listener
+            onSnapshot(docRef, (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data();
+                    inputShopName.value = data.shopName || '';
+                    inputUserName.value = data.userName || '';
+                    inputWhatsappNumber.value = data.whatsappNumber || '';
+                    inputEmail.value = data.email || '';
+                    inputShopAddress.value = data.shopAddress || '';
+                    console.log("Profile data loaded/updated from Firestore.");
+                } else {
+                    console.log("No existing profile data found.");
+                }
+
+                // Remove red borders after loading data
+                inputWhatsappNumber.classList.remove('border-red-500');
+                inputEmail.classList.remove('border-red-500');
+
+            }, (error) => {
+                console.error("Error listening to profile data:", error);
+                displayStatus("Failed to load existing profile data.", 'error');
+            });
+        }
+        
+        // --- Map Logic ---
+
+        // Function to handle reverse geocoding using Nominatim (OpenStreetMap's geocoder)
+        async function reverseGeocode(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.display_name || `Location selected at: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            } catch (e) {
+                console.error("Reverse geocoding failed:", e);
+                return `Location selected at: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+        }
+
+        // Function to update the marker position, display, and fetch address
+        async function updateMarkerPosition(lat, lng) {
+            currentCoords.lat = lat;
+            currentCoords.lng = lng;
+            selectedCoordsDisplay.textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)} (Fetching Address...)`;
+
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            }
+
+            const address = await reverseGeocode(lat, lng);
+            selectedCoordsDisplay.textContent = address; // Display the human-readable address
+            
+            // Store both for final output
+            currentCoords.fullAddress = address; 
+        }
+
+        // Function to initialize the map
+        function initializeMap(initialLat, initialLng) {
+            if (map) {
+                map.remove(); // Remove existing map instance if any
+            }
+            
+            // L is the Leaflet object, assumed globally available
+            map = L.map('leaflet-map', {
+                center: [initialLat, initialLng],
+                zoom: 15
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            marker = L.marker([initialLat, initialLng], {
+                draggable: true,
+                autoPan: true
+            }).addTo(map);
+
+            // Marker drag end event
+            marker.on('dragend', function (e) {
+                const latlng = e.target.getLatLng();
+                updateMarkerPosition(latlng.lat, latlng.lng);
+            });
+
+            // Map click event
+            map.on('click', function (e) {
+                updateMarkerPosition(e.latlng.lat, e.latlng.lng);
+            });
+            
+            // Initial update
+            updateMarkerPosition(initialLat, initialLng);
+
+            // Fix map loading issue in modal (needed for Leaflet)
+            setTimeout(() => { map.invalidateSize(); }, 300);
+        }
+
+        // Event handler for opening the map modal
+        mapButton.addEventListener('click', () => {
+            mapPickerModal.classList.remove('hidden');
+            
+            // Attempt to get user's current location
+            if (navigator.geolocation) {
+                displayStatus('Detecting your current GPS location...', 'info');
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        initializeMap(lat, lng);
+                        displayStatus('Location detected. Adjust marker if needed.', 'info');
+                    },
+                    (error) => {
+                        console.warn(`Geolocation error: ${error.message}`);
+                        // Fallback to a default location (center of India approx.)
+                        const fallbackLat = 20.5937; 
+                        const fallbackLng = 78.9629;
+                        initializeMap(fallbackLat, fallbackLng);
+                        displayStatus('Could not detect location. Defaulting to India. Please select shop location manually.', 'info');
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                // Browser doesn't support Geolocation
+                const fallbackLat = 20.5937;
+                const fallbackLng = 78.9629;
+                initializeMap(fallbackLat, fallbackLng);
+                displayStatus('Geolocation not supported by your browser. Please select shop location manually.', 'info');
+            }
+        });
+
+        // Event handler for confirming location
+        confirmLocationButton.addEventListener('click', () => {
+            if (currentCoords.lat && currentCoords.lng) {
+                const addressText = `${currentCoords.fullAddress} | Lat: ${currentCoords.lat.toFixed(6)}, Lng: ${currentCoords.lng.toFixed(6)}`;
+                
+                // Update the main form's shop address field
+                inputShopAddress.value = addressText;
+                
+                // Remove temporary red border if it was there
+                inputShopAddress.classList.remove('border-red-500');
+
+                displayStatus('Shop location updated from map selection.', 'success');
+                mapPickerModal.classList.add('hidden');
+            } else {
+                displayStatus('Please select a point on the map first.', 'error');
+            }
+        });
+
+        // --- Initialization and Authentication ---
+
+        async function initFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Signed in with custom token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Signed in anonymously.");
+                }
+
+                // Set up Auth State Observer
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplay.textContent = userId;
+                        isAuthReady = true;
+                        // Load data once authenticated
+                        loadProfile();
+                        form.addEventListener('submit', saveProfile);
+                    } else {
+                        userId = 'N/A';
+                        userIdDisplay.textContent = 'Not Authenticated';
+                        isAuthReady = false;
+                        console.log("User signed out or authentication failed.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                displayStatus(`Initialization failed: ${error.code}`, 'error');
+            }
+        }
+
+        // Initialize Firebase on window load
+        window.onload = () => {
+            initFirebase();
+            // Ensure phone input only accepts digits and manages length client-side
+            inputWhatsappNumber.addEventListener('input', () => {
+                inputWhatsappNumber.value = inputWhatsappNumber.value.replace(/[^0-9]/g, '').substring(0, 10);
+            });
+        };
+
+    </script>
+</body>
+</html>
+
