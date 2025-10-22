@@ -2,7 +2,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app-check.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -18,16 +17,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// App Check Initialization Block
-// IMPORTANT: Replace 'YOUR_RECAPTCHA_V3_SITE_KEY' with your actual public key
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6Ld2vfIrAAAAAAE1XQT7LS3jQ4HOusLb6yRZWuao'),
-  isTokenAutoRefreshEnabled: true
-});
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 const auth = getAuth(app);
 
 // Recaptcha Verifiers
