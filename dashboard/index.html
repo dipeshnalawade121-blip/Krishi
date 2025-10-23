@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>फार्म शॉप | [Your Shop Name] - टेम्पलेट</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app's overall look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        /* Customizing Tailwind config for a consistent green theme */
+        :root {
+            /* Primary Green - Used for accents, buttons, links, etc. */
+            --primary-green: #38A169;
+            /* Header/Dark Theme Color (for high contrast text) */
+            --dark-green: #1B4D3E;
+        }
+        .text-primary { color: var(--primary-green); }
+        .bg-primary { background-color: var(--primary-green); }
+        .bg-dark-green { background-color: var(--dark-green); }
+        .border-primary { border-color: var(--primary-green); }
+
+        /* Custom Vertical Gradient: Dark Forest Green to Emerald (Mango Leaf Vibe) */
+        .bg-agri-gradient {
+            background-image: linear-gradient(to bottom, #004D40, #00A050); 
+        }
+
+        /* Hide scrollbars but allow scrolling */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#38A169', // Custom Green Accent
+                        'agri-dark': '#1B4D3E', // Custom Dark Green for Text
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Main Container - Centered and Responsive -->
+    <!-- The main container keeps its white background, but sections inside will override it -->
+    <div class="max-w-xl mx-auto bg-white shadow-xl min-h-screen flex flex-col">
+
+        <!-- 1. TOP HEADER BAR - Gradient Background (Darker Mango Leaf Look) -->
+        <header class="bg-agri-gradient sticky top-0 z-10 shadow-lg">
+            
+            <!-- Header Content: Always visible, dynamically changes content on the right side -->
+            <div id="header-content" class="flex items-center justify-between p-3">
+                
+                <!-- Shop Name and Logo/Leaf Icon (Always visible) -->
+                <div id="shop-logo-name" class="flex items-center space-x-2 flex-shrink-0">
+                    <span class="text-white text-xl">&#127807;</span> 
+                    <h1 class="text-lg font-bold text-white">
+                        [Your Shop Name]
+                    </h1>
+                </div>
+
+                <!-- Dynamic Right Side Content (Address OR Sticky Search) -->
+                <div id="header-dynamic-right" class="flex items-center justify-end w-2/3 ml-2">
+                    
+                    <!-- 1. Address Button (Visible at top) -->
+                    <button id="address-btn-compact" class="text-sm font-semibold text-white/90 hover:text-white transition w-full text-right" onclick="showAddressModal()">
+                        [City], [Pincode]
+                    </button>
+                    
+                    <!-- 2. Compact Search Bar (Hidden at top, appears on scroll) -->
+                    <div id="sticky-search-compact" class="relative hidden w-full">
+                        <input type="text" placeholder="उत्पादने शोधा..." 
+                               class="w-full py-1.5 pl-8 pr-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-white focus:border-white text-sm shadow-md text-gray-800"
+                               onfocus="this.placeholder='शोधण्यासाठी टाइप करा...'" 
+                               onblur="this.placeholder='उत्पादने शोधा...'">
+                        <!-- Search Icon -->
+                        <svg class="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 1.5. PRIMARY SEARCH BAR SECTION (SCROLLS AWAY) - Background is White -->
+        <section id="primary-search-section" class="p-3 pt-2 pb-2 bg-white shadow-sm">
+            <div class="relative">
+                <input type="text" placeholder="उत्पादन शोधा (Search Products)..." 
+                       class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm shadow-inner"
+                       onfocus="this.placeholder='शोधण्यासाठी टाइप करा...'" 
+                       onblur="this.placeholder='उत्पादन शोधा (Search Products)...'">
+                <!-- Search Icon -->
+                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+        </section>
+
+        <!-- 1.6. ADDED: BROAD LINE SEPARATOR -->
+        <div class="h-2 bg-agri-gradient shadow-md"></div>
+        
+        <!-- Main Content Area - BACKGROUND IS NOW #f1f1f1 -->
+        <main class="flex-grow bg-[#f1f1f1]">
+            
+            <!-- 2. SLIDING BANNER SECTION -->
+            <section class="p-3">
+                <div class="relative overflow-hidden rounded-lg shadow-md bg-gray-100 h-48 sm:h-64">
+                    
+                    <!-- Slider Content - Instructional Placeholders -->
+                    <div id="banner-slider" class="flex transition-transform duration-500 ease-in-out h-full">
+                        <!-- Slide 1: Primary color background - Instructional Placeholder -->
+                        <div class="min-w-full flex flex-col items-center justify-center bg-primary text-white text-center p-4">
+                            <h2 class="text-xl font-extrabold mb-1">पहिला बॅनर: मोठी ऑफर!</h2>
+                            <p class="text-sm font-medium">येथे तुमच्या **सर्वात मोठ्या सिझन ऑफर** चा फोटो अपलोड करा.</p>
+                            <p class="text-xs mt-1 opacity-80">(उदा. 'दिवाळी ऑफर', 'नवीन माल आला')</p>
+                        </div>
+                        <!-- Slide 2: Accent color background - Instructional Placeholder -->
+                        <div class="min-w-full flex flex-col items-center justify-center bg-yellow-600 text-white text-center p-4">
+                             <h2 class="text-xl font-extrabold mb-1">दुसरा बॅनर: खास उत्पादन!</h2>
+                            <p class="text-sm font-medium">येथे तुमच्या **सर्वाधिक विकल्या जाणाऱ्या उत्पादनाचा** फोटो अपलोड करा.</p>
+                            <p class="text-xs mt-1 opacity-80">(येथे जास्तीत जास्त २ बॅनर ठेवा)</p>
+                        </div>
+                        <!-- Slide 3: Default color background - Instructional Placeholder -->
+                        <div class="min-w-full flex flex-col items-center justify-center bg-blue-600 text-white text-center p-4">
+                             <h2 class="text-xl font-extrabold mb-1">तिसरा बॅनर: सूचना!</h2>
+                            <p class="text-sm font-medium">येथे शेतीबद्दलच्या **महत्त्वाच्या सूचनांचा** बॅनर जोडा.</p>
+                            <p class="text-xs mt-1 opacity-80">(उदा. 'हवामान अंदाज', 'नवीन नियम')</p>
+                        </div>
+                    </div>
+
+                    <!-- Slider Controls - Darker for contrast -->
+                    <button onclick="changeSlide(-1)" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <button onclick="changeSlide(1)" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+
+                    <!-- Dots Indicators -->
+                    <div id="slider-dots" class="absolute bottom-2 left-0 right-0 flex justify-center space-x-2">
+                        <!-- Dots will be generated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. CATEGORY NAVIGATION (बीज, संरक्षण, हार्डवेअर, पोषण) - With Instructions -->
+            <section class="p-3 pt-0">
+                <p class="text-sm text-center text-gray-600 mb-2 font-medium">प्रत्येक वर्गात **उत्पादने जोडण्यासाठी** खाली क्लिक करा.</p>
+                <div class="flex justify-between space-x-2 hide-scrollbar overflow-x-auto pb-2">
+                    
+                    <!-- Category 1: बीज (Seed) -->
+                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="बीज">
+                        <div class="p-3 mb-1 bg-yellow-100 rounded-full border border-yellow-300 group-hover:bg-primary/20 transition">
+                            <span class="text-2xl" role="img" aria-label="Seed">🌱</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-800">बीज</span>
+                        <span class="text-xs text-primary/80 font-semibold mt-1 hidden group-hover:block transition duration-300">उत्पादने जोडा</span>
+                    </button>
+
+                    <!-- Category 2: संरक्षण (Protection) -->
+                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="संरक्षण">
+                        <div class="p-3 mb-1 bg-red-100 rounded-full border border-red-300 group-hover:bg-primary/20 transition">
+                             <span class="text-2xl" role="img" aria-label="Protection">🛡️</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-800">संरक्षण</span>
+                        <span class="text-xs text-primary/80 font-semibold mt-1 hidden group-hover:block transition duration-300">उत्पादने जोडा</span>
+                    </button>
+                    
+                    <!-- Category 3: हार्डवेअर (Hardware) -->
+                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="हार्डवेअर">
+                        <div class="p-3 mb-1 bg-blue-100 rounded-full border border-blue-300 group-hover:bg-primary/20 transition">
+                             <span class="text-2xl" role="img" aria-label="Hardware">🛠️</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-800">हार्डवेअर</span>
+                        <span class="text-xs text-primary/80 font-semibold mt-1 hidden group-hover:block transition duration-300">उत्पादने जोडा</span>
+                    </button>
+                    
+                    <!-- Category 4: पोषण (Nutrition) -->
+                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="पोषण">
+                        <div class="p-3 mb-1 bg-green-100 rounded-full border border-green-300 group-hover:bg-primary/20 transition">
+                             <span class="text-2xl" role="img" aria-label="Nutrition">🧪</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-800">पोषण</span>
+                        <span class="text-xs text-primary/80 font-semibold mt-1 hidden group-hover:block transition duration-300">उत्पादने जोडा</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 4. FEATURED PRODUCTS (खास उत्पादने) - Instructional Placeholders -->
+            <section class="p-3">
+                <h2 class="text-lg font-semibold text-agri-dark mb-3">खास उत्पादने (Featured Products)</h2>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    
+                    <!-- Featured Product 1 (Placeholder) -->
+                    <div class="product-card bg-gray-100 rounded-lg shadow-inner overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center">
+                        <span class="text-4xl text-primary mb-2">+</span>
+                        <p class="text-sm font-medium text-agri-dark">उत्पादन १ निवडा</p>
+                        <p class="text-xs text-gray-500">(बीज/संरक्षण/हार्डवेअर/पोषण मधून)</p>
+                    </div>
+
+                    <!-- Featured Product 2 (Placeholder) -->
+                    <div class="product-card bg-gray-100 rounded-lg shadow-inner overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center">
+                        <span class="text-4xl text-primary mb-2">+</span>
+                        <p class="text-sm font-medium text-agri-dark">उत्पादन २ निवडा</p>
+                        <p class="text-xs text-gray-500">(उत्पादन बदलण्यासाठी क्लिक करा)</p>
+                    </div>
+
+                    <!-- Featured Product 3 (Placeholder) -->
+                    <div class="product-card bg-gray-100 rounded-lg shadow-inner overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center">
+                        <span class="text-4xl text-primary mb-2">+</span>
+                        <p class="text-sm font-medium text-agri-dark">उत्पादन ३ निवडा</p>
+                        <p class="text-xs text-gray-500">(हे उत्पादन नेहमी समोर दिसेल)</p>
+                    </div>
+
+                    <!-- Featured Product 4 (Placeholder) -->
+                    <div class="product-card bg-gray-100 rounded-lg shadow-inner overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center">
+                        <span class="text-4xl text-primary mb-2">+</span>
+                        <p class="text-sm font-medium text-agri-dark">उत्पादन ४ निवडा</p>
+                        <p class="text-xs text-gray-500">(तुमच्या आवडीनुसार बदला)</p>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+        
+        <!-- 5. FOOTER SECTION - Gradient Background (Darker Mango Leaf Look) -->
+        <footer class="bg-agri-gradient text-white pt-6 pb-2 mt-4 rounded-t-lg shadow-inner">
+            <div class="px-4">
+                
+                <!-- Contact Information -->
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-white mb-2">आमच्याशी संपर्क साधा</h3>
+                    <div class="space-y-1 text-sm text-gray-100">
+                        <p class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            पत्ता: [Full Shop Address Line 1]
+                        </p>
+                        <p class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.83 21 3 13.17 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.57.11.35.03.75-.24 1.02l-2.2 2.2z"/></svg>
+                            फोन: [Shop Mobile Number]
+                        </p>
+                        <p class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm3 0h-2v-2h2v2zm-3-3H9V9h2v4zm3 0h-2V9h2v4z"/></svg>
+                            व्हॉट्सॲप: [WhatsApp Number]
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Links (Professional touch) -->
+                <div class="border-t border-white/40 pt-3 mt-3">
+                    <h3 class="text-sm font-semibold text-white mb-2">महत्त्वाची माहिती</h3>
+                    <ul class="flex flex-wrap text-xs text-gray-200">
+                        <li class="mr-3"><a href="#" class="hover:text-white transition">आमच्याबद्दल</a></li>
+                        <li class="mr-3"><a href="#" class="hover:text-white transition">गोपनीयता धोरण</a></li>
+                        <li class="mr-3"><a href="#" class="hover:text-white transition">वापर अटी</a></li>
+                        <li class="mr-3"><a href="#" class="hover:text-white transition">रिटर्न पॉलिसी</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright and Rights Reserved -->
+            <div class="text-center text-xs text-white/70 border-t border-white/40 mt-4 pt-2 px-4">
+                &copy; 2024 [Your Shop Name]. सर्व हक्क राखीव. (All Rights Reserved).
+            </div>
+        </footer>
+
+
+        <!-- Full Address Modal (Hidden by Default) -->
+        <div id="address-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg p-6 shadow-2xl w-full max-w-sm">
+                <h3 class="text-xl font-bold mb-3 text-agri-dark">संपूर्ण पत्ता (Full Address)</h3>
+                <p class="text-gray-700 mb-4">
+                    **[Your Shop Name]**<br>
+                    Plot No. 123, New Market Yard,<br>
+                    Main Road, Near Bus Stand,<br>
+                    [City], Maharashtra, [Pincode]
+                </p>
+                <!-- Button uses primary color -->
+                <button onclick="document.getElementById('address-modal').classList.add('hidden')" class="w-full bg-primary text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+                    बंद करा
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+
+        // Get the elements required for the sticky search bar logic
+        const primarySearchSection = document.getElementById('primary-search-section');
+        const addressBtnCompact = document.getElementById('address-btn-compact');
+        const stickySearchCompact = document.getElementById('sticky-search-compact');
+        const addressModal = document.getElementById('address-modal');
+
+        // Function to handle scroll events for sticky search bar
+        window.addEventListener('scroll', () => {
+            // Get the position of the primary search bar's bottom edge
+            const primarySearchBottom = primarySearchSection.getBoundingClientRect().bottom;
+            
+            // Check if the primary search bar has scrolled completely out of view (i.e., its bottom edge is at or above 0px)
+            if (primarySearchBottom <= 0) {
+                // Scrolled down: Hide Address, Show Compact Search
+                addressBtnCompact.classList.add('hidden');
+                stickySearchCompact.classList.remove('hidden');
+            } else {
+                // Scrolled up: Show Address, Hide Compact Search
+                addressBtnCompact.classList.remove('hidden');
+                stickySearchCompact.classList.add('hidden');
+            }
+        });
+
+
+        // 1. Address Modal Toggle Function
+        window.showAddressModal = function() {
+            addressModal.classList.remove('hidden');
+        }
+
+        // Close modal when clicking outside (optional)
+        addressModal.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                addressModal.classList.add('hidden');
+            }
+        });
+
+
+        // 2. Category Button Click Logic
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const category = event.currentTarget.getAttribute('data-category');
+                
+                // This is where the user will be transferred to the product listing page for that category.
+                console.log(`Navigating to the product listing page for category: ${category}`);
+
+                // Show temporary message (instead of alert)
+                const msg = document.createElement('div');
+                msg.textContent = `उत्पादने जोडण्यासाठी ${category} पेजवर जात आहे...`;
+                msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
+                document.body.appendChild(msg);
+                setTimeout(() => msg.remove(), 2500);
+            });
+        });
+
+
+        // 3. Sliding Banner Logic
+        const slider = document.getElementById('banner-slider');
+        const dotsContainer = document.getElementById('slider-dots');
+        const slides = slider.children;
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+
+        // Function to update the slider's position
+        function updateSlider() {
+            const offset = -currentSlide * 100;
+            slider.style.transform = `translateX(${offset}%)`;
+            updateDots();
+        }
+
+        // Function to change the slide
+        window.changeSlide = function(direction) {
+            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+            updateSlider();
+        }
+
+        // Function to jump to a specific slide
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlider();
+        }
+        
+        // Function to create and update navigation dots
+        function updateDots() {
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                // Dot color uses white for contrast against the banner backgrounds
+                dot.className = `w-2 h-2 rounded-full transition-colors ${i === currentSlide ? 'bg-white scale-125' : 'bg-white bg-opacity-75'}`;
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        // Initialize slider on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSlider();
+        });
+
+        // Auto-slide functionality 
+        setInterval(() => {
+            changeSlide(1);
+        }, 5000); 
+
+    </script>
+</body>
+</html>
+
