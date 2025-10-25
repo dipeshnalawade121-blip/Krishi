@@ -6,7 +6,7 @@
     <title>बीज (Seeds) - उत्पादने जोडा</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons for aesthetic UI elements -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
@@ -29,25 +29,35 @@
 </head>
 <body class="min-h-screen">
 
-    <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-10">
-        <div class="max-w-screen-md mx-auto p-4 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-krushi-green">बीज (Seeds)</h1>
-            <button id="open-modal-btn" class="flex items-center space-x-2 bg-krushi-green hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg transition duration-150 ease-in-out transform hover:scale-105">
-                <i data-lucide="plus" class="w-5 h-5"></i>
-                <span>उत्पादने जोडा</span>
+    <!-- Header - Now features the "Save & Quit" button -->
+<header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="max-w-screen-md mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-krushi-green">बीज <span class="text-gray-500 font-normal text-base">(Seeds)</span></h1>
+            
+            <!-- UPDATED BUTTON TEXT: Save & Quit -->
+<button id="go-back-btn" class="bg-krushi-light text-krushi-green font-semibold py-2 px-6 rounded-full shadow-md transition duration-150 ease-in-out hover:bg-green-100 transform hover:scale-105">
+                Save & Quit
             </button>
         </div>
     </header>
 
     <!-- Main Content Area -->
-    <main class="max-w-screen-md mx-auto p-4">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">तुमची उत्पादने:</h2>
+<main class="max-w-screen-md mx-auto p-4">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-700">तुमची उत्पादने:</h2>
+            
+            <!-- Existing: Add Product Button -->
+<button id="open-modal-btn" class="flex items-center space-x-2 bg-krushi-green hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                <span>उत्पादने जोडा</span>
+            </button>
+        </div>
         
         <!-- Product List Container -->
-        <div id="product-list" class="grid grid-cols-1 gap-6">
-            <!-- Products will be dynamically inserted here -->
-            <p id="loading-indicator" class="text-center text-gray-500 mt-8">उत्पादने लोड होत आहेत...</p>
+<div id="product-list" class="grid grid-cols-1 gap-6">
+            
+            <!-- Loading Indicator -->
+<p id="loading-indicator" class="text-center text-gray-500 mt-8">उत्पादने लोड होत आहेत...</p>
         </div>
 
         <p id="no-products-message" class="text-center text-gray-500 mt-8 hidden">
@@ -56,11 +66,11 @@
     </main>
 
     <!-- Modal for Adding Product -->
-    <div id="product-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+<div id="product-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl transform transition-transform duration-300 scale-95">
             
             <!-- Modal Header -->
-            <div class="p-5 border-b flex justify-between items-center">
+<div class="p-5 border-b flex justify-between items-center">
                 <h3 class="text-xl font-bold text-krushi-green">नवीन उत्पादन जोडा</h3>
                 <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 transition">
                     <i data-lucide="x" class="w-6 h-6"></i>
@@ -68,10 +78,10 @@
             </div>
 
             <!-- Modal Form -->
-            <form id="add-product-form" class="p-5 space-y-4">
+<form id="add-product-form" class="p-5 space-y-4">
                 
                 <!-- Product Photo (Mock File Upload) -->
-                <div>
+<div>
                     <label for="product-photo" class="block text-sm font-medium text-gray-700">उत्पादन फोटो (Product Photo)</label>
                     <input type="file" id="product-photo" name="product-photo" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-krushi-light file:text-krushi-green hover:file:bg-green-100 rounded-lg border border-gray-300 p-2">
                     <p class="text-xs text-gray-500 mt-1">
@@ -80,25 +90,25 @@
                 </div>
                 
                 <!-- Product Name -->
-                <div>
+<div>
                     <label for="product-name" class="block text-sm font-medium text-gray-700">उत्पादन नाव (Product Name) *</label>
                     <input type="text" id="product-name" name="product-name" required class="mt-1 block w-full rounded-lg border border-gray-300 p-3 shadow-sm focus:border-krushi-green focus:ring-krushi-green">
                 </div>
                 
                 <!-- Product Price -->
-                <div>
+<div>
                     <label for="product-price" class="block text-sm font-medium text-gray-700">किंमत (Price) *</label>
                     <input type="number" id="product-price" name="product-price" required step="0.01" min="0" class="mt-1 block w-full rounded-lg border border-gray-300 p-3 shadow-sm focus:border-krushi-green focus:ring-krushi-green">
                 </div>
 
                 <!-- Product Description -->
-                <div>
+<div>
                     <label for="product-description" class="block text-sm font-medium text-gray-700">उत्पादन वर्णन (Product Description)</label>
                     <textarea id="product-description" name="product-description" rows="3" class="mt-1 block w-full rounded-lg border border-gray-300 p-3 shadow-sm focus:border-krushi-green focus:ring-krushi-green"></textarea>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" id="submit-product-btn" class="w-full bg-krushi-green hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-150 ease-in-out">
+<button type="submit" id="submit-product-btn" class="w-full bg-krushi-green hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-150 ease-in-out">
                     उत्पादन जतन करा
                 </button>
             </form>
@@ -106,7 +116,7 @@
     </div>
 
     <!-- Firebase SDKs and Application Logic -->
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -270,14 +280,14 @@
             card.innerHTML = `
                 <div class="flex items-start space-x-4">
                     <!-- Product Image (Placeholder) -->
-                    <div class="flex-shrink-0 w-24 h-24 rounded-lg bg-krushi-light border border-green-300 overflow-hidden">
+<div class="flex-shrink-0 w-24 h-24 rounded-lg bg-krushi-light border border-green-300 overflow-hidden">
                         <img src="${imageUrl}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100/38a169/ffffff?text=🌱';" />
                     </div>
                     
                     <!-- Product Details -->
-                    <div class="flex-grow">
+<div class="flex-grow">
                         <!-- Name and Call Option -->
-                        <div class="flex justify-between items-center mb-1">
+<div class="flex justify-between items-center mb-1">
                             <h3 class="text-lg font-bold text-gray-800">${product.name}</h3>
                             <a href="tel:${product.shopPhone}" class="text-krushi-green hover:text-green-700 p-2 -mr-2 rounded-full hover:bg-green-50 transition" title="कॉल करा (Call)">
                                 <i data-lucide="phone" class="w-5 h-5"></i>
@@ -285,15 +295,15 @@
                         </div>
                         
                         <!-- Price -->
-                        <p class="text-2xl font-extrabold text-krushi-green">₹ ${parseFloat(product.price).toFixed(2)}</p>
+<p class="text-2xl font-extrabold text-krushi-green">₹ ${parseFloat(product.price).toFixed(2)}</p>
                         
                         <!-- Description -->
-                        <p class="text-sm text-gray-600 mt-2 line-clamp-2">${product.description || 'वर्णन उपलब्ध नाही.'}</p>
+<p class="text-sm text-gray-600 mt-2 line-clamp-2">${product.description || 'वर्णन उपलब्ध नाही.'}</p>
                     </div>
                 </div>
 
                 <!-- Shop Details Footer -->
-                <div class="pt-3 border-t border-dashed border-green-100 mt-3">
+<div class="pt-3 border-t border-dashed border-green-100 mt-3">
                     <p class="text-xs font-semibold text-gray-700">${product.shopName}</p>
                     <p class="text-xs text-gray-500">${product.shopAddress}</p>
                 </div>
@@ -307,6 +317,7 @@
         const openBtn = document.getElementById('open-modal-btn');
         const closeBtn = document.getElementById('close-modal-btn');
         const form = document.getElementById('add-product-form');
+        const goBackBtn = document.getElementById('go-back-btn'); 
 
         const openModal = () => {
             modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -318,6 +329,31 @@
             modal.querySelector('.rounded-xl').classList.add('scale-95');
             form.reset();
         };
+        
+        /**
+         * Handles the Save/Done button click, confirming data saved and simulating navigation.
+         */
+        const handleGoBack = () => {
+            const dashboardUrl = "https://www.krishi.site/dashboard";
+            console.log(`[Navigation Simulation] All products are saved in Firestore (real-time). Navigating user back to the dashboard at: ${dashboardUrl}`);
+            
+            // Notification Bar (simulating navigation feedback)
+            const header = document.querySelector('header');
+            const messageBar = document.createElement('div');
+            messageBar.className = 'absolute bottom-0 left-0 right-0 p-3 text-center bg-blue-500 text-white font-semibold transition duration-300 transform translate-y-0';
+            messageBar.textContent = 'उत्पादने जतन झाली! मुख्य डॅशबोर्डवर परत जाण्याची प्रक्रिया सुरू आहे...';
+            header.appendChild(messageBar);
+            
+            // In a real application, you would use: window.location.href = dashboardUrl;
+            
+            // Remove the message after a delay
+            setTimeout(() => {
+                messageBar.classList.add('translate-y-full'); // Animate out downwards
+                messageBar.addEventListener('transitionend', () => messageBar.remove());
+                // In this demo, we can simulate resetting the page or navigating away.
+            }, 3000);
+        };
+
 
         // Event Listeners for UI interaction
         openBtn.addEventListener('click', openModal);
@@ -327,6 +363,9 @@
                 closeModal();
             }
         });
+        
+        // Listener for the Go Back/Save button
+        goBackBtn.addEventListener('click', handleGoBack); 
 
         // Form submission handler
         form.addEventListener('submit', (e) => {
@@ -337,7 +376,6 @@
             const productDescription = document.getElementById('product-description').value.trim();
 
             if (!productName || !productPrice) {
-                // Use custom UI modal for validation errors in a real app
                 console.error("Please fill out required fields.");
                 return;
             }
@@ -360,4 +398,3 @@
     </script>
 </body>
 </html>
-
