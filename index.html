@@ -545,11 +545,15 @@
               });
               const data = await response.json();
               if (response.ok && data.success) {
-                alert('Logged in successfully!');
-                resetLogin();
-                closeModal('login-modal');
-              } else {
-                throw new Error(data.message || 'Login failed');
+                  alert('Logged in successfully!');
+                  const mobile = data.user.mobile;
+                  const userId = data.user.id;
+                  // Redirect to profile with mobile and id params
+                  window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`; 
+                  resetLogin();  
+                  closeModal('login-modal');
+              } else { 
+                  throw new Error(data.message || 'Login failed');
               }
             } catch (error) {
               console.error(error);
