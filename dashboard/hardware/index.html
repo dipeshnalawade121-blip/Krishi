@@ -22,6 +22,13 @@
         .bg-primary { background-color: var(--primary-green); }
         .bg-dark-green { background-color: var(--dark-green); }
         .border-primary { border-color: var(--primary-green); }
+        
+        /* Custom styles for category selection buttons */
+        .category-select-btn.selected {
+            background-color: var(--primary-green);
+            color: white;
+            border-color: var(--dark-green);
+        }
 
         /* Custom Vertical Gradient: Dark Forest Green to Emerald (Mango Leaf Vibe) */
         .bg-agri-gradient {
@@ -100,17 +107,20 @@
                 <div class="relative overflow-hidden rounded-lg shadow-md bg-gray-100 h-48 sm:h-64">
                     
                     <div id="banner-slider" class="flex transition-transform duration-500 ease-in-out h-full">
-                        <div class="min-w-full flex flex-col items-center justify-center bg-primary text-white text-center p-4">
+                        <div class="min-w-full flex flex-col items-center justify-center bg-primary text-white text-center p-4 cursor-pointer" 
+                             onclick="openAddBannerModal(0)"> 
                             <h2 class="text-xl font-extrabold mb-1">पहिला बॅनर: मोठी ऑफर!</h2>
                             <p class="text-sm font-medium">येथे तुमच्या **सर्वात मोठ्या सिझन ऑफर** चा फोटो अपलोड करा.</p>
                             <p class="text-xs mt-1 opacity-80">(उदा. 'दिवाळी ऑफर', 'नवीन माल आला')</p>
                         </div>
-                        <div class="min-w-full flex flex-col items-center justify-center bg-yellow-600 text-white text-center p-4">
+                        <div class="min-w-full flex flex-col items-center justify-center bg-yellow-600 text-white text-center p-4 cursor-pointer"
+                             onclick="openAddBannerModal(1)">
                              <h2 class="text-xl font-extrabold mb-1">दुसरा बॅनर: खास उत्पादन!</h2>
                             <p class="text-sm font-medium">येथे तुमच्या **सर्वाधिक विकल्या जाणाऱ्या उत्पादनाचा** फोटो अपलोड करा.</p>
                             <p class="text-xs mt-1 opacity-80">(येथे जास्तीत जास्त २ बॅनर ठेवा)</p>
                         </div>
-                        <div class="min-w-full flex flex-col items-center justify-center bg-blue-600 text-white text-center p-4">
+                        <div class="min-w-full flex flex-col items-center justify-center bg-blue-600 text-white text-center p-4 cursor-pointer"
+                             onclick="openAddBannerModal(2)">
                              <h2 class="text-xl font-extrabold mb-1">तिसरा बॅनर: सूचना!</h2>
                             <p class="text-sm font-medium">येथे शेतीबद्दलच्या **महत्त्वाच्या सूचनांचा** बॅनर जोडा.</p>
                             <p class="text-xs mt-1 opacity-80">(उदा. 'हवामान अंदाज', 'नवीन नियम')</p>
@@ -133,28 +143,28 @@
                 <div class="flex justify-between space-x-2 hide-scrollbar overflow-x-auto pb-2">
                     
                     <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="बीज">
-                        <div class="p-3 mb-1 bg-yellow-100 rounded-full border border-yellow-300 group-hover:bg-primary/20 transition">
+                        <div class="p-3 mb-1 bg-yellow-100 rounded-full border border-yellow-300 transition">
                             <span class="text-2xl" role="img" aria-label="Seed">🌱</span>
                         </div>
                         <span class="text-sm font-medium text-gray-800">बीज</span>
                     </button>
 
                     <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="संरक्षण">
-                        <div class="p-3 mb-1 bg-red-100 rounded-full border border-red-300 group-hover:bg-primary/20 transition">
+                        <div class="p-3 mb-1 bg-red-100 rounded-full border border-red-300 transition">
                              <span class="text-2xl" role="img" aria-label="Protection">🛡️</span>
                         </div>
                         <span class="text-sm font-medium text-gray-800">संरक्षण</span>
                     </button>
                     
                     <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="हार्डवेअर">
-                        <div class="p-3 mb-1 bg-blue-100 rounded-full border border-blue-300 group-hover:bg-primary/20 transition">
+                        <div class="p-3 mb-1 bg-blue-100 rounded-full border border-blue-300 transition">
                              <span class="text-2xl" role="img" aria-label="Hardware">🛠️</span>
                         </div>
                         <span class="text-sm font-medium text-gray-800">हार्डवेअर</span>
                     </button>
                     
                     <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="पोषण">
-                        <div class="p-3 mb-1 bg-green-100 rounded-full border border-green-300 group-hover:bg-primary/20 transition">
+                        <div class="p-3 mb-1 bg-green-100 rounded-full border border-green-300 transition">
                              <span class="text-2xl" role="img" aria-label="Nutrition">🧪</span>
                         </div>
                         <span class="text-sm font-medium text-gray-800">पोषण</span>
@@ -269,7 +279,34 @@
                 </button>
             </div>
         </div>
+        
+        <div id="add-banner-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeAddBannerModal()">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto p-6 transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-4 text-agri-dark">बॅनर फोटो अपलोड करा</h3>
+                
+                <form id="add-banner-form" class="space-y-4">
+                    
+                    <div class="border-b pb-4 border-gray-200">
+                        <label class="block text-lg font-bold text-gray-800 mb-2">बॅनर फोटो (Upload Banner Image)</label>
+                        <div id="banner-img-preview" class="h-32 w-full bg-gray-100 mb-2 rounded-lg border border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
+                            <img id="banner-img-tag" src="" class="hidden w-full h-full object-cover">
+                            <span id="banner-img-text" class="text-xs text-gray-500">बॅनर फोटो निवडा (Max 200KB, Widescreen)</span>
+                        </div>
+                        <input type="file" id="banner-img-file" accept="image/*" required class="mt-1 block w-full text-sm text-gray-700">
+                        <p class="text-xs text-red-600 mt-1 font-medium">
+                            **महत्त्वाचे:** कृपया फक्त **200KB** पर्यंतचा वाइडस्क्रीन फोटो अपलोड करा.
+                        </p>
+                    </div>
 
+                    <input type="hidden" id="banner-slide-index" value="-1">
+
+                    <button type="submit" id="save-banner-btn" 
+                            class="w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-lg shadow-md hover:bg-green-700 transition transform hover:scale-[1.01]">
+                        बॅनर जतन करा (Save Banner)
+                    </button>
+                </form>
+            </div>
+        </div>
         <div id="add-product-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeAddProductModal()">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 transition-all duration-300">
                 <h3 class="text-2xl font-bold mb-4 text-agri-dark">नवीन उत्पादन जोडा</h3>
@@ -338,8 +375,10 @@
         const addressBtnCompact = document.getElementById('address-btn-compact');
         const stickySearchCompact = document.getElementById('sticky-search-compact');
         const addressModal = document.getElementById('address-modal');
-        // NEW: Get the elements for the new modal
+        // NEW: Get the elements for the modals
         const addProductModal = document.getElementById('add-product-modal');
+        const addBannerModal = document.getElementById('add-banner-modal'); // NEW
+
         
         // Function to handle scroll events for sticky search bar
         window.addEventListener('scroll', () => {
@@ -371,34 +410,72 @@
             }
         });
         
-        // NEW 2. Add Product Modal Toggle Functions
+        // 2. Add Product Modal Toggle Functions
         window.openAddProductModal = function() {
-            // In a real app, you'd reset the form here
             addProductModal.classList.remove('hidden');
-            // Show temporary message (for instructional purpose)           
+            // No temporary message as requested previously
         }
 
         window.closeAddProductModal = function() {
             addProductModal.classList.add('hidden');
         }
+
+        // 3. NEW BANNER MODAL LOGIC
+        window.openAddBannerModal = function(slideIndex) {
+            // Set the hidden input value to track which slide is being edited (0, 1, or 2)
+            document.getElementById('banner-slide-index').value = slideIndex;
+            
+            // In a real app, you'd load the current banner image/data here
+            
+            addBannerModal.classList.remove('hidden');
+            
+            // Show message indicating which slide is open
+            const msg = document.createElement('div');
+            msg.textContent = `बॅनर ${slideIndex + 1} अपलोड करण्यासाठी फॉर्म उघडला.`;
+            msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 2500);
+        }
+
+        window.closeAddBannerModal = function() {
+            addBannerModal.classList.add('hidden');
+        }
+
+        // Banner Form Submission Handler
+        document.getElementById('add-banner-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const slideIndex = document.getElementById('banner-slide-index').value;
+            
+            // In a real app, the image would be uploaded and the slider HTML updated here.
+            console.log(`Banner for Slide ${parseInt(slideIndex) + 1} submitted (Placeholder)`);
+            
+            closeAddBannerModal();
+            
+            // Show success message
+            const msg = document.createElement('div');
+            msg.textContent = `बॅनर ${parseInt(slideIndex) + 1} यशस्वीरित्या जतन केला (Placeholder)!`;
+            msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        });
         
-        // NEW 3. Add Product Modal Category Selection Logic (Simple placeholder logic)
+        // 4. Add Product Modal Category Selection Logic
         document.querySelectorAll('#category-options .category-select-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 // Remove 'selected' from all
                 document.querySelectorAll('#category-options .category-select-btn').forEach(btn => btn.classList.remove('selected'));
-                // Add 'selected' to clicked button (Need CSS for 'selected' class in head style block)
+                // Add 'selected' to clicked button
                 e.currentTarget.classList.add('selected');
                 document.getElementById('product-category').value = e.currentTarget.getAttribute('data-category');
             });
         });
         
-        // NEW 4. Add Product Form Submission (Simple placeholder logic)
+        // 5. Add Product Form Submission (Simple placeholder logic)
         document.getElementById('add-product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             // In a real app, form data would be validated and sent to a server/database
-            console.log("Form Submitted (Placeholder)");
+            console.log("Product Form Submitted (Placeholder)");
             
             closeAddProductModal();
             
@@ -411,7 +488,7 @@
         });
 
 
-        // 5. Category Button Click Logic (Existing)
+        // 6. Category Button Click Logic
         document.querySelectorAll('.category-btn').forEach(button => {
             button.addEventListener('click', (event) => {
                 const category = event.currentTarget.getAttribute('data-category');
@@ -421,7 +498,7 @@
 
                 // Show temporary message (instead of alert)
                 const msg = document.createElement('div');
-                msg.textContent = `उत्पादने जोडण्यासाठी ${category} पेजवर जात आहे...`;
+                msg.textContent = `${category} वर्गातील उत्पादने पाहत आहे...`;
                 msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
                 document.body.appendChild(msg);
                 setTimeout(() => msg.remove(), 2500);
@@ -429,7 +506,7 @@
         });
 
 
-        // 6. Sliding Banner Logic (Existing)
+        // 7. Sliding Banner Logic (Existing)
         const slider = document.getElementById('banner-slider');
         const dotsContainer = document.getElementById('slider-dots');
         const slides = slider.children;
