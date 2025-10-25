@@ -29,12 +29,12 @@
 </head>
 <body class="min-h-screen">
 
-    <!-- Header - Now features the "Save & Quit" button -->
+    <!-- Header -->
 <header class="bg-white shadow-sm sticky top-0 z-10">
         <div class="max-w-screen-md mx-auto px-4 py-3 flex justify-between items-center">
             <h1 class="text-xl font-bold text-krushi-green">बीज <span class="text-gray-500 font-normal text-base">(Seeds)</span></h1>
             
-            <!-- UPDATED BUTTON TEXT: Save & Quit -->
+            <!-- Save & Quit Button -->
 <button id="go-back-btn" class="bg-krushi-light text-krushi-green font-semibold py-2 px-6 rounded-full shadow-md transition duration-150 ease-in-out hover:bg-green-100 transform hover:scale-105">
                 Save & Quit
             </button>
@@ -46,7 +46,7 @@
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold text-gray-700">तुमची उत्पादने:</h2>
             
-            <!-- Existing: Add Product Button -->
+            <!-- Add Product Button (Reverted text: Icon shows the plus sign) -->
 <button id="open-modal-btn" class="flex items-center space-x-2 bg-krushi-green hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-150 ease-in-out transform hover:scale-105">
                 <i data-lucide="plus" class="w-5 h-5"></i>
                 <span>उत्पादने जोडा</span>
@@ -331,27 +331,31 @@
         };
         
         /**
-         * Handles the Save/Done button click, confirming data saved and simulating navigation.
+         * Handles the Save & Quit button click, which saves (in real-time) and immediately navigates.
          */
         const handleGoBack = () => {
             const dashboardUrl = "https://www.krishi.site/dashboard";
-            console.log(`[Navigation Simulation] All products are saved in Firestore (real-time). Navigating user back to the dashboard at: ${dashboardUrl}`);
+            console.log(`[Navigation Attempt] All products are saved in Firestore (real-time). Immediately redirecting user back to the dashboard at: ${dashboardUrl}`);
             
-            // Notification Bar (simulating navigation feedback)
+            // Notification Bar (Quick visual confirmation)
             const header = document.querySelector('header');
             const messageBar = document.createElement('div');
             messageBar.className = 'absolute bottom-0 left-0 right-0 p-3 text-center bg-blue-500 text-white font-semibold transition duration-300 transform translate-y-0';
-            messageBar.textContent = 'उत्पादने जतन झाली! मुख्य डॅशबोर्डवर परत जाण्याची प्रक्रिया सुरू आहे...';
+            messageBar.textContent = 'उत्पादने जतन झाली! डॅशबोर्डवर परत जात आहोत...';
             header.appendChild(messageBar);
             
-            // In a real application, you would use: window.location.href = dashboardUrl;
-            
-            // Remove the message after a delay
+            // Immediately attempt navigation after a short visual feedback delay
             setTimeout(() => {
-                messageBar.classList.add('translate-y-full'); // Animate out downwards
-                messageBar.addEventListener('transitionend', () => messageBar.remove());
-                // In this demo, we can simulate resetting the page or navigating away.
-            }, 3000);
+                // Attempting navigation as requested.
+                window.location.href = dashboardUrl; 
+                
+                // Fallback for demo environment: remove the message if navigation doesn't happen
+                setTimeout(() => {
+                    messageBar.classList.add('translate-y-full'); 
+                    messageBar.addEventListener('transitionend', () => messageBar.remove());
+                }, 1000); 
+
+            }, 500); // 500ms delay for the message to register
         };
 
 
@@ -364,7 +368,7 @@
             }
         });
         
-        // Listener for the Go Back/Save button
+        // Listener for the Save & Quit button
         goBackBtn.addEventListener('click', handleGoBack); 
 
         // Form submission handler
