@@ -380,12 +380,7 @@
         window.openAddProductModal = function() {
             // In a real app, you'd reset the form here
             addProductModal.classList.remove('hidden');
-            // Show temporary message (for instructional purpose)
-            const msg = document.createElement('div');
-            msg.textContent = `नवीन उत्पादन जोडण्यासाठी फॉर्म उघडला.`;
-            msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
-            document.body.appendChild(msg);
-            setTimeout(() => msg.remove(), 2500);
+            // Show temporary message (for instructional purpose)           
         }
 
         window.closeAddProductModal = function() {
