@@ -37,6 +37,14 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+        
+        /* Specific style for selected category button in modal */
+        .category-select-btn.selected {
+            background-color: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
     </style>
     <script>
         tailwind.config = {
@@ -54,16 +62,13 @@
 <body>
 
     <!-- Main Container - Centered and Responsive -->
-    <!-- The main container keeps its white background, but sections inside will override it -->
     <div class="max-w-xl mx-auto bg-white shadow-xl min-h-screen flex flex-col">
 
-        <!-- 1. TOP HEADER BAR - Gradient Background (Darker Mango Leaf Look) -->
+        <!-- 1. TOP HEADER BAR -->
         <header class="bg-agri-gradient sticky top-0 z-10 shadow-lg">
-            
-            <!-- Header Content: Always visible, dynamically changes content on the right side -->
             <div id="header-content" class="flex items-center justify-between p-3">
                 
-                <!-- Shop Name and Logo/Leaf Icon (Always visible) -->
+                <!-- Shop Name and Logo/Leaf Icon -->
                 <div id="shop-logo-name" class="flex items-center space-x-2 flex-shrink-0">
                     <span class="text-white text-xl">&#127807;</span> 
                     <h1 class="text-lg font-bold text-white">
@@ -92,7 +97,7 @@
             </div>
         </header>
 
-        <!-- 1.5. PRIMARY SEARCH BAR SECTION (SCROLLS AWAY) - Background is White -->
+        <!-- 1.5. PRIMARY SEARCH BAR SECTION (SCROLLS AWAY) -->
         <section id="primary-search-section" class="p-3 pt-2 pb-2 bg-white shadow-sm">
             <div class="relative">
                 <input type="text" placeholder="उत्पादन शोधा (Search Products)..." 
@@ -107,40 +112,38 @@
         <!-- 1.6. ADDED: BROAD LINE SEPARATOR -->
         <div class="h-2 bg-agri-gradient shadow-md"></div>
         
-        <!-- Main Content Area - BACKGROUND IS NOW #f1f1f1 -->
+        <!-- Main Content Area -->
         <main class="flex-grow bg-[#f1f1f1]">
             
-            <!-- 2. SLIDING BANNER SECTION -->
+            <!-- 2. SLIDING BANNER SECTION (NOW CLICKABLE) -->
             <section class="p-3">
-                <div class="relative overflow-hidden rounded-lg shadow-md bg-gray-100 h-48 sm:h-64">
+                <!-- Added cursor-pointer and onclick to open the new modal -->
+                <div class="relative overflow-hidden rounded-lg shadow-md bg-gray-100 h-48 sm:h-64 cursor-pointer" onclick="openBannerModal()">
                     
-                    <!-- Slider Content - Instructional Placeholders -->
+                    <!-- Slider Content -->
                     <div id="banner-slider" class="flex transition-transform duration-500 ease-in-out h-full">
-                        <!-- Slide 1: Primary color background - Instructional Placeholder -->
-                        <div class="min-w-full flex flex-col items-center justify-center bg-primary text-white text-center p-4">
+                        <div id="slide-1" class="min-w-full flex flex-col items-center justify-center bg-primary text-white text-center p-4">
                             <h2 class="text-xl font-extrabold mb-1">पहिला बॅनर: मोठी ऑफर!</h2>
                             <p class="text-sm font-medium">येथे तुमच्या **सर्वात मोठ्या सिझन ऑफर** चा फोटो अपलोड करा.</p>
                             <p class="text-xs mt-1 opacity-80">(उदा. 'दिवाळी ऑफर', 'नवीन माल आला')</p>
                         </div>
-                        <!-- Slide 2: Accent color background - Instructional Placeholder -->
-                        <div class="min-w-full flex flex-col items-center justify-center bg-yellow-600 text-white text-center p-4">
+                        <div id="slide-2" class="min-w-full flex flex-col items-center justify-center bg-yellow-600 text-white text-center p-4">
                              <h2 class="text-xl font-extrabold mb-1">दुसरा बॅनर: खास उत्पादन!</h2>
                             <p class="text-sm font-medium">येथे तुमच्या **सर्वाधिक विकल्या जाणाऱ्या उत्पादनाचा** फोटो अपलोड करा.</p>
                             <p class="text-xs mt-1 opacity-80">(येथे जास्तीत जास्त २ बॅनर ठेवा)</p>
                         </div>
-                        <!-- Slide 3: Default color background - Instructional Placeholder -->
-                        <div class="min-w-full flex flex-col items-center justify-center bg-blue-600 text-white text-center p-4">
+                        <div id="slide-3" class="min-w-full flex flex-col items-center justify-center bg-blue-600 text-white text-center p-4">
                              <h2 class="text-xl font-extrabold mb-1">तिसरा बॅनर: सूचना!</h2>
                             <p class="text-sm font-medium">येथे शेतीबद्दलच्या **महत्त्वाच्या सूचनांचा** बॅनर जोडा.</p>
                             <p class="text-xs mt-1 opacity-80">(उदा. 'हवामान अंदाज', 'नवीन नियम')</p>
                         </div>
                     </div>
 
-                    <!-- Slider Controls - Darker for contrast -->
-                    <button onclick="changeSlide(-1)" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
+                    <!-- Slider Controls -->
+                    <button onclick="event.stopPropagation(); changeSlide(-1);" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <button onclick="changeSlide(1)" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
+                    <button onclick="event.stopPropagation(); changeSlide(1);" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                     </button>
 
@@ -151,7 +154,7 @@
                 </div>
             </section>
 
-            <!-- 3. CATEGORY NAVIGATION (बीज, संरक्षण, हार्डवेअर, पोषण) - With Instructions -->
+            <!-- 3. CATEGORY NAVIGATION (बीज, संरक्षण, हार्डवेअर, पोषण) -->
             <section class="p-3 pt-0">
                 <p class="text-sm text-center text-gray-600 mb-2 font-medium">प्रत्येक वर्गात **उत्पादने जोडण्यासाठी** खाली क्लिक करा.</p>
                 <div class="flex justify-between space-x-2 hide-scrollbar overflow-x-auto pb-2">
@@ -194,34 +197,60 @@
                 </div>
             </section>
 
-            <!-- 4. FEATURED PRODUCTS (खास उत्पादने) - Instructional Placeholders -->
+            <!-- 4.5. ADD PRODUCT MANAGEMENT SECTION (NEW) - MOVED HERE -->
+            <section class="p-3 bg-[#f1f1f1]">
+                <h2 class="text-lg font-semibold text-agri-dark mb-3 flex items-center justify-between">
+                    उत्पादन व्यवस्थापन (Product Management)
+                    <span id="product-count" class="text-sm font-normal text-gray-500">0/50 उत्पादने</span>
+                </h2>
+
+                <!-- Add Product Card (Clickable to open Modal) -->
+                <div onclick="openAddProductModal()" 
+                     class="bg-white p-4 rounded-xl shadow-lg mb-4 flex items-center justify-between border-2 border-dashed border-primary/50 cursor-pointer hover:bg-green-50 transition transform hover:scale-[1.01]">
+                    <div class="flex items-center">
+                        <span class="text-3xl text-primary font-bold mr-3">+</span>
+                        <p class="text-lg font-medium text-agri-dark">नवीन उत्पादन जोडा</p>
+                    </div>
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+
+                <!-- Products Display Column (Horizontal Scroll) -->
+                <div id="product-list-container" class="flex space-x-4 pb-2 hide-scrollbar overflow-x-scroll">
+                    <!-- Product cards will be inserted here by JavaScript -->
+                    <div id="product-list-placeholder" class="text-center text-gray-500 p-4 w-full flex-shrink-0 bg-white rounded-lg shadow-inner">
+                        <p class="text-sm">तुमची जोडलेली उत्पादने येथे दिसतील. 'नवीन उत्पादन जोडा' वर क्लिक करा.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 4. FEATURED PRODUCTS (खास उत्पादने) - MOVED HERE -->
             <section class="p-3">
                 <h2 class="text-lg font-semibold text-agri-dark mb-3">खास उत्पादने (Featured Products)</h2>
                 
                 <div class="grid grid-cols-2 gap-3">
                     
-                    <!-- Featured Product 1 (Placeholder) - Changed bg-gray-100 to bg-white -->
+                    <!-- Featured Product 1 (Placeholder) -->
                     <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
                         <span class="text-4xl text-primary mb-2">+</span>
                         <p class="text-sm font-medium text-agri-dark">उत्पादन १ निवडा</p>
                         <p class="text-xs text-gray-500">(बीज/संरक्षण/हार्डवेअर/पोषण मधून)</p>
                     </div>
 
-                    <!-- Featured Product 2 (Placeholder) - Changed bg-gray-100 to bg-white -->
+                    <!-- Featured Product 2 (Placeholder) -->
                     <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
                         <span class="text-4xl text-primary mb-2">+</span>
                         <p class="text-sm font-medium text-agri-dark">उत्पादन २ निवडा</p>
                         <p class="text-xs text-gray-500">(उत्पादन बदलण्यासाठी क्लिक करा)</p>
                     </div>
 
-                    <!-- Featured Product 3 (Placeholder) - Changed bg-gray-100 to bg-white -->
+                    <!-- Featured Product 3 (Placeholder) -->
                     <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
                         <span class="text-4xl text-primary mb-2">+</span>
                         <p class="text-sm font-medium text-agri-dark">उत्पादन ३ निवडा</p>
                         <p class="text-xs text-gray-500">(हे उत्पादन नेहमी समोर दिसेल)</p>
                     </div>
 
-                    <!-- Featured Product 4 (Placeholder) - Changed bg-gray-100 to bg-white -->
+                    <!-- Featured Product 4 (Placeholder) -->
                     <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
                         <span class="text-4xl text-primary mb-2">+</span>
                         <p class="text-sm font-medium text-agri-dark">उत्पादन ४ निवडा</p>
@@ -232,7 +261,7 @@
             </section>
         </main>
         
-        <!-- 5. FOOTER SECTION - Gradient Background (Darker Mango Leaf Look) -->
+        <!-- 5. FOOTER SECTION -->
         <footer class="bg-agri-gradient text-white pt-6 pb-2 mt-4 rounded-t-lg shadow-inner">
             <div class="px-4">
                 
@@ -291,113 +320,707 @@
             </div>
         </div>
 
+
+        <!-- ADD PRODUCT MODAL (UPDATED FOR FILE UPLOAD) -->
+        <div id="add-product-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeAddProductModal()">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-4 text-agri-dark">नवीन उत्पादन जोडा</h3>
+                
+                <form id="add-product-form" class="space-y-4">
+                    
+                    <!-- Add Image File Upload Input (MODIFIED) -->
+                    <div class="border-b pb-4 border-gray-200">
+                        <label class="block text-lg font-bold text-gray-800 mb-2">उत्पादन फोटो (Upload Photo)</label>
+                        <!-- Image Preview Area -->
+                        <div id="product-img-preview" class="h-20 w-full bg-gray-100 mb-2 rounded-lg border border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
+                            <img id="product-img-tag" src="" class="hidden w-full h-full object-cover">
+                            <span id="product-img-text" class="text-xs text-gray-500">फोटो निवडा (Max 100KB)</span>
+                        </div>
+                        <input type="file" id="product-img-file" accept="image/*" required class="mt-1 block w-full text-sm text-gray-700">
+                        <p class="text-xs text-red-600 mt-1 font-medium">
+                            **महत्त्वाचे:** कृपया फक्त **100KB** पर्यंतचा फोटो अपलोड करा.
+                        </p>
+                    </div>
+
+                    <!-- Product Name Input -->
+                    <div>
+                        <label for="product-name" class="block text-sm font-medium text-gray-700">उत्पादनाचे नाव (Product Name)</label>
+                        <input type="text" id="product-name" required maxlength="50"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                               placeholder="उदा. सिजेंटा सोयाबीन बियाणे">
+                    </div>
+
+                    <!-- Product Price Input -->
+                    <div>
+                        <label for="product-price" class="block text-sm font-medium text-gray-700">किंमत (Price - ₹)</label>
+                        <input type="number" id="product-price" required min="1" step="0.01"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                               placeholder="₹ 1500.00">
+                    </div>
+
+                    <!-- Product Description Textarea -->
+                    <div>
+                        <label for="product-description" class="block text-sm font-medium text-gray-700">उत्पादनाचे वर्णन (Description)</label>
+                        <textarea id="product-description" rows="3" required maxlength="300"
+                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm resize-none"
+                                  placeholder="उत्पादनाची माहिती, फायदे, उपयोग आणि वापरण्याची पद्धत."></textarea>
+                    </div>
+
+                    <!-- Category Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">उत्पादन वर्ग (Category)</label>
+                        <div id="category-options" class="flex flex-wrap gap-2">
+                            <button type="button" data-category="बीज" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">बीज</button>
+                            <button type="button" data-category="संरक्षण" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">संरक्षण</button>
+                            <button type="button" data-category="हार्डवेअर" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">हार्डवेअर</button>
+                            <button type="button" data-category="पोषण" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">पोषण</button>
+                            <input type="hidden" id="product-category" required>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <button type="submit" id="save-product-btn" 
+                            class="w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-lg shadow-md hover:bg-green-700 transition transform hover:scale-[1.01]">
+                        उत्पादन जतन करा (Save)
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- BANNER MANAGEMENT MODAL (UNCHANGED) -->
+        <div id="banner-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeBannerModal()">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-4 text-agri-dark">बॅनर व्यवस्थापन (Manage Banners)</h3>
+                
+                <p class="text-sm text-red-600 font-semibold mb-4 bg-red-50 p-3 rounded-lg border border-red-200">
+                    <span class="font-bold">महत्त्वाची सूचना:</span> कृपया फोटो अपलोड करा. प्रत्येक फोटोचा आकार **जास्तीत जास्त 100KB** असावा!
+                </p>
+
+                <form id="banner-form" class="space-y-6">
+                    
+                    <!-- Banner 1 Input -->
+                    <div class="border-b pb-4 border-gray-200">
+                        <label class="block text-lg font-bold text-gray-800 mb-2">बॅनर १ (मोठी ऑफर)</label>
+                        <!-- Image Preview Area -->
+                        <div id="banner-1-preview" class="h-20 w-full bg-gray-100 mb-2 rounded-lg border border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
+                            <img id="banner-1-img" src="" class="hidden w-full h-full object-cover">
+                            <span id="banner-1-text" class="text-xs text-gray-500">फोटो निवडा (Select Photo)</span>
+                        </div>
+                        <input type="file" id="banner-1-file" accept="image/*" class="mt-1 block w-full text-sm text-gray-700">
+                    </div>
+
+                    <!-- Banner 2 Input -->
+                    <div class="border-b pb-4 border-gray-200">
+                        <label class="block text-lg font-bold text-gray-800 mb-2">बॅनर २ (खास उत्पादन)</label>
+                        <!-- Image Preview Area -->
+                         <div id="banner-2-preview" class="h-20 w-full bg-gray-100 mb-2 rounded-lg border border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
+                            <img id="banner-2-img" src="" class="hidden w-full h-full object-cover">
+                            <span id="banner-2-text" class="text-xs text-gray-500">फोटो निवडा (Select Photo)</span>
+                        </div>
+                        <input type="file" id="banner-2-file" accept="image/*" class="mt-1 block w-full text-sm text-gray-700">
+                    </div>
+
+                    <!-- Banner 3 Input -->
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-2">बॅनर ३ (सूचना/हवामान)</label>
+                        <!-- Image Preview Area -->
+                         <div id="banner-3-preview" class="h-20 w-full bg-gray-100 mb-2 rounded-lg border border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
+                            <img id="banner-3-img" src="" class="hidden w-full h-full object-cover">
+                            <span id="banner-3-text" class="text-xs text-gray-500">फोटो निवडा (Select Photo)</span>
+                        </div>
+                        <input type="file" id="banner-3-file" accept="image/*" class="mt-1 block w-full text-sm text-gray-700">
+                    </div>
+
+                    <!-- Save Button -->
+                    <button type="submit" 
+                            class="w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-lg shadow-md hover:bg-green-700 transition transform hover:scale-[1.01]">
+                        बॅनर जतन करा
+                    </button>
+                    
+                </form>
+            </div>
+        </div>
+
+        <!-- Custom Message Box (Instead of alert) -->
+        <div id="message-box" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-xl transition-opacity duration-300 opacity-0 pointer-events-none z-50"></div>
+
     </div>
 
-    <script>
-        // --- JAVASCRIPT LOGIC ---
+    <script type="module">
+        // --- FIREBASE IMPORTS ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, setDoc, updateDoc, deleteDoc, getDocs, query, limit, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Get the elements required for the sticky search bar logic
-        const primarySearchSection = document.getElementById('primary-search-section');
-        const addressBtnCompact = document.getElementById('address-btn-compact');
-        const stickySearchCompact = document.getElementById('sticky-search-compact');
-        const addressModal = document.getElementById('address-modal');
+        // --- GLOBAL ENVIRONMENT VARIABLES (MANDATORY) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const PRODUCT_LIMIT = 50;
+        const BANNER_MAX_SIZE = 102400; // 100KB in bytes for file upload validation
+        const PRODUCTS_COLLECTION_PATH = (userId) => `/artifacts/${appId}/users/${userId}/products`;
+        
+        // --- FIREBASE INSTANCES ---
+        let app, db, auth;
+        let userId = null;
+        let isAuthReady = false;
 
-        // Function to handle scroll events for sticky search bar
-        window.addEventListener('scroll', () => {
-            // Get the position of the primary search bar's bottom edge
-            const primarySearchBottom = primarySearchSection.getBoundingClientRect().bottom;
-            
-            // Check if the primary search bar has scrolled completely out of view (i.e., its bottom edge is at or above 0px)
-            if (primarySearchBottom <= 0) {
-                // Scrolled down: Hide Address, Show Compact Search
-                addressBtnCompact.classList.add('hidden');
-                stickySearchCompact.classList.remove('hidden');
-            } else {
-                // Scrolled up: Show Address, Hide Compact Search
-                addressBtnCompact.classList.remove('hidden');
-                stickySearchCompact.classList.add('hidden');
-            }
-        });
-
-
-        // 1. Address Modal Toggle Function
-        window.showAddressModal = function() {
-            addressModal.classList.remove('hidden');
+        // --- UTILITY: Message Box (Instead of alert) ---
+        function showMessage(message, duration = 3000) {
+            const box = document.getElementById('message-box');
+            box.textContent = message;
+            box.classList.remove('opacity-0', 'pointer-events-none');
+            box.classList.add('opacity-100');
+            setTimeout(() => {
+                box.classList.remove('opacity-100');
+                box.classList.add('opacity-0', 'pointer-events-none');
+            }, duration);
         }
 
-        // Close modal when clicking outside (optional)
-        addressModal.addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                addressModal.classList.add('hidden');
+        // --- INITIALIZATION AND AUTHENTICATION ---
+        async function initializeFirebase() {
+            try {
+                if (firebaseConfig) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    setLogLevel('Debug');
+
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            userId = user.uid;
+                            isAuthReady = true;
+                            setupFirestoreListener();
+                            console.log("Firebase Auth Ready. User ID:", userId);
+                        } else {
+                            // Initial sign-in attempt
+                            try {
+                                if (initialAuthToken) {
+                                    await signInWithCustomToken(auth, initialAuthToken);
+                                } else {
+                                    await signInAnonymously(auth);
+                                }
+                            } catch (error) {
+                                console.error("Firebase Sign-In failed:", error);
+                                userId = crypto.randomUUID(); // Fallback to anonymous ID
+                                isAuthReady = true;
+                                setupFirestoreListener();
+                            }
+                        }
+                    });
+
+                    // Ensure sign-in happens immediately if token is present
+                    if (!auth.currentUser) {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                } else {
+                    showMessage("Firebase config missing. Persistence disabled.");
+                    isAuthReady = true; // Still allow app functions to run
+                }
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessage("Firebase initialization error.");
+                isAuthReady = true;
             }
-        });
-
-
-        // 2. Category Button Click Logic
-        document.querySelectorAll('.category-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const category = event.currentTarget.getAttribute('data-category');
+        }
+        
+        // Helper function to read file and perform size validation (100KB) - PRODUCT VERSION
+        // This is necessary because the product image is REQUIRED for submission.
+        function readAndValidateProductFile(fileInput) {
+            return new Promise((resolve, reject) => {
+                const file = fileInput.files[0];
                 
-                // This is where the user will be transferred to the product listing page for that category.
-                console.log(`Navigating to the product listing page for category: ${category}`);
+                // 1. Check if a file was selected (Product image is required)
+                if (!file) {
+                    return reject(new Error("कृपया उत्पादनाचा फोटो निवडा."));
+                }
 
-                // Show temporary message (instead of alert)
-                const msg = document.createElement('div');
-                msg.textContent = `उत्पादने जोडण्यासाठी ${category} पेजवर जात आहे...`;
-                msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
-                document.body.appendChild(msg);
-                setTimeout(() => msg.remove(), 2500);
+                // 2. Size Validation (100KB limit)
+                if (file.size > BANNER_MAX_SIZE) {
+                    return reject(new Error(`फोटोचा आकार 100KB पेक्षा जास्त आहे. (Max size 100KB)`));
+                }
+
+                // 3. Read File as Data URL (Base64)
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    resolve(e.target.result); // Resolve with Data URL
+                };
+
+                reader.onerror = () => {
+                    reject(new Error("फाइल वाचण्यात त्रुटी आली."));
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+
+        // --- PRODUCT MANAGEMENT FUNCTIONS (UPDATED) ---
+        const addProductModal = document.getElementById('add-product-modal');
+        const addProductForm = document.getElementById('add-product-form');
+        const productListContainer = document.getElementById('product-list-container');
+        let currentProducts = [];
+
+        window.openAddProductModal = function() {
+            if (currentProducts.length >= PRODUCT_LIMIT) {
+                showMessage(`तुम्ही जास्तीत जास्त ${PRODUCT_LIMIT} उत्पादने जोडली आहेत. (Limit Reached)`);
+                return;
+            }
+            addProductForm.reset();
+            document.querySelectorAll('.category-select-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('product-category').value = '';
+            
+            // NEW: Reset file input preview
+            document.getElementById('product-img-tag').src = '';
+            document.getElementById('product-img-tag').classList.add('hidden');
+            document.getElementById('product-img-text').classList.remove('hidden');
+
+            addProductModal.classList.remove('hidden');
+        }
+
+        window.closeAddProductModal = function() {
+            addProductModal.classList.add('hidden');
+        }
+        
+        // Category Selection Logic
+        document.querySelectorAll('.category-select-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.category-select-btn').forEach(btn => btn.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+                document.getElementById('product-category').value = e.currentTarget.getAttribute('data-category');
             });
         });
 
+        // Form Submission Handler (MODIFIED FOR FILE UPLOAD)
+        addProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('product-name').value.trim();
+            const price = parseFloat(document.getElementById('product-price').value);
+            const description = document.getElementById('product-description').value.trim();
+            const category = document.getElementById('product-category').value;
 
-        // 3. Sliding Banner Logic
+            let imgDataUrl = 'https://placehold.co/150x150/38A169/ffffff?text=उत्पादन'; // Placeholder fallback
+
+            if (!name || isNaN(price) || !description || !category) {
+                showMessage("कृपया सर्व फील्ड भरा. (Please fill all fields)");
+                return;
+            }
+
+            if (currentProducts.length >= PRODUCT_LIMIT) {
+                showMessage(`उत्पादन मर्यादा (${PRODUCT_LIMIT}) गाठली आहे! (Limit Reached)`);
+                return;
+            }
+            
+            // NEW: Process the uploaded file
+            try {
+                const fileInput = document.getElementById('product-img-file');
+                // Validate and read file, will throw error if size is too large or file is missing
+                imgDataUrl = await readAndValidateProductFile(fileInput); 
+            } catch (error) {
+                showMessage(`फोटो अपलोड त्रुटी: ${error.message}`, 5000);
+                return; // Stop submission if file validation fails
+            }
+
+            const newProduct = {
+                name,
+                price,
+                description,
+                category,
+                imgUrl: imgDataUrl, // Use the base64 URL
+                createdAt: Date.now()
+            };
+
+            await saveProduct(newProduct);
+        });
+        
+        // Save to Firestore (UNCHANGED)
+        async function saveProduct(product) {
+            if (!db || !userId) {
+                showMessage("Database तयार नाही. (DB not ready)");
+                return;
+            }
+            try {
+                // Use a query to check the current count before saving
+                const q = query(collection(db, PRODUCTS_COLLECTION_PATH(userId)), limit(PRODUCT_LIMIT));
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.size >= PRODUCT_LIMIT) {
+                    showMessage(`उत्पादन मर्यादा (${PRODUCT_LIMIT}) गाठली आहे! (Limit Reached)`);
+                    closeAddProductModal();
+                    return;
+                }
+                
+                await addDoc(collection(db, PRODUCTS_COLLECTION_PATH(userId)), product);
+                closeAddProductModal();
+                showMessage(`'${product.name}' यशस्वीरित्या जोडले! (Successfully Added)`);
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showMessage("उत्पादन जोडताना त्रुटी आली. (Error adding product)");
+            }
+        }
+        
+        // Render Products to UI (UNCHANGED)
+        function renderProducts(products) {
+            currentProducts = products;
+            productListContainer.innerHTML = ''; // Clear existing cards
+            
+            document.getElementById('product-count').textContent = `${products.length}/${PRODUCT_LIMIT} उत्पादने`;
+
+            if (products.length === 0) {
+                productListContainer.innerHTML = `
+                    <div id="product-list-placeholder" class="text-center text-gray-500 p-4 w-full flex-shrink-0 bg-white rounded-lg shadow-inner">
+                        <p class="text-sm">तुमची जोडलेली उत्पादने येथे दिसतील. 'नवीन उत्पादन जोडा' वर क्लिक करा.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'w-40 flex-shrink-0 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition transform hover:scale-[1.03] cursor-pointer';
+                
+                card.innerHTML = `
+                    <div class="h-24 bg-gray-100 overflow-hidden">
+                        <img src="${product.imgUrl}" onerror="this.onerror=null;this.src='https://placehold.co/160x100/38A169/ffffff?text=${product.category}'" alt="${product.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-3">
+                        <div class="text-xs font-semibold text-primary/80 mb-1">${product.category}</div>
+                        <h4 class="text-sm font-bold text-agri-dark truncate mb-1" title="${product.name}">${product.name}</h4>
+                        <p class="text-lg font-extrabold text-green-700">₹${product.price.toFixed(2)}</p>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">${product.description}</p>
+                    </div>
+                `;
+                productListContainer.appendChild(card);
+            });
+        }
+        
+        // Firestore Listener (UNCHANGED)
+        function setupFirestoreListener() {
+            if (!db || !userId) return;
+
+            const q = collection(db, PRODUCTS_COLLECTION_PATH(userId));
+            
+            onSnapshot(q, (snapshot) => {
+                let productsData = [];
+                snapshot.forEach(doc => {
+                    productsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sort the data in-memory by creation date (newest first), as orderBy() is avoided.
+                productsData.sort((a, b) => b.createdAt - a.createdAt);
+
+                renderProducts(productsData.slice(0, PRODUCT_LIMIT));
+            }, (error) => {
+                console.error("Firestore Listener Error: ", error);
+                showMessage("उत्पादने लोड करताना त्रुटी आली. (Error loading products)");
+            });
+        }
+
+        // --- BANNER MANAGEMENT MODAL FUNCTIONS (UNCHANGED) ---
+        const bannerModal = document.getElementById('banner-modal');
+        const bannerForm = document.getElementById('banner-form');
+
+        // Helper function to update the banner image preview in the modal (UNCHANGED)
+        function setBannerPreview(idPrefix, dataUrl) {
+            const imgEl = document.getElementById(`${idPrefix}-img`);
+            const textEl = document.getElementById(`${idPrefix}-text`);
+
+            if (dataUrl) {
+                imgEl.src = dataUrl;
+                imgEl.classList.remove('hidden');
+                textEl.classList.add('hidden');
+            } else {
+                imgEl.src = '';
+                imgEl.classList.add('hidden');
+                textEl.classList.remove('hidden');
+            }
+        }
+        
+        // Helper function to read file and perform size validation (100KB) (UNCHANGED)
+        function processFile(fileInput, storageKey) {
+            return new Promise((resolve, reject) => {
+                const file = fileInput.files[0];
+                
+                // 1. Check if no file was selected (user skipped this banner)
+                if (!file) {
+                    return resolve(null); // No file selected, skip update for this banner
+                }
+
+                // 2. Size Validation (100KB limit)
+                if (file.size > BANNER_MAX_SIZE) {
+                    // Reject the promise with a specific error message
+                    return reject(new Error(`Banner size for ${file.name} is too large. Max size is 100KB.`));
+                }
+
+                // 3. Read File as Data URL (Base64)
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    resolve({ key: storageKey, dataUrl: e.target.result });
+                };
+
+                reader.onerror = () => {
+                    reject(new Error("File reading failed."));
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.openBannerModal = function() {
+            // Load Base64 data from local storage (using new keys)
+            const dataUrl1 = localStorage.getItem('banner_1_dataurl') || '';
+            const dataUrl2 = localStorage.getItem('banner_2_dataurl') || '';
+            const dataUrl3 = localStorage.getItem('banner_3_dataurl') || '';
+
+            // Set modal preview images
+            setBannerPreview('banner-1', dataUrl1);
+            setBannerPreview('banner-2', dataUrl2);
+            setBannerPreview('banner-3', dataUrl3);
+            
+            // Clear file inputs when modal opens
+            document.getElementById('banner-1-file').value = null;
+            document.getElementById('banner-2-file').value = null;
+            document.getElementById('banner-3-file').value = null;
+
+            bannerModal.classList.remove('hidden');
+        }
+
+        window.closeBannerModal = function() {
+            bannerModal.classList.add('hidden');
+        }
+        
+        // Submission handler for the banner form (UNCHANGED)
+        bannerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Array to hold promises for file processing
+            const filePromises = [
+                processFile(document.getElementById('banner-1-file'), 'banner_1_dataurl'),
+                processFile(document.getElementById('banner-2-file'), 'banner_2_dataurl'),
+                processFile(document.getElementById('banner-3-file'), 'banner_3_dataurl')
+            ];
+
+            try {
+                // Wait for all files to be processed (or skipped/failed)
+                const results = await Promise.all(filePromises);
+                
+                let changesMade = false;
+
+                // results will be an array of objects: [{ key, dataUrl }, ...] or null for skipped
+                results.forEach(result => {
+                    if (result && result.dataUrl) {
+                        localStorage.setItem(result.key, result.dataUrl);
+                        changesMade = true;
+                    } 
+                    // Note: If no file is selected, the old dataUrl remains in local storage, which is the desired behavior.
+                });
+
+                if (!changesMade) {
+                    showMessage("कोणतेही नवीन फोटो निवडलेले नाहीत. (No new photos selected)");
+                    closeBannerModal();
+                    return;
+                }
+
+                // Retrieve the latest Base64 data (newly saved or existing)
+                const dataUrl1 = localStorage.getItem('banner_1_dataurl') || '';
+                const dataUrl2 = localStorage.getItem('banner_2_dataurl') || '';
+                const dataUrl3 = localStorage.getItem('banner_3_dataurl') || '';
+
+                // Re-render the slider with new images
+                updateBannerContent(dataUrl1, dataUrl2, dataUrl3);
+
+                closeBannerModal();
+                showMessage("बॅनर फोटो यशस्वीरित्या जतन केले! (Banner photos saved successfully!)");
+
+            } catch (error) {
+                // This catches the 100KB size validation error or file reading failure
+                console.error("Banner upload error:", error);
+                showMessage(`बॅनर जतन करताना त्रुटी: ${error.message || 'फाइल खूप मोठी आहे.'}`, 5000);
+            }
+        });
+        
+        // Function to update banner content with new images (Base64 Data URLs) (UNCHANGED)
+        function updateBannerContent(dataUrl1, dataUrl2, dataUrl3) {
+            const slide1 = document.getElementById('slide-1');
+            const slide2 = document.getElementById('slide-2');
+            const slide3 = document.getElementById('slide-3');
+
+            // Helper function to update slide content
+            const setSlideImage = (slideElement, dataUrl, defaultText, defaultBg) => {
+                slideElement.innerHTML = ''; // Clear existing content
+                slideElement.style.backgroundImage = 'none'; // Reset background
+
+                if (dataUrl) {
+                    slideElement.style.backgroundImage = `url('${dataUrl}')`; // Use the Base64 Data URL
+                    slideElement.style.backgroundSize = 'cover';
+                    slideElement.style.backgroundPosition = 'center';
+                    slideElement.style.backgroundColor = 'transparent'; // Reset background color
+                    slideElement.classList.add('text-white', 'text-shadow');
+                    // Add text overlay for clarity
+                    slideElement.innerHTML = `
+                        <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-4">
+                            <h2 class="text-xl font-extrabold mb-1">${defaultText}</h2>
+                            <p class="text-sm font-medium">तुमचा नवीन बॅनर फोटो येथे दिसत आहे.</p>
+                        </div>
+                    `;
+                } else {
+                    slideElement.style.backgroundImage = 'none';
+                    slideElement.style.backgroundColor = defaultBg;
+                    slideElement.classList.remove('text-shadow');
+                    // Re-add default content if URL is empty
+                    slideElement.innerHTML = `
+                         <h2 class="text-xl font-extrabold mb-1">${defaultText}</h2>
+                         <p class="text-sm font-medium">येथे तुमचा बॅनर फोटो जोडा.</p>
+                         <p class="text-xs mt-1 opacity-80">(क्लिक करून बॅनर व्यवस्थापित करा)</p>
+                    `;
+                }
+            };
+
+            setSlideImage(slide1, dataUrl1, 'पहिला बॅनर: मोठी ऑफर!', 'var(--primary-green)');
+            setSlideImage(slide2, dataUrl2, 'दुसरा बॅनर: खास उत्पादन!', '#fbbf24'); // Yellow-600
+            setSlideImage(slide3, dataUrl3, 'तिसरा बॅनर: सूचना!', '#3b82f6'); // Blue-600
+        }
+
+
+        // --- EXISTING JAVASCRIPT LOGIC (MODIFIED FOR DOMContentLoaded) ---
+
+        // Function to handle scroll events for sticky search bar (UNCHANGED)
+        function handleScroll() {
+            const primarySearchSection = document.getElementById('primary-search-section');
+            const addressBtnCompact = document.getElementById('address-btn-compact');
+            const stickySearchCompact = document.getElementById('sticky-search-compact');
+            
+            const primarySearchBottom = primarySearchSection.getBoundingClientRect().bottom;
+            
+            if (primarySearchBottom <= 0) {
+                addressBtnCompact.classList.add('hidden');
+                stickySearchCompact.classList.remove('hidden');
+            } else {
+                addressBtnCompact.classList.remove('hidden');
+                stickySearchCompact.classList.add('hidden');
+            }
+        }
+        
+        // Sliding Banner Logic (UNCHANGED)
         const slider = document.getElementById('banner-slider');
         const dotsContainer = document.getElementById('slider-dots');
-        const slides = slider.children;
-        const totalSlides = slides.length;
+        let slides, totalSlides;
         let currentSlide = 0;
 
-        // Function to update the slider's position
+        function initializeSlider() {
+            slides = slider.children;
+            totalSlides = slides.length;
+            
+            // Load and apply initial banner images from local storage
+            const dataUrl1 = localStorage.getItem('banner_1_dataurl') || '';
+            const dataUrl2 = localStorage.getItem('banner_2_dataurl') || '';
+            const dataUrl3 = localStorage.getItem('banner_3_dataurl') || '';
+            updateBannerContent(dataUrl1, dataUrl2, dataUrl3);
+
+            updateSlider();
+            // Auto-slide functionality
+            setInterval(() => { changeSlide(1); }, 5000); 
+        }
+
         function updateSlider() {
             const offset = -currentSlide * 100;
             slider.style.transform = `translateX(${offset}%)`;
             updateDots();
         }
 
-        // Function to change the slide
         window.changeSlide = function(direction) {
             currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
             updateSlider();
         }
 
-        // Function to jump to a specific slide
         function goToSlide(index) {
             currentSlide = index;
             updateSlider();
         }
         
-        // Function to create and update navigation dots
         function updateDots() {
             dotsContainer.innerHTML = '';
             for (let i = 0; i < totalSlides; i++) {
                 const dot = document.createElement('button');
-                // Dot color uses white for contrast against the banner backgrounds
                 dot.className = `w-2 h-2 rounded-full transition-colors ${i === currentSlide ? 'bg-white scale-125' : 'bg-white bg-opacity-75'}`;
-                dot.onclick = () => goToSlide(i);
+                dot.onclick = (e) => {
+                    e.stopPropagation(); // Prevents dot click from opening the modal
+                    goToSlide(i);
+                }
                 dotsContainer.appendChild(dot);
             }
         }
 
-        // Initialize slider on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            updateSlider();
-        });
+        // Address Modal Toggle Function (UNCHANGED)
+        window.showAddressModal = function() {
+            document.getElementById('address-modal').classList.remove('hidden');
+        }
 
-        // Auto-slide functionality 
-        setInterval(() => {
-            changeSlide(1);
-        }, 5000); 
+        // DOM Content Loaded Handler (ADDED PRODUCT FILE PREVIEW LISTENER)
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFirebase();
+            initializeSlider();
+
+            window.addEventListener('scroll', handleScroll);
+
+            // Close address modal when clicking outside
+            document.getElementById('address-modal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    document.getElementById('address-modal').classList.add('hidden');
+                }
+            });
+
+            // Category Button Click Logic (Existing, just shows message)
+            document.querySelectorAll('.category-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const category = event.currentTarget.getAttribute('data-category');
+                    showMessage(`उत्पादने जोडण्यासाठी ${category} पेजवर जात आहे...`);
+                });
+            });
+            
+            // Add change listener to file inputs to show immediate preview in banner modal (UNCHANGED)
+            ['banner-1-file', 'banner-2-file', 'banner-3-file'].forEach(id => {
+                document.getElementById(id).addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            setBannerPreview(id.replace('-file', ''), e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+            
+            // NEW: Add product image file change listener for immediate preview
+            document.getElementById('product-img-file').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                const imgEl = document.getElementById('product-img-tag');
+                const textEl = document.getElementById('product-img-text');
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        imgEl.src = e.target.result;
+                        imgEl.classList.remove('hidden');
+                        textEl.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imgEl.src = '';
+                    imgEl.classList.add('hidden');
+                    textEl.classList.remove('hidden');
+                }
+            });
+        });
 
     </script>
 </body>
