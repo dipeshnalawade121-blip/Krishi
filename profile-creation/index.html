@@ -502,19 +502,37 @@
             }
         });
 
+
         // --- Initialization ---
 
-        async function initApp() {
-            try {
-                // Test Supabase connection
-                const { data: test } = await supabase.from('users').select('count').limit(1);
-                dbReady = true;
-                await loadProfile();
-                form.addEventListener('submit', saveProfile);
+        async function initApp() {    
+            try {       
+                // Test Supabase connection      
+                const { data: test } = await supabase.from('users').select('count').limit(1);      
+                dbReady = true;        
+   
+                // Fetch full user to get id (reliable, no URL dependency)    
+                if (mobile) {     
+                    const { data: userData, error: userError } = await supabase        
+                        .from('users')         
+                        .select('id')        
+                        .eq('mobile', mobile)         
+                        .single();
+                   
+                    if (userError) {        
+                        console.error('User fetch error:', userError);       
+                    } else if (userData) {         
+                        document.getElementById('user-id').textContent = userData.id || 'N/A';        
+                        console.log('UUID loaded:', userData.id);        
+                    }       
+                }
+         
+                await loadProfile(); 
+                form.addEventListener('submit', saveProfile);   
                 displayStatus('Ready to create your profile!', 'success');
-            } catch (error) {
-                console.error("Supabase Initialization Error:", error);
-                displayStatus(`Initialization failed: ${error.message}`, 'error');
+            } catch (error) {  
+                console.error("Supabase Initialization Error:", error);   
+                displayStatus(`Initialization failed: ${error.message}`, 'error');  
             }
         }
 
