@@ -79,16 +79,16 @@
                        placeholder="Your Full Name">
             </div>
 
-            <!-- Business WhatsApp Number -->
+            <!-- User Mobile Number (Auto-filled and Locked) -->
             <div class="mb-4">
-                <label for="whatsappNumber" class="block text-sm font-medium text-slate-700 mb-1">Enter Business WhatsApp Number</label>
+                <label for="whatsappNumber" class="block text-sm font-medium text-slate-700 mb-1">User Mobile Number</label>
                 <div class="flex">
                     <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-lg dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
                         +91
                     </span>
-                    <!-- minlength and maxlength enforce 10 digits -->
-                    <input type="tel" id="whatsappNumber" required minlength="10" maxlength="10"
-                           class="flex-1 p-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                    <!-- minlength and maxlength enforce 10 digits; readonly for showcase -->
+                    <input type="tel" id="whatsappNumber" required minlength="10" maxlength="10" readonly
+                           class="flex-1 p-3 border border-gray-300 rounded-r-lg bg-gray-100 cursor-not-allowed focus:ring-0 focus:border-gray-300"
                            placeholder="10 digit number">
                 </div>
             </div>
@@ -168,36 +168,30 @@
     <!-- Leaflet JS for Map -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <!-- Firebase Initialization and Logic -->
+    <!-- Supabase and Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Set Firestore logging to Debug
-        setLogLevel('Debug');
+        // Supabase client
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Global variables provided by the environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        let firebaseConfig = {};
-        let initialAuthToken = '';
-
-        try {
-            if (typeof __firebase_config !== 'undefined') {
-                firebaseConfig = JSON.parse(__firebase_config);
-            }
-            if (typeof __initial_auth_token !== 'undefined') {
-                initialAuthToken = __initial_auth_token;
-            }
-        } catch (e) {
-            console.error("Error parsing Firebase config or token:", e);
+        // Get mobile and id from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const mobile = urlParams.get('mobile');
+        const userId = urlParams.get('id');
+        if (!mobile) {
+            displayStatus('No mobile provided. Redirecting to login...', 'error');
+            setTimeout(() => window.location.href = 'https://www.krishi.site', 2000);
+            throw new Error('No mobile');
         }
+        document.getElementById('user-id').textContent = userId || 'N/A';
 
-        let db;
-        let auth;
-        let userId = null;
-        let isAuthReady = false;
+        // Auto-fill and lock mobile field
+        const inputWhatsappNumber = document.getElementById('whatsappNumber');
+        inputWhatsappNumber.value = mobile;
+
+        let dbReady = false;
 
         const form = document.getElementById('profile-form');
         const saveButton = document.getElementById('save-button');
@@ -209,10 +203,8 @@
         // Input fields
         const inputShopName = document.getElementById('shopName');
         const inputUserName = document.getElementById('userName');
-        const inputWhatsappNumber = document.getElementById('whatsappNumber');
         const inputEmail = document.getElementById('email');
         const inputShopAddress = document.getElementById('shopAddress');
-        const userIdDisplay = document.getElementById('user-id');
         
         // Map Elements and Variables
         const mapButton = document.getElementById('map-button');
@@ -258,12 +250,10 @@
 
         // --- Validation Functions ---
 
-        /** Checks if the WhatsApp number is exactly 10 digits. */
+        /** Checks if the mobile number is exactly 10 digits (auto-filled, so always valid). */
         function isWhatsappValid() {
-            // Remove non-digit characters and enforce max length in JS for safety, though HTML handles it.
-            inputWhatsappNumber.value = inputWhatsappNumber.value.replace(/[^0-9]/g, '').substring(0, 10);
-            const number = inputWhatsappNumber.value.trim();
-            return number.length === 10;
+            // Auto-filled and readonly, so assume valid
+            return true;
         }
 
         /** Checks if the email is empty or ends with '@gmail.com'. */
@@ -273,7 +263,7 @@
         }
         
         /**
-         * Saves the profile data to Firestore.
+         * Saves the profile data to backend.
          */
         async function saveProfile(event) {
             event.preventDefault();
@@ -288,7 +278,7 @@
 
             // Check custom validation rules
             if (!isWhatsappValid()) { 
-                errors.push("Check put correct number: Business WhatsApp number must be exactly 10 digits."); 
+                errors.push("Business WhatsApp number must be exactly 10 digits."); 
                 // Add a temporary visual indicator
                 inputWhatsappNumber.classList.add('border-red-500');
             } else {
@@ -310,8 +300,8 @@
             }
             
             // 3. Proceed with save if no errors
-            if (!userId || !db) {
-                displayStatus("Authentication or database not ready. Please wait.", 'error');
+            if (!mobile) {
+                displayStatus("Mobile not available. Please wait.", 'error');
                 return;
             }
 
@@ -319,22 +309,26 @@
             saveButton.textContent = 'Saving...';
             
             try {
-                const profileData = {
-                    shopName: inputShopName.value.trim(),
-                    userName: inputUserName.value.trim(),
-                    whatsappNumber: inputWhatsappNumber.value.trim(),
-                    email: inputEmail.value.trim(),
-                    // Save the full text from the textarea, which includes coords if map was used
-                    shopAddress: inputShopAddress.value.trim(), 
-                    lastUpdated: new Date().toISOString()
-                };
+                const response = await fetch('https://api.krishi.site/save-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mobile: mobile,
+                        shop_name: inputShopName.value.trim(),
+                        user_name: inputUserName.value.trim(),
+                        email: inputEmail.value.trim(),
+                        shop_address: inputShopAddress.value.trim()
+                    })
+                });
 
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'profile_data', 'shop_profile');
-                await setDoc(docRef, profileData);
-
-                displayStatus('Profile saved successfully!', 'success');
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    displayStatus('Profile saved successfully!', 'success');
+                } else {
+                    throw new Error(data.error || 'Save failed');
+                }
             } catch (error) {
-                console.error("Error writing document: ", error);
+                console.error("Error saving profile: ", error);
                 displayStatus('Error saving profile. Check console for details.', 'error');
             } finally {
                 saveButton.disabled = false;
@@ -343,26 +337,31 @@
         }
 
         /**
-         * Loads profile data using an onSnapshot listener for real-time updates.
+         * Loads profile data from Supabase.
          */
-        function loadProfile() {
-            if (!userId || !db || !isAuthReady) {
-                console.log("Waiting for auth/db to be ready to load profile.");
+        async function loadProfile() {
+            if (!mobile || !dbReady) {
+                console.log("Waiting for mobile/db to be ready to load profile.");
                 return;
             }
 
-            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'profile_data', 'shop_profile');
-            
-            // Set up a real-time listener
-            onSnapshot(docRef, (doc) => {
-                if (doc.exists()) {
-                    const data = doc.data();
-                    inputShopName.value = data.shopName || '';
-                    inputUserName.value = data.userName || '';
-                    inputWhatsappNumber.value = data.whatsappNumber || '';
-                    inputEmail.value = data.email || '';
-                    inputShopAddress.value = data.shopAddress || '';
-                    console.log("Profile data loaded/updated from Firestore.");
+            try {
+                const { data: user, error } = await supabase
+                    .from('users')
+                    .select('shop_name, user_name, email, shop_address')
+                    .eq('mobile', mobile)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    throw error;
+                }
+
+                if (user) {
+                    inputShopName.value = user.shop_name || '';
+                    inputUserName.value = user.user_name || '';
+                    inputEmail.value = user.email || '';
+                    inputShopAddress.value = user.shop_address || '';
+                    console.log("Profile data loaded/updated from Supabase.");
                 } else {
                     console.log("No existing profile data found.");
                 }
@@ -371,10 +370,10 @@
                 inputWhatsappNumber.classList.remove('border-red-500');
                 inputEmail.classList.remove('border-red-500');
 
-            }, (error) => {
-                console.error("Error listening to profile data:", error);
+            } catch (error) {
+                console.error("Error loading profile data:", error);
                 displayStatus("Failed to load existing profile data.", 'error');
-            });
+            }
         }
         
         // --- Map Logic ---
@@ -503,55 +502,27 @@
             }
         });
 
-        // --- Initialization and Authentication ---
+        // --- Initialization ---
 
-        async function initFirebase() {
+        async function initApp() {
             try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                    console.log("Signed in with custom token.");
-                } else {
-                    await signInAnonymously(auth);
-                    console.log("Signed in anonymously.");
-                }
-
-                // Set up Auth State Observer
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        userIdDisplay.textContent = userId;
-                        isAuthReady = true;
-                        // Load data once authenticated
-                        loadProfile();
-                        form.addEventListener('submit', saveProfile);
-                    } else {
-                        userId = 'N/A';
-                        userIdDisplay.textContent = 'Not Authenticated';
-                        isAuthReady = false;
-                        console.log("User signed out or authentication failed.");
-                    }
-                });
-
+                // Test Supabase connection
+                const { data: test } = await supabase.from('users').select('count').limit(1);
+                dbReady = true;
+                await loadProfile();
+                form.addEventListener('submit', saveProfile);
+                displayStatus('Ready to create your profile!', 'success');
             } catch (error) {
-                console.error("Firebase Initialization Error:", error);
-                displayStatus(`Initialization failed: ${error.code}`, 'error');
+                console.error("Supabase Initialization Error:", error);
+                displayStatus(`Initialization failed: ${error.message}`, 'error');
             }
         }
 
-        // Initialize Firebase on window load
+        // Initialize on window load
         window.onload = () => {
-            initFirebase();
-            // Ensure phone input only accepts digits and manages length client-side
-            inputWhatsappNumber.addEventListener('input', () => {
-                inputWhatsappNumber.value = inputWhatsappNumber.value.replace(/[^0-9]/g, '').substring(0, 10);
-            });
+            initApp();
         };
 
     </script>
 </body>
 </html>
-
