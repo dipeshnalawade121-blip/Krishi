@@ -591,29 +591,6 @@
         setInterval(() => {
             changeSlide(1);
         }, 5000); 
-
-
-
-        // Fix for mobile sticky header input focus jumping to top
-const compactSearchContainer = document.getElementById('sticky-search-compact');
-if (compactSearchContainer) {
-    const compactInput = compactSearchContainer.querySelector('input[type="text"]');
-    
-    // Prevent default scroll jump on click/touch (for iOS/Android)
-    compactSearchContainer.addEventListener('click', function(e) {
-        e.preventDefault();  // Stop browser's auto-scroll-to-top
-        compactInput.focus();  // Manually focus the input
-    }, { passive: false });  // Allow preventDefault to work
-    
-    // Restore scroll position right after focus (handles any residual jump)
-    compactInput.addEventListener('focus', function() {
-        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-        // Small delay to let keyboard open, then restore
-        setTimeout(() => {
-            window.scrollTo(0, currentScrollY);
-        }, 0);  // Use requestAnimationFrame if you want smoother: requestAnimationFrame(() => window.scrollTo(0, currentScrollY));
-    }, true);  // Capture phase: Acts before bubbling
-}
         
     </script>
 </body>
