@@ -395,7 +395,7 @@
             addressModal.classList.remove('hidden');
         }
 
-        // Close modal when clicking outside (optional)
+        // Close modal when clicking outside (optional, added for consistency)
         addressModal.addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 addressModal.classList.add('hidden');
@@ -479,6 +479,50 @@
             setTimeout(() => msg.remove(), 3000);
         });
 
+        // 8. NEW: Banner Image Preview Logic
+        document.getElementById('banner-img-file').addEventListener('change', function(event) {
+            const [file] = event.target.files;
+            const previewImg = document.getElementById('banner-img-tag');
+            const previewText = document.getElementById('banner-img-text');
+            const previewDiv = document.getElementById('banner-img-preview');
+
+            if (file) {
+                previewImg.src = URL.createObjectURL(file);
+                previewImg.classList.remove('hidden');
+                previewText.classList.add('hidden');
+                previewDiv.classList.remove('justify-center', 'items-center'); // Adjust layout for image
+                previewDiv.classList.add('p-0'); // Remove padding when image is present
+            } else {
+                previewImg.classList.add('hidden');
+                previewText.classList.remove('hidden');
+                previewImg.src = '';
+                previewDiv.classList.add('justify-center', 'items-center');
+                previewDiv.classList.remove('p-0');
+            }
+        });
+
+        // 9. NEW: Product Image Preview Logic
+        document.getElementById('product-img-file').addEventListener('change', function(event) {
+            const [file] = event.target.files;
+            const previewImg = document.getElementById('product-img-tag');
+            const previewText = document.getElementById('product-img-text');
+            const previewDiv = document.getElementById('product-img-preview');
+
+            if (file) {
+                previewImg.src = URL.createObjectURL(file);
+                previewImg.classList.remove('hidden');
+                previewText.classList.add('hidden');
+                previewDiv.classList.remove('justify-center', 'items-center');
+                previewDiv.classList.add('p-0');
+            } else {
+                previewImg.classList.add('hidden');
+                previewText.classList.remove('hidden');
+                previewImg.src = '';
+                previewDiv.classList.add('justify-center', 'items-center');
+                previewDiv.classList.remove('p-0');
+            }
+        });
+
 
         // 6. Category Button Click Logic
         document.querySelectorAll('.category-btn').forEach(button => {
@@ -549,3 +593,4 @@
     </script>
 </body>
 </html>
+
