@@ -61,7 +61,7 @@
 
     <div class="max-w-xl mx-auto bg-white shadow-xl min-h-screen flex flex-col">
 
-        <header id="main-header" class="bg-agri-gradient sticky top-0 z-50 shadow-lg">
+        <header class="bg-agri-gradient sticky top-0 z-50 shadow-lg">
             
             <div id="header-content" class="flex items-center justify-between p-3">
                 
@@ -79,7 +79,7 @@
                     </button>
                     
                     <div id="sticky-search-compact" class="relative hidden w-full">
-                        <input type="text" id="compact-search-input" placeholder="उत्पादने शोधा..." 
+                        <input type="text" placeholder="उत्पादने शोधा..." 
                                class="w-full py-1.5 pl-8 pr-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-white focus:border-white text-sm shadow-md text-gray-800"
                                onfocus="this.placeholder='शोधण्यासाठी टाइप करा...'" 
                                onblur="this.placeholder='उत्पादने शोधा...'">
@@ -369,11 +369,7 @@
         const addressModal = document.getElementById('address-modal');
         // NEW: Get the elements for the modals
         const addProductModal = document.getElementById('add-product-modal');
-        const addBannerModal = document.getElementById('add-banner-modal'); // NEW   
-        // 🔥 FIX ADDITION A: New elements for the keyboard fix
-        const mainHeader = document.getElementById('main-header');
-        const compactSearchInput = document.getElementById('compact-search-input');
-
+        const addBannerModal = document.getElementById('add-banner-modal'); // NEW             
         
 
 
@@ -595,22 +591,7 @@
         setInterval(() => {
             changeSlide(1);
         }, 5000); 
-
-        // 10. Fix Keyboard Resize "Jiggle" (The Earthquake Fix)
-compactSearchInput.addEventListener('focus', () => {
-    // When the input is tapped, we remove 'sticky' and add 'fixed'.
-    // 'fixed' positioning is what creates the "freeze" effect you want.
-    mainHeader.classList.remove('sticky');
-    mainHeader.classList.add('fixed', 'w-full'); 
-});
-
-compactSearchInput.addEventListener('blur', () => {
-    // When the keyboard closes, we switch it back to 'sticky' so it scrolls normally again.
-    mainHeader.classList.add('sticky');
-    mainHeader.classList.remove('fixed', 'w-full');
-});
-
+        
     </script>
 </body>
 </html>
-
