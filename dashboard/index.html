@@ -61,7 +61,8 @@
 
     <div class="max-w-xl mx-auto bg-white shadow-xl min-h-screen flex flex-col">
 
-        <header class="bg-agri-gradient sticky top-0 z-50 shadow-lg">
+        <header id="main-header"
+            class="bg-agri-gradient sticky top-0 z-50 shadow-lg">
             
             <div id="header-content" class="flex items-center justify-between p-3">
                 
@@ -79,7 +80,7 @@
                     </button>
                     
                     <div id="sticky-search-compact" class="relative hidden w-full">
-                        <input type="text" placeholder="उत्पादने शोधा..." 
+                        <input type="text" id="compact-search-input" placeholder="उत्पादने शोधा..." 
                                class="w-full py-1.5 pl-8 pr-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-white focus:border-white text-sm shadow-md text-gray-800"
                                onfocus="this.placeholder='शोधण्यासाठी टाइप करा...'" 
                                onblur="this.placeholder='उत्पादने शोधा...'">
@@ -370,6 +371,10 @@
         // NEW: Get the elements for the modals
         const addProductModal = document.getElementById('add-product-modal');
         const addBannerModal = document.getElementById('add-banner-modal'); // NEW
+            // NEW: Get the elements required for the keyboard fix    
+        const mainHeader = document.getElementById('main-header');   
+        const compactSearchInput = document.getElementById('compact-search-input');
+
 
         
         // Function to handle scroll events for sticky search bar
@@ -589,6 +594,21 @@
         setInterval(() => {
             changeSlide(1);
         }, 5000); 
+
+        // 10. Fix Keyboard Resize "Jiggle" (The Earthquake Fix)
+        compactSearchInput.addEventListener('focus', () => {
+            // When tapped, remove the 'sticky' glue and make it 'relative'.
+            // This lets it move naturally when the keyboard appears.
+            mainHeader.classList.remove('sticky', 'top-0');
+            mainHeader.classList.add('relative'); 
+        });
+
+        compactSearchInput.addEventListener('blur', () => {
+    // When the keyboard closes, put the 'sticky' glue back. 
+            mainHeader.classList.add('sticky', 'top-0');    
+            mainHeader.classList.remove('relative');
+        });
+
 
     </script>
 </body>
