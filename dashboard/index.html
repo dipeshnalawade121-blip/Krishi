@@ -61,6 +61,7 @@
 
     <div class="max-w-xl mx-auto bg-white shadow-xl min-h-screen flex flex-col">
 
+        <!-- NOTE: The header starts with 'sticky top-0'. The JS will dynamically change it to 'fixed' on scroll. -->
         <header class="bg-agri-gradient sticky top-0 z-50 shadow-lg">
             
             <div id="header-content" class="flex items-center justify-between p-3">
@@ -367,11 +368,12 @@
         const addressBtnCompact = document.getElementById('address-btn-compact');
         const stickySearchCompact = document.getElementById('sticky-search-compact');
         const addressModal = document.getElementById('address-modal');
-        // NEW: Get the elements for the modals
+        // Get the header element (used for the fix)
+        const mainHeader = document.querySelector('header');
+        // Get the elements for the modals
         const addProductModal = document.getElementById('add-product-modal');
         const addBannerModal = document.getElementById('add-banner-modal'); // NEW             
         
-
 
         
         // Function to handle scroll events for sticky search bar
@@ -384,10 +386,20 @@
                 // Scrolled down: Hide Address, Show Compact Search
                 addressBtnCompact.classList.add('hidden');
                 stickySearchCompact.classList.remove('hidden');
+
+                // 🐛 BUG FIX: Switch from 'sticky' to 'fixed' to prevent mobile keyboard jump
+                mainHeader.classList.remove('sticky');
+                // These classes ensure the fixed header respects the parent's width constraint (max-w-xl mx-auto)
+                mainHeader.classList.add('fixed', 'top-0', 'left-0', 'right-0', 'w-full', 'max-w-xl', 'mx-auto'); 
+
             } else {
                 // Scrolled up: Show Address, Hide Compact Search
                 addressBtnCompact.classList.remove('hidden');
                 stickySearchCompact.classList.add('hidden');
+
+                // 🐛 BUG FIX: Switch back from 'fixed' to 'sticky'
+                mainHeader.classList.add('sticky');
+                mainHeader.classList.remove('fixed', 'top-0', 'left-0', 'right-0', 'w-full', 'max-w-xl', 'mx-auto');
             }
         });
 
