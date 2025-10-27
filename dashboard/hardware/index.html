@@ -1,559 +1,459 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>फार्म शॉप | [Your Shop Name] - टेम्पलेट</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Screen with Header</title>
+    
+<script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for the app's overall look */
+        /* Custom font for a clean look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7;
         }
-        /* Customizing Tailwind config for a consistent green theme */
-        :root {
-            /* Primary Green - Used for accents, buttons, links, etc. */
-            --primary-green: #38A169;
-            /* Header/Dark Theme Color (for high contrast text) */
-            --dark-green: #1B4D3E;
+
+        /* Ensure the main container takes full viewport height for centering */
+        .mobile-frame-container {
+            height: 100vh;
         }
-        .text-primary { color: var(--primary-green); }
-        .bg-primary { background-color: var(--primary-green); }
-        .bg-dark-green { background-color: var(--dark-green); }
-        .border-primary { border-color: var(--primary-green); }
         
-        /* Custom styles for category selection buttons */
-        .category-select-btn.selected {
-            background-color: var(--primary-green);
-            color: white;
-            border-color: var(--dark-green);
+        /* Define the exact fractional pixel dimensions */
+        .precise-dimensions {
+            width: 366px; /* Retained: 366px width */
+            height: 672px; /* Retained: 672px height */
         }
 
-        /* Custom Vertical Gradient: Dark Forest Green to Emerald (Mango Leaf Vibe) */
-        .bg-agri-gradient {
-            background-image: linear-gradient(to bottom, #004D40, #00A050); 
+        /* Define the custom color for the header and body background */
+        .bg-1b1c1d {
+            background-color: #1b1c1d;
         }
 
-        /* Hide scrollbars but allow scrolling */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
+        /* Custom style for the subtle Edit button */
+        .edit-btn {
+            background-color: transparent;
+            border: 1px solid #3f4041;
         }
-        .hide-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+        .edit-btn:hover {
+            border-color: #ffffff;
+            background-color: #2c2d2e;
         }
+
+        /* Profile Page Styles */
+        .profile-page-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f7f7f7; /* Light background similar to image */
+            z-index: 100; /* Ensure it covers everything */
+            overflow-y: auto; /* Enable scrolling for content */
+            transition: transform 0.3s ease-out; /* Smooth slide-in effect */
+            transform: translateX(100%); /* Start off-screen to the right */
+        }
+        .profile-page-container.visible {
+            transform: translateX(0%); /* Slide in when visible */
+        }
+
+        /* ADDED: Profile Menu Styles (for visibility) */
+        #profile-menu.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale-100;
+        }
+        /* END ADDED */
+
+        html, body {
+    height: 100%;
+    overflow: hidden; /* Prevent any scrolling */
+        }      
+        
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#38A169', // Custom Green Accent
-                        'agri-dark': '#1B4D3E', // Custom Dark Green for Text
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body>
+<body class="bg-1b1c1d">
 
-    <div class="max-w-xl mx-auto bg-white shadow-xl min-h-screen flex flex-col">
-
-        <header class="bg-agri-gradient sticky top-0 z-50 shadow-lg">
-            
-            <div id="header-content" class="flex items-center justify-between p-3">
-                
-                <div id="shop-logo-name" class="flex items-center space-x-2 flex-shrink-0">
-                    <span class="text-white text-xl">&#127807;</span> 
-                    <h1 class="text-lg font-bold text-white">
-                        [Your Shop Name]
-                    </h1>
-                </div>
-
-                <div id="header-dynamic-right" class="flex items-center justify-end w-2/3 ml-2">
-                    
-                    <button id="address-btn-compact" class="text-sm font-semibold text-white/90 hover:text-white transition w-full text-right" onclick="showAddressModal()">
-                        [City], [Pincode]
-                    </button>
-                    
-                    <div id="sticky-search-compact" class="relative hidden w-full">
-                        <input type="text" placeholder="उत्पादने शोधा..." 
-                               class="w-full py-1.5 pl-8 pr-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-white focus:border-white text-sm shadow-md text-gray-800"
-                               onfocus="this.placeholder='शोधण्यासाठी टाइप करा...'" 
-                               onblur="this.placeholder='उत्पादने शोधा...'">
-                        <svg class="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <section id="primary-search-section" class="p-3 pt-2 pb-2 bg-white shadow-sm">
-            <div class="relative">
-                <input type="text" placeholder="उत्पादन शोधा (Search Products)..." 
-                       class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm shadow-inner"
-                       onfocus="this.placeholder='शोधण्यासाठी टाइप करा...'" 
-                       onblur="this.placeholder='उत्पादन शोधा (Search Products)...'">
-                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
-        </section>
-
-        <div class="h-2 bg-agri-gradient shadow-md"></div>
+    
+<div class="h-screen w-screen relative">
         
-        <main class="flex-grow bg-[#f1f1f1]">
-            
-            <section class="p-3">
-                <div class="relative overflow-hidden rounded-lg shadow-md bg-gray-100 h-48 sm:h-64">
-                    
-                    <div id="banner-slider" class="flex transition-transform duration-500 ease-in-out h-full">
-                        <div class="min-w-full flex flex-col items-center justify-center bg-primary text-white text-center p-4 cursor-pointer" 
-                             onclick="openAddBannerModal(0)"> 
-                            <h2 class="text-xl font-extrabold mb-1">पहिला बॅनर: मोठी ऑफर!</h2>
-                            <p class="text-sm font-medium">येथे तुमच्या **सर्वात मोठ्या सिझन ऑफर** चा फोटो अपलोड करा.</p>
-                            <p class="text-xs mt-1 opacity-80">(उदा. 'दिवाळी ऑफर', 'नवीन माल आला')</p>
-                        </div>
-                        <div class="min-w-full flex flex-col items-center justify-center bg-yellow-600 text-white text-center p-4 cursor-pointer"
-                             onclick="openAddBannerModal(1)">
-                             <h2 class="text-xl font-extrabold mb-1">दुसरा बॅनर: खास उत्पादन!</h2>
-                            <p class="text-sm font-medium">येथे तुमच्या **सर्वाधिक विकल्या जाणाऱ्या उत्पादनाचा** फोटो अपलोड करा.</p>
-                            <p class="text-xs mt-1 opacity-80">(येथे जास्तीत जास्त २ बॅनर ठेवा)</p>
-                        </div>
-                        <div class="min-w-full flex flex-col items-center justify-center bg-blue-600 text-white text-center p-4 cursor-pointer"
-                             onclick="openAddBannerModal(2)">
-                             <h2 class="text-xl font-extrabold mb-1">तिसरा बॅनर: सूचना!</h2>
-                            <p class="text-sm font-medium">येथे शेतीबद्दलच्या **महत्त्वाच्या सूचनांचा** बॅनर जोडा.</p>
-                            <p class="text-xs mt-1 opacity-80">(उदा. 'हवामान अंदाज', 'नवीन नियम')</p>
-                        </div>
-                    </div>
-
-                    <button onclick="changeSlide(-1)" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <button onclick="changeSlide(1)" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
-
-                    <div id="slider-dots" class="absolute bottom-2 left-0 right-0 flex justify-center space-x-2">
-                        </div>
-                </div>
-            </section>
-
-            <section class="p-3 pt-0">                
-                <div class="flex justify-between space-x-2 hide-scrollbar overflow-x-auto pb-2">
-                    
-                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="बीज">
-                        <div class="p-3 mb-1 bg-yellow-100 rounded-full border border-yellow-300 transition">
-                            <span class="text-2xl" role="img" aria-label="Seed">🌱</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">बीज</span>
-                    </button>
-
-                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="संरक्षण">
-                        <div class="p-3 mb-1 bg-red-100 rounded-full border border-red-300 transition">
-                             <span class="text-2xl" role="img" aria-label="Protection">🛡️</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">संरक्षण</span>
-                    </button>
-                    
-                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="हार्डवेअर">
-                        <div class="p-3 mb-1 bg-blue-100 rounded-full border border-blue-300 transition">
-                             <span class="text-2xl" role="img" aria-label="Hardware">🛠️</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">हार्डवेअर</span>
-                    </button>
-                    
-                    <button class="category-btn group flex-shrink-0 w-1/4 max-w-[100px] flex flex-col items-center p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition transform hover:scale-[1.02]" data-category="पोषण">
-                        <div class="p-3 mb-1 bg-green-100 rounded-full border border-green-300 transition">
-                             <span class="text-2xl" role="img" aria-label="Nutrition">🧪</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">पोषण</span>
-                    </button>
-                </div>
-            </section>
-
-            <section class="p-3 bg-[#f1f1f1]">
-                <h2 class="text-lg font-semibold text-agri-dark mb-3 flex items-center justify-between">
-                    उत्पादन व्यवस्थापन (Product Management)
-                    <span id="product-count" class="text-sm font-normal text-gray-500">0/50 उत्पादने</span>
-                </h2>
-
-                <div onclick="openAddProductModal()" 
-                     class="bg-white p-4 rounded-xl shadow-lg mb-4 flex items-center justify-between border-2 border-dashed border-primary/50 cursor-pointer hover:bg-green-50 transition transform hover:scale-[1.01]">
-                    <div class="flex items-center">
-                        <span class="text-3xl text-primary font-bold mr-3">+</span>
-                        <p class="text-lg font-medium text-agri-dark">नवीन उत्पादन जोडा</p>
-                    </div>
-                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-
-                <div id="product-list-container" class="flex space-x-4 pb-2 hide-scrollbar overflow-x-scroll">
-                    <div id="product-list-placeholder" class="text-center text-gray-500 p-4 w-full flex-shrink-0 bg-white rounded-lg shadow-inner">
-                        <p class="text-sm">तुमची जोडलेली उत्पादने येथे दिसतील. 'नवीन उत्पादन जोडा' वर क्लिक करा.</p>
-                    </div>
-                </div>
-            </section>
-            
-            <section class="p-3">
-                <h2 class="text-lg font-semibold text-agri-dark mb-3">खास उत्पादने (Featured Products)</h2>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    
-                    <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
-                        <span class="text-4xl text-primary mb-2">+</span>
-                        <p class="text-sm font-medium text-agri-dark">उत्पादन १ निवडा</p>
-                        <p class="text-xs text-gray-500">(बीज/संरक्षण/हार्डवेअर/पोषण मधून)</p>
-                    </div>
-
-                    <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
-                        <span class="text-4xl text-primary mb-2">+</span>
-                        <p class="text-sm font-medium text-agri-dark">उत्पादन २ निवडा</p>
-                        <p class="text-xs text-gray-500">(उत्पादन बदलण्यासाठी क्लिक करा)</p>
-                    </div>
-
-                    <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
-                        <span class="text-4xl text-primary mb-2">+</span>
-                        <p class="text-sm font-medium text-agri-dark">उत्पादन ३ निवडा</p>
-                        <p class="text-xs text-gray-500">(हे उत्पादन नेहमी समोर दिसेल)</p>
-                    </div>
-
-                    <div class="product-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center justify-center h-40 p-3 border-2 border-dashed border-primary/50 text-center hover:shadow-lg transition">
-                        <span class="text-4xl text-primary mb-2">+</span>
-                        <p class="text-sm font-medium text-agri-dark">उत्पादन ४ निवडा</p>
-                        <p class="text-xs text-gray-500">(तुमच्या आवडीनुसार बदला)</p>
-                    </div>
-
-                </div>
-            </section>
-        </main>
         
-        <footer class="bg-agri-gradient text-white pt-6 pb-2 mt-4 rounded-t-lg shadow-inner">
-            <div class="px-4">
+<!-- Top Left Title + Subtitle -->
+<div class="absolute top-8 left-8 z-10">
+    <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>
+    <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>
+</div>
+        
+<div id="profile-icon" class="absolute top-6 right-6 cursor-pointer z-10 hover:opacity-80 transition duration-150">        
+
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </div>
+
+        
+<div class="mobile-frame-container flex items-center justify-center w-full h-[98vh]">
+
+            
+<div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" style="transform: translateY(-1.5%); border-color: #474747;">
+
                 
-                <div class="mb-4">
-                    <h3 class="text-lg font-bold text-white mb-2">आमच्याशी संपर्क साधा</h3>
-                    <div class="space-y-1 text-sm text-gray-100">
-                        <p class="flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                            पत्ता: [Full Shop Address Line 1]
-                        </p>
-                        <p class="flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.83 21 3 13.17 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.57.11.35.03.75-.24 1.02l-2.2 2.2z"/></svg>
-                            फोन: [Shop Mobile Number]
-                        </p>
-                        <p class="flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm3 0h-2v-2h2v2zm-3-3H9V9h2v4zm3 0h-2V9h2v4z"/></svg>
-                            व्हॉट्सॲप: [WhatsApp Number]
-                        </p>
+<div class="w-full h-full bg-[#1b1c1d] flex flex-col">
+                    
+                    
+<header class="w-full h-[57px] bg-1b1c1d flex items-center justify-between px-4 text-white border-b" style="border-color: #434343;">
+                        
+<div class="flex space-x-2">
+                            
+<!-- UPDATED: Added ID, onclick, and initial disabled state for the Edit button -->
+<button id="edit-btn" onclick="editAction()" disabled class="edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-gray-200 transition duration-200 opacity-50 cursor-not-allowed">Edit</button>
+                            
+                            
+<!-- UPDATED: Added ID and onclick for the Save button -->
+<button id="save-btn" onclick="saveAction()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white transition duration-300 transform hover:scale-[1.03]">Save</button>
+                        </div>
+                        
+                        
+<button id="publish-delete-btn" onclick="showPublishModal()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]">Publish</button>
+                    </header>
+
+                    
+<div id="mobile-content-area" class="flex-grow p-4 relative">
+                        <!-- NEW: Status Message Container -->
+                        <div id="status-message" class="absolute top-4 left-1/2 -translate-x-1/2 w-11/12 text-center p-3 rounded-xl z-50 transition-all duration-500 opacity-0 transform -translate-y-4 pointer-events-none">
+                            <!-- Content will be injected here -->
+                        </div>
+                        <div class="flex items-center justify-center h-full text-center text-gray-400">
+                            <p class="text-sm font-medium">Mobile Dashboard Screen</p>
+                        </div>
                     </div>
+                    
                 </div>
-
-                <div class="border-t border-white/40 pt-3 mt-3">
-                    <h3 class="text-sm font-semibold text-white mb-2">महत्त्वाची माहिती</h3>
-                    <ul class="flex flex-wrap text-xs text-gray-200">
-                        <li class="mr-3"><a href="#" class="hover:text-white transition">आमच्याबद्दल</a></li>
-                        <li class="mr-3"><a href="#" class="hover:text-white transition">गोपनीयता धोरण</a></li>
-                        <li class="mr-3"><a href="#" class="hover:text-white transition">वापर अटी</a></li>
-                        <li class="mr-3"><a href="#" class="hover:text-white transition">रिटर्न पॉलिसी</a></li>
-                    </ul>
-                </div>
+                
             </div>
+        </div>
+    </div>
 
-            <div class="text-center text-xs text-white/70 border-t border-white/40 mt-4 pt-2 px-4">
-                &copy; 2025 [Your Shop Name]. सर्व हक्क राखीव. (All Rights Reserved).
-            </div>
-        </footer>
+    
+<div id="profile-menu" class="absolute top-16 right-6 z-50 rounded-xl shadow-2xl bg-white border border-gray-200 opacity-0 pointer-events-none transition duration-300 transform scale-95 origin-top-right w-48">
+        <div class="p-2 space-y-1">
+            
+<a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition" onclick="openProfilePage(event)">
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                Profile
+            </a>
+            
+<a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition">
+                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                About Us
+            </a>
+            
+<a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition">
+                <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.247a1 1 0 01.768-.135l2.748.718a.99.99 0 001.258-.879V8a2 2 0 10-4 0v1.247zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Help / Support
+            </a>
+        </div>
+    </div>
+    
+    <!-- PUBLISH CONFIRMATION MODAL -->
+    <div id="publish-modal" class="fixed inset-0 z-[110] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-1b1c1d rounded-xl shadow-2xl max-w-sm w-full p-6 mx-auto transform transition-all scale-100 border border-gray-700">
+            <!-- Title -->
+            <h3 class="text-xl font-extrabold text-white mb-4">Publish Store</h3>
+            
+            <!-- Message -->
+            <p class="text-gray-300 mb-6 text-sm">
+                You’re about to make your store publicly available at:
+                <span class="block font-semibold text-blue-400 my-1">[yourstore.krishi.site]</span>
+                Please review all content and settings before proceeding.
+                Select <strong class="text-white">Publish</strong> to go live or <strong class="text-white">Cancel</strong> to return.
+            </p>
 
-
-        <div id="address-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg p-6 shadow-2xl w-full max-w-sm">
-                <h3 class="text-xl font-bold mb-3 text-agri-dark">संपूर्ण पत्ता (Full Address)</h3>
-                <p class="text-gray-700 mb-4">
-                    **[Your Shop Name]**<br>
-                    Plot No. 123, New Market Yard,<br>
-                    Main Road, Near Bus Stand,<br>
-                    [City], Maharashtra, [Pincode]
-                </p>
-                <button onclick="document.getElementById('address-modal').classList.add('hidden')" class="w-full bg-primary text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-                    बंद करा
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-3">
+                <button onclick="hidePublishModal()" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-200 bg-gray-700 hover:bg-gray-600 transition">
+                    Cancel
+                </button>
+                <button onclick="publishAction()" class="px-4 py-2 text-sm font-bold rounded-lg bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-400 hover:to-teal-400 text-white transition">
+                    Publish
                 </button>
             </div>
         </div>
-        
-        <div id="add-banner-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeAddBannerModal()">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto p-6 transition-all duration-300">
-                <h3 class="text-2xl font-bold mb-4 text-agri-dark">बॅनर फोटो अपलोड करा</h3>
-                
-                <form id="add-banner-form" class="space-y-4">
-                    
-                    <div class="border-b pb-4 border-gray-200">
-                        <label class="block text-lg font-bold text-gray-800 mb-2">बॅनर फोटो (Upload Banner Image)</label>
-                        <div id="banner-img-preview" class="h-32 w-full bg-gray-100 mb-2 rounded-lg border border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
-                            <img id="banner-img-tag" src="" class="hidden w-full h-full object-cover">
-                            <span id="banner-img-text" class="text-xs text-gray-500">बॅनर फोटो निवडा (Max 200KB, Widescreen)</span>
-                        </div>
-                        <input type="file" id="banner-img-file" accept="image/*" required class="mt-1 block w-full text-sm text-gray-700">
-                        <p class="text-xs text-red-600 mt-1 font-medium">
-                            **महत्त्वाचे:** कृपया फक्त **200KB** पर्यंतचा वाइडस्क्रीन फोटो अपलोड करा.
-                        </p>
-                    </div>
+    </div>
+    
+    <!-- NEW: DELETE CONFIRMATION MODAL -->
+    <div id="delete-modal" class="fixed inset-0 z-[115] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-1b1c1d rounded-xl shadow-2xl max-w-sm w-full p-6 mx-auto transform transition-all scale-100 border border-gray-700">
+            <h3 class="text-xl font-extrabold text-red-500 mb-4">Delete Store Permanently</h3>
+            <p class="text-gray-300 mb-4 text-sm">
+                This will erase all products, images, and settings.
+                Your store (<span class="font-semibold text-red-400">[yourstore.krishi.site]</span>) will be permanently deleted and cannot be recovered.
+            </p>
 
-                    <input type="hidden" id="banner-slide-index" value="-1">
+            <!-- Confirmation Input -->
+            <label for="delete-confirm-input" class="block text-sm font-medium text-gray-400 mb-2">Type "DELETE" to confirm:</label>
+            <input type="text" id="delete-confirm-input" placeholder="Type DELETE" class="block w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm mb-6">
 
-                    <button type="submit" id="save-banner-btn" 
-                            class="w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-lg shadow-md hover:bg-green-700 transition transform hover:scale-[1.01]">
-                        बॅनर जतन करा (Save Banner)
-                    </button>
-                </form>
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-3">
+                <button onclick="hideDeleteModal()" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-200 bg-gray-700 hover:bg-gray-600 transition">
+                    Cancel
+                </button>
+                <button onclick="confirmDeleteAction()" class="px-4 py-2 text-sm font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white transition">
+                    Confirm Delete
+                </button>
             </div>
         </div>
-        <div id="add-product-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeAddProductModal()">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 transition-all duration-300">
-                <h3 class="text-2xl font-bold mb-4 text-agri-dark">नवीन उत्पादन जोडा</h3>
-                
-                <form id="add-product-form" class="space-y-4">
-                    
-                    <div class="border-b pb-4 border-gray-200">
-                        <label class="block text-lg font-bold text-gray-800 mb-2">उत्पादन फोटो (Upload Photo)</label>
-                        <div id="product-img-preview" class="h-20 w-full bg-gray-100 mb-2 rounded-lg border border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
-                            <img id="product-img-tag" src="" class="hidden w-full h-full object-cover">
-                            <span id="product-img-text" class="text-xs text-gray-500">फोटो निवडा (Max 100KB)</span>
-                        </div>
-                        <input type="file" id="product-img-file" accept="image/*" required class="mt-1 block w-full text-sm text-gray-700">
-                        <p class="text-xs text-red-600 mt-1 font-medium">
-                            **महत्त्वाचे:** कृपया फक्त **100KB** पर्यंतचा फोटो अपलोड करा.
-                        </p>
-                    </div>
+    </div>
+    <!-- END NEW -->
 
-                    <div>
-                        <label for="product-name" class="block text-sm font-medium text-gray-700">उत्पादनाचे नाव (Product Name)</label>
-                        <input type="text" id="product-name" required maxlength="50"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                               placeholder="उदा. सिजेंटा सोयाबीन बियाणे">
-                    </div>
 
-                    <div>
-                        <label for="product-price" class="block text-sm font-medium text-gray-700">किंमत (Price - ₹)</label>
-                        <input type="number" id="product-price" required min="1" step="0.01"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                               placeholder="₹ 1500.00">
-                    </div>
-
-                    <div>
-                        <label for="product-description" class="block text-sm font-medium text-gray-700">उत्पादनाचे वर्णन (Description)</label>
-                        <textarea id="product-description" rows="3" required maxlength="300"
-                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm resize-none"
-                                  placeholder="उत्पादनाची माहिती, फायदे, उपयोग आणि वापरण्याची पद्धत."></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">उत्पादन वर्ग (Category)</label>
-                        <div id="category-options" class="flex flex-wrap gap-2">
-                            <button type="button" data-category="बीज" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">बीज</button>
-                            <button type="button" data-category="संरक्षण" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">संरक्षण</button>
-                            <button type="button" data-category="हार्डवेअर" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">हार्डवेअर</button>
-                            <button type="button" data-category="पोषण" class="category-select-btn px-4 py-2 text-sm font-medium rounded-full border border-gray-300 bg-gray-100 text-gray-700 hover:bg-primary/20 transition duration-150">पोषण</button>
-                            <input type="hidden" id="product-category" required>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="save-product-btn" 
-                            class="w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-lg shadow-md hover:bg-green-700 transition transform hover:scale-[1.01]">
-                        उत्पादन जतन करा (Save)
-                    </button>
-                </form>
-            </div>
+    <!-- PROFILE PAGE (Full-Screen Overlay) --><div id="profile-page" class="profile-page-container">
+        <!-- Close Button (Top Left of the profile page) --><div class="absolute top-4 left-4 z-10">
+            <button onclick="closeProfilePage()" class="p-2 rounded-full text-gray-600 hover:bg-gray-200 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
         </div>
 
+        <div class="max-w-md mx-auto p-6 md:p-8 pt-16"> <!-- Increased padding top to account for close button --><!-- Header Section --><div class="flex items-center space-x-3 mb-8">
+                <div class="bg-green-100 p-2 rounded-full">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-gray-900">Create Your Digital Profile</h1>
+            </div>
+
+            <!-- Form Fields --><div class="space-y-6">
+                <!-- Shop Name --><div>
+                    <label for="shop-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Name</label>
+                    <input type="text" id="shop-name" placeholder="e.g., Kisan Fertilizer Store" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <!-- Your Name --><div>
+                    <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Your Name</label>
+                    <input type="text" id="user-name" placeholder="Your Full Name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <!-- Mobile Number --><div>
+                    <label for="mobile-number" class="block text-sm font-medium text-gray-700 mb-1">User Mobile Number</label>
+                    <div class="mt-1 flex rounded-lg shadow-sm">
+                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                            +91
+                        </span>
+                        <input type="tel" id="mobile-number" placeholder="10 digit number" class="flex-1 block w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+
+                <!-- Email Address --><div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Enter Email (Optional)</label>
+                    <input type="email" id="email" placeholder="optional@gmail.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <!-- Shop Address --><div>
+                    <label for="shop-address" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Address</label>
+                    <textarea id="shop-address" rows="3" placeholder="Full physical address" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>
+                </div>
+
+                <!-- Select Shop Location on Map Button --><button class="w-full flex items-center justify-center px-4 py-2.5 border border-green-600 rounded-lg shadow-sm text-base font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Select Shop Location on Map
+                </button>
+            </div>
+
+            <!-- Save Profile Button --><div class="mt-8 mb-4">
+                <button class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">
+                    Save Profile
+                </button>
+            </div>
+
+            <!-- User ID --><div class="text-center text-xs text-gray-500 mt-4">
+                Your User ID: Loading...
+            </div>
+
+        </div>
     </div>
 
     <script>
-        // --- JAVASCRIPT LOGIC ---
+        // Global State (Simulating published status)
+        let isPublished = false;
 
-        // Get the elements required for the sticky search bar logic
-        const primarySearchSection = document.getElementById('primary-search-section');
-        const addressBtnCompact = document.getElementById('address-btn-compact');
-        const stickySearchCompact = document.getElementById('sticky-search-compact');
-        const addressModal = document.getElementById('address-modal');
-        // NEW: Get the elements for the modals
-        const addProductModal = document.getElementById('add-product-modal');
-        const addBannerModal = document.getElementById('add-banner-modal'); // NEW
-
-        
-        // Function to handle scroll events for sticky search bar
-        window.addEventListener('scroll', () => {
-            // Get the position of the primary search bar's bottom edge
-            const primarySearchBottom = primarySearchSection.getBoundingClientRect().bottom;
+        // --- Edit/Save Lock/Unlock Functions (NEW) ---
+        function saveAction() {
+            const saveBtn = document.getElementById('save-btn');
+            const editBtn = document.getElementById('edit-btn');
             
-            // Check if the primary search bar has scrolled completely out of view (i.e., its bottom edge is at or above 0px)
-            if (primarySearchBottom <= 0) {
-                // Scrolled down: Hide Address, Show Compact Search
-                addressBtnCompact.classList.add('hidden');
-                stickySearchCompact.classList.remove('hidden');
+            // 1. Lock Save Button
+            saveBtn.disabled = true;
+            saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            saveBtn.classList.remove('hover:from-teal-400', 'hover:to-green-400', 'hover:scale-[1.03]');
+            
+            // 2. Unlock Edit Button
+            editBtn.disabled = false;
+            editBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            // Show a temporary message that settings are saved
+            showTempMessage("Profile settings saved successfully!", true);
+        }
+
+        function editAction() {
+            const saveBtn = document.getElementById('save-btn');
+            const editBtn = document.getElementById('edit-btn');
+
+            // 1. Unlock Save Button
+            saveBtn.disabled = false;
+            saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            saveBtn.classList.add('hover:from-teal-400', 'hover:to-green-400', 'hover:scale-[1.03]');
+            
+            // 2. Lock Edit Button (since we are now in edit mode)
+            editBtn.disabled = true;
+            editBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            // Show a temporary message that editing is enabled
+            showTempMessage("Edit mode enabled. Don't forget to Save!", false); // Use non-success color to indicate active editing
+        }
+
+
+        // --- Status Message Functions ---
+        function showTempMessage(message, isSuccess) {
+            const statusDiv = document.getElementById('status-message');
+            
+            // Apply appropriate styling based on success/error
+            const bgClass = isSuccess ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
+            
+            statusDiv.className = `absolute top-4 left-1/2 -translate-x-1/2 w-11/12 text-center p-3 rounded-xl z-50 transition-all duration-500 transform pointer-events-none ${bgClass}`;
+            statusDiv.innerHTML = message;
+            
+            // Show the message (remove opacity and translate class)
+            setTimeout(() => {
+                statusDiv.classList.remove('opacity-0', '-translate-y-4');
+            }, 50); 
+            
+            // Hide the message after 4 seconds
+            setTimeout(() => {
+                statusDiv.classList.add('opacity-0', '-translate-y-4');
+            }, 4000);
+        }
+
+        // --- Publish/Delete Button Update ---
+        function updatePublishButton() {
+            const btn = document.getElementById('publish-delete-btn');
+            
+            if (isPublished) {
+                // Change to DELETE button style (matching Edit button style, but red text)
+                btn.textContent = 'Delete Store';
+                btn.onclick = showDeleteModal;
+                // CHANGED: Styling to match edit-btn
+                btn.className = 'edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-red-500 transition duration-200 hover:border-red-500 hover:text-red-500/80';
             } else {
-                // Scrolled up: Show Address, Hide Compact Search
-                addressBtnCompact.classList.remove('hidden');
-                stickySearchCompact.classList.add('hidden');
+                // Change back to PUBLISH button style
+                btn.textContent = 'Publish';
+                btn.onclick = showPublishModal;
+                btn.className = 'px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]';
             }
-        });
-
-
-        // 1. Address Modal Toggle Function
-        window.showAddressModal = function() {
-            addressModal.classList.remove('hidden');
         }
 
-        // Close modal when clicking outside (optional)
-        addressModal.addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                addressModal.classList.add('hidden');
-            }
-        });
-        
-        // 2. Add Product Modal Toggle Functions
-        window.openAddProductModal = function() {
-            addProductModal.classList.remove('hidden');
-            // No temporary message as requested previously
+        // --- Publish Modal Functions ---
+        function showPublishModal() {
+            document.getElementById('publish-modal').classList.remove('hidden');
         }
 
-        window.closeAddProductModal = function() {
-            addProductModal.classList.add('hidden');
+        function hidePublishModal() {
+            document.getElementById('publish-modal').classList.add('hidden');
         }
 
-        // 3. NEW BANNER MODAL LOGIC
-        window.openAddBannerModal = function(slideIndex) {
-            // Set the hidden input value to track which slide is being edited (0, 1, or 2)
-            document.getElementById('banner-slide-index').value = slideIndex;
+        function publishAction() {
+            hidePublishModal(); 
+            isPublished = true;
+            updatePublishButton();
             
-            // In a real app, you'd load the current banner image/data here
-            
-            addBannerModal.classList.remove('hidden');
-            
-            // Show message indicating which slide is open
-            const msg = document.createElement('div');
-            msg.textContent = `बॅनर ${slideIndex + 1} अपलोड करण्यासाठी फॉर्म उघडला.`;
-            msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
-            document.body.appendChild(msg);
-            setTimeout(() => msg.remove(), 2500);
+            // Show temporary success message
+            const link = '[yourstore.krishi.site]';
+            const message = `
+                Congratulations! Your store is online now at 
+                <a href="#" class="font-bold underline">${link}</a>
+            `;
+            showTempMessage(message, true);
         }
 
-        window.closeAddBannerModal = function() {
-            addBannerModal.classList.add('hidden');
+        // --- Delete Modal Functions ---
+        function showDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('hidden');
+            // Clear input on open
+            document.getElementById('delete-confirm-input').value = ''; 
         }
 
-        // Banner Form Submission Handler
-        document.getElementById('add-banner-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const slideIndex = document.getElementById('banner-slide-index').value;
-            
-            // In a real app, the image would be uploaded and the slider HTML updated here.
-            console.log(`Banner for Slide ${parseInt(slideIndex) + 1} submitted (Placeholder)`);
-            
-            closeAddBannerModal();
-            
-            // Show success message
-            const msg = document.createElement('div');
-            msg.textContent = `बॅनर ${parseInt(slideIndex) + 1} यशस्वीरित्या जतन केला (Placeholder)!`;
-            msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
-            document.body.appendChild(msg);
-            setTimeout(() => msg.remove(), 3000);
-        });
-        
-        // 4. Add Product Modal Category Selection Logic
-        document.querySelectorAll('#category-options .category-select-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                // Remove 'selected' from all
-                document.querySelectorAll('#category-options .category-select-btn').forEach(btn => btn.classList.remove('selected'));
-                // Add 'selected' to clicked button
-                e.currentTarget.classList.add('selected');
-                document.getElementById('product-category').value = e.currentTarget.getAttribute('data-category');
-            });
-        });
-        
-        // 5. Add Product Form Submission (Simple placeholder logic)
-        document.getElementById('add-product-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            // In a real app, form data would be validated and sent to a server/database
-            console.log("Product Form Submitted (Placeholder)");
-            
-            closeAddProductModal();
-            
-            // Show success message
-            const msg = document.createElement('div');
-            msg.textContent = `उत्पादन यशस्वीरित्या जतन केले (Placeholder)!`;
-            msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
-            document.body.appendChild(msg);
-            setTimeout(() => msg.remove(), 3000);
-        });
+        function hideDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
 
+        function confirmDeleteAction() {
+            const input = document.getElementById('delete-confirm-input').value;
 
-        // 6. Category Button Click Logic
-        document.querySelectorAll('.category-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const category = event.currentTarget.getAttribute('data-category');
+            // CHANGED: Use .toUpperCase() to allow any case (e.g., 'delete', 'Delete', 'DELETE')
+            if (input.toUpperCase() === 'DELETE') {
+                hideDeleteModal();
                 
-                // This is where the user will be transferred to the product listing page for that category.
-                console.log(`Navigating to the product listing page for category: ${category}`);
-
-                // Show temporary message (instead of alert)
-                const msg = document.createElement('div');
-                msg.textContent = `${category} वर्गातील उत्पादने पाहत आहे...`;
-                msg.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-agri-dark text-white px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 z-50';
-                document.body.appendChild(msg);
-                setTimeout(() => msg.remove(), 2500);
-            });
-        });
-
-
-        // 7. Sliding Banner Logic (Existing)
-        const slider = document.getElementById('banner-slider');
-        const dotsContainer = document.getElementById('slider-dots');
-        const slides = slider.children;
-        const totalSlides = slides.length;
-        let currentSlide = 0;
-
-        // Function to update the slider's position
-        function updateSlider() {
-            const offset = -currentSlide * 100;
-            slider.style.transform = `translateX(${offset}%)`;
-            updateDots();
-        }
-
-        // Function to change the slide
-        window.changeSlide = function(direction) {
-            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
-            updateSlider();
-        }
-
-        // Function to jump to a specific slide
-        function goToSlide(index) {
-            currentSlide = index;
-            updateSlider();
-        }
-        
-        // Function to create and update navigation dots
-        function updateDots() {
-            dotsContainer.innerHTML = '';
-            for (let i = 0; i < totalSlides; i++) {
-                const dot = document.createElement('button');
-                // Dot color uses white for contrast against the banner backgrounds
-                dot.className = `w-2 h-2 rounded-full transition-colors ${i === currentSlide ? 'bg-white scale-125' : 'bg-white bg-opacity-75'}`;
-                dot.onclick = () => goToSlide(i);
-                dotsContainer.appendChild(dot);
+                // Perform delete action (simulate)
+                isPublished = false;
+                updatePublishButton();
+                
+                // Show temporary delete success message
+                showTempMessage("Store successfully deleted. You can publish again anytime.", false); // Use red/error color for deletion success
+            } else {
+                showTempMessage("Error: Confirmation text did not match 'DELETE'. Deletion aborted.", false);
             }
         }
+        
+        // --- Profile Page/Menu Functions (Untouched) ---
 
-        // Initialize slider on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            updateSlider();
-        });
+        function toggleProfilePage(isVisible) {
+            const profilePage = document.getElementById('profile-page');
+            if (typeof isVisible === 'boolean') {
+                profilePage.classList.toggle('visible', isVisible);
+            } else {
+                profilePage.classList.toggle('visible');
+            }
+        }
+        
+        function closeProfilePage() {
+            toggleProfilePage(false);
+        }
 
-        // Auto-slide functionality 
-        setInterval(() => {
-            changeSlide(1);
-        }, 5000); 
+        function toggleProfileMenu() {
+            const profileMenu = document.getElementById('profile-menu');
+            profileMenu.classList.toggle('visible');
+        }
 
+        function openProfilePage(event) {
+            event.preventDefault();
+            toggleProfileMenu(); 
+            toggleProfilePage(true); 
+        }
+
+        // --- Initialization ---
+        window.onload = function() {
+            const profileIcon = document.getElementById('profile-icon');
+            const profilePage = document.getElementById('profile-page');
+            const profileMenu = document.getElementById('profile-menu'); 
+
+            if (profileIcon) {
+                profileIcon.addEventListener('click', toggleProfileMenu);
+            }
+            
+            profilePage.classList.remove('visible'); 
+
+            // Initialize button state
+            updatePublishButton(); 
+
+            // Global click listener to close the menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const isMenuVisible = profileMenu.classList.contains('visible');
+                
+                if (isMenuVisible && !profileIcon.contains(event.target) && !profileMenu.contains(event.target)) {
+                    profileMenu.classList.remove('visible');
+                }
+            });
+        };
     </script>
 </body>
 </html>
