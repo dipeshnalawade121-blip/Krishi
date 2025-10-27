@@ -19,8 +19,8 @@
         
         /* Define the exact fractional pixel dimensions */
         .precise-dimensions {
-            width: 390.55px; 
-            height: 724.41px; 
+            width: 366px; /* Retained: 366px width */
+            height: 672px; /* Retained: 672px height */
         }
 
         /* Define the custom color for the header and body background */
@@ -37,57 +37,63 @@
             border-color: #ffffff;
             background-color: #2c2d2e;
         }
+
+        /* Profile Page Styles */
+        .profile-page-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f7f7f7; /* Light background similar to image */
+            z-index: 100; /* Ensure it covers everything */
+            overflow-y: auto; /* Enable scrolling for content */
+            transition: transform 0.3s ease-out; /* Smooth slide-in effect */
+            transform: translateX(100%); /* Start off-screen to the right */
+        }
+        .profile-page-container.visible {
+            transform: translateX(0%); /* Slide in when visible */
+        }
     </style>
 </head>
 <body class="bg-1b1c1d">
 
-    <!-- Wrapper to contain all absolute positioning elements -->
-    <div class="h-screen w-screen relative">
+    <!-- Wrapper to contain all absolute positioning elements --><div class="h-screen w-screen relative">
         
-        <!-- Traffic Light Dots (Top Left, OUTSIDE the simulated phone screen) -->
-        <div class="absolute top-8 left-8 flex space-x-2 items-center">
+        <!-- Traffic Light Dots (Top Left, OUTSIDE the simulated phone screen) --><div class="absolute top-8 left-8 flex space-x-2 items-center z-10">
             <div class="w-3 h-3 bg-red-500 rounded-full shadow-md"></div>
             <div class="w-3 h-3 bg-yellow-500 rounded-full shadow-md"></div>
             <div class="w-3 h-3 bg-green-500 rounded-full shadow-md"></div>
         </div>
         
-        <!-- Profile Icon (Top Right, OUTSIDE the simulated phone screen) - Adjusted Size -->
-        <div class="absolute top-6 right-6 p-2 rounded-full bg-gray-600 hover:bg-gray-500 transition duration-150 cursor-pointer">
+        <!-- Profile Icon (Top Right, OUTSIDE the simulated phone screen) --><div id="profile-icon" class="absolute top-6 right-6 p-2 rounded-full bg-gray-600 hover:bg-gray-500 transition duration-150 cursor-pointer z-10">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
         </div>
 
-        <!-- Main container to center the simulated mobile device -->
-        <div class="mobile-frame-container flex items-center justify-center w-full h-full">
+        <!-- Main container to center the simulated mobile device --><div class="mobile-frame-container flex items-center justify-center w-full h-full">
 
             <!-- 
                 Simulated Mobile Device Frame (Black) 
-                Size: 390.55px x 724.41px, Border: 2px (changed from 4px)
-            -->
-            <div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 border-gray-800 relative">
+            --><div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 border-gray-800 relative">
 
-                <!-- Main Content Screen Area (FULL WHITE) -->
-                <div class="w-full h-full bg-white flex flex-col">
+                <!-- Main Content Screen Area (FULL WHITE) --><div class="w-full h-full bg-white flex flex-col">
                     
-                    <!-- 63px High Header in #1b1c1d Color, updated for button distribution and modern design -->
-                    <header class="w-full h-[63px] bg-1b1c1d flex items-center justify-between px-4 text-white">
-                        <!-- Left Group: Edit & Save Buttons -->
-                        <div class="flex space-x-2">
-                            <!-- Edit Button: Ghost/Subtle Style -->
-                            <button class="edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-gray-200 transition duration-200">Edit</button>
+                    <!-- 57px High Header in #1b1c1d Color --><header class="w-full h-[57px] bg-1b1c1d flex items-center justify-between px-4 text-white">
+                        <!-- Left Group: Edit & Save Buttons --><div class="flex space-x-2">
+                            <!-- Edit Button: Ghost/Subtle Style --><button class="edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-gray-200 transition duration-200">Edit</button>
                             
-                            <!-- Save Button: Vibrant Success Gradient -->
-                            <button class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white transition duration-300 transform hover:scale-[1.03]">Save</button>
+                            <!-- Save Button: Vibrant Success Gradient --><button class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white transition duration-300 transform hover:scale-[1.03]">Save</button>
                         </div>
                         
-                        <!-- Right Group: Publish Button: Strong CTA Gradient -->
-                        <button class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]">Publish</button>
+                        <!-- Right Group: Publish Button: Strong CTA Gradient --><button class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]">Publish</button>
                     </header>
 
-                    <!-- Remaining white content area -->
-                    <div class="flex-grow p-4 relative">
-                        <!-- Content area below the header -->
+                    <!-- Remaining white content area - THIS REMAINS UNTOUCHED --><div id="mobile-content-area" class="flex-grow p-4 relative">
+                        <div class="flex items-center justify-center h-full text-center text-gray-400">
+                            <p class="text-sm font-medium">Mobile Dashboard Screen</p>
+                        </div>
                     </div>
                     
                 </div>
@@ -95,6 +101,90 @@
             </div>
         </div>
     </div>
+
+    <!-- PROFILE PAGE (Full-Screen Overlay) --><div id="profile-page" class="profile-page-container">
+        <!-- Close Button (Top Left of the profile page) --><div class="absolute top-4 left-4 z-10">
+            <button onclick="toggleProfilePage()" class="p-2 rounded-full text-gray-600 hover:bg-gray-200 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+        </div>
+
+        <div class="max-w-md mx-auto p-6 md:p-8 pt-16"> <!-- Increased padding top to account for close button --><!-- Header Section --><div class="flex items-center space-x-3 mb-8">
+                <div class="bg-green-100 p-2 rounded-full">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-gray-900">Create Your Digital Profile</h1>
+            </div>
+
+            <!-- Form Fields --><div class="space-y-6">
+                <!-- Shop Name --><div>
+                    <label for="shop-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Name</label>
+                    <input type="text" id="shop-name" placeholder="e.g., Kisan Fertilizer Store" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <!-- Your Name --><div>
+                    <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Your Name</label>
+                    <input type="text" id="user-name" placeholder="Your Full Name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <!-- Mobile Number --><div>
+                    <label for="mobile-number" class="block text-sm font-medium text-gray-700 mb-1">User Mobile Number</label>
+                    <div class="mt-1 flex rounded-lg shadow-sm">
+                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                            +91
+                        </span>
+                        <input type="tel" id="mobile-number" placeholder="10 digit number" class="flex-1 block w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+
+                <!-- Email Address --><div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Enter Email (Optional)</label>
+                    <input type="email" id="email" placeholder="optional@gmail.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+
+                <!-- Shop Address --><div>
+                    <label for="shop-address" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Address</label>
+                    <textarea id="shop-address" rows="3" placeholder="Full physical address" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>
+                </div>
+
+                <!-- Select Shop Location on Map Button --><button class="w-full flex items-center justify-center px-4 py-2.5 border border-green-600 rounded-lg shadow-sm text-base font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Select Shop Location on Map
+                </button>
+            </div>
+
+            <!-- Save Profile Button --><div class="mt-8 mb-4">
+                <button class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">
+                    Save Profile
+                </button>
+            </div>
+
+            <!-- User ID --><div class="text-center text-xs text-gray-500 mt-4">
+                Your User ID: Loading...
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Function to toggle the visibility of the profile page
+        function toggleProfilePage() {
+            const profilePage = document.getElementById('profile-page');
+            profilePage.classList.toggle('visible'); // Toggles the 'visible' class
+        }
+
+        // Attach event listener to the profile icon on load
+        window.onload = function() {
+            const profileIcon = document.getElementById('profile-icon');
+            if (profileIcon) {
+                profileIcon.addEventListener('click', toggleProfilePage);
+            }
+            // Ensure the profile page is hidden by default
+            const profilePage = document.getElementById('profile-page');
+            profilePage.classList.remove('visible'); 
+        };
+    </script>
 </body>
 </html>
-
