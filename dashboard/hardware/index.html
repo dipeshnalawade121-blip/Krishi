@@ -430,6 +430,80 @@
             toggleProfilePage(true); 
         }
 
+
+        // --- LOAD external single-file webapp.html INTO #mobile-content-area ---
+// This will fetch webapp.html, inject its HTML into #mobile-content-area,
+// move <style> blocks into <head>, and execute its <script> tags
+function loadWebappIntoShell(path = 'webapp.html') {
+  fetch(path).then(r => r.text()).then(htmlText => {
+    // Parse fetched html
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+
+    // 1) Move <style> tags to current document head (so CSS applies)
+    Array.from(doc.querySelectorAll('style')).forEach(styleEl => {
+      // avoid duplicate if same content already exists — optional simple guard
+      const duplicate = Array.from(document.head.querySelectorAll('style')).some(s=>s.textContent.trim()===styleEl.textContent.trim());
+      if (!duplicate) {
+        const s = document.createElement('style');
+        s.textContent = styleEl.textContent;
+        document.head.appendChild(s);
+      }
+    });
+
+    // 2) Move <link rel="stylesheet"> to head (if any)
+    Array.from(doc.querySelectorAll('link[rel="stylesheet"]')).forEach(linkEl => {
+      // skip if same href already present
+      if (!Array.from(document.head.querySelectorAll('link')).some(l=>l.href===linkEl.href)) {
+        const l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = linkEl.href;
+        document.head.appendChild(l);
+      }
+    });
+
+    // 3) Extract body content and put into mobile-content-area
+    const bodyHtml = doc.body ? doc.body.innerHTML : htmlText;
+    const container = document.getElementById('mobile-content-area');
+    if (!container) {
+      console.error('mobile-content-area not found');
+      return;
+    }
+    container.innerHTML = bodyHtml;
+
+    // 4) Execute scripts from fetched HTML (but skip tailwind CDN to avoid reloading)
+    const scripts = doc.querySelectorAll('script');
+    scripts.forEach(oldScript => {
+      const src = oldScript.getAttribute('src') || '';
+      // Skip re-loading tailwind CDN (webapp already has it)
+      if (src.includes('cdn.tailwindcss.com')) return;
+
+      const newScript = document.createElement('script');
+      if (src) {
+        newScript.src = src;
+        // preserve async/defer if present
+        if (oldScript.hasAttribute('async')) newScript.async = true;
+        if (oldScript.hasAttribute('defer')) newScript.defer = true;
+      } else {
+        newScript.textContent = oldScript.textContent;
+      }
+      document.body.appendChild(newScript);
+    });
+
+    // 5) Optional: focus first input inside the injected app (nice touch)
+    setTimeout(()=> {
+      const firstInput = container.querySelector('input, textarea, button, [tabindex]');
+      if(firstInput && typeof firstInput.focus === 'function') firstInput.focus();
+    }, 50);
+
+  }).catch(err => {
+    console.error('Failed to load webapp.html:', err);
+    const container = document.getElementById('mobile-content-area');
+    if (container) container.innerHTML = '<div class="text-sm text-red-400">Error loading app.</div>';
+  });
+}
+
+        
         // --- Initialization ---
         window.onload = function() {
             const profileIcon = document.getElementById('profile-icon');
@@ -444,6 +518,9 @@
 
             // Initialize button state
             updatePublishButton(); 
+
+            // load the webapp into the mobile screen
+loadWebappIntoShell('webapp.html');
 
             // Global click listener to close the menu when clicking outside
             document.addEventListener('click', function(event) {
