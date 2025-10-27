@@ -166,15 +166,15 @@
                     </header>
 
                     
-<div id="mobile-content-area" class="flex-grow p-4 relative">
+<div id="mobile-content-area" class="flex-grow overflow-y-auto p-0 relative">
                         <!-- NEW: Status Message Container -->
                         <div id="status-message" class="absolute top-4 left-1/2 -translate-x-1/2 w-11/12 text-center p-3 rounded-xl z-50 transition-all duration-500 opacity-0 transform -translate-y-4 pointer-events-none">
                             <!-- Content will be injected here -->
                         </div>
                         
-        <div class="max-w-xl mx-auto bg-white shadow-xl min-h-screen flex flex-col">
+        <div class="max-w-xl mx-auto w-full h-full bg-white shadow-xl flex flex-col">
 
-        <header class="bg-agri-gradient fixed top-0 z-50 shadow-lg w-full max-w-xl mx-auto">
+        <header class="bg-agri-gradient sticky top-0 z-50 shadow-lg w-full">
             
             <div id="header-content" class="flex items-center justify-between p-3">
                 
@@ -202,7 +202,7 @@
             </div>
         </header>
 
-        <section id="primary-search-section" class="p-3 pt-2 pb-2 bg-white shadow-sm mt-[64px]">
+        <section id="primary-search-section" class="p-3 pt-2 pb-2 bg-white shadow-sm pt-[68px]">
             <div class="relative">
                 <input type="text" placeholder="उत्पादन शोधा (Search Products)..." 
                        class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm shadow-inner"
@@ -332,7 +332,7 @@
             </section>
         </main>
         
-        <footer class="bg-agri-gradient text-white pt-6 pb-2 mt-4 rounded-t-lg shadow-inner">
+        <footer class="bg-agri-gradient text-white pt-6 pb-2 mt-4 rounded-t-lg shadow-inner flex-shrink-0">
             <div class="px-4">
                 
                 <div class="mb-4">
@@ -623,6 +623,7 @@
         // --- JAVASCRIPT LOGIC ---
 
         // Get the elements required for the sticky search bar logic
+        const contentArea = document.getElementById('mobile-content-area');
         const primarySearchSection = document.getElementById('primary-search-section');
         const addressBtnCompact = document.getElementById('address-btn-compact');
         const stickySearchCompact = document.getElementById('sticky-search-compact');
@@ -634,13 +635,14 @@
 
 
         
-        // Function to handle scroll events for sticky search bar
-        window.addEventListener('scroll', () => {
-            // Get the position of the primary search bar's bottom edge
-            const primarySearchBottom = primarySearchSection.getBoundingClientRect().bottom;
+        // Function to handle scroll events for sticky search bar - adjusted for container scroll
+        contentArea.addEventListener('scroll', () => {
+            const rect = contentArea.getBoundingClientRect();
+            const primaryRect = primarySearchSection.getBoundingClientRect();
+            const relativeBottom = primaryRect.bottom - rect.top;
             
-            // Check if the primary search bar has scrolled completely out of view (i.e., its bottom edge is at or above 0px)
-            if (primarySearchBottom <= 0) {
+            // Check if the primary search bar has scrolled completely out of view relative to container
+            if (relativeBottom <= 0) {
                 // Scrolled down: Hide Address, Show Compact Search
                 addressBtnCompact.classList.add('hidden');
                 stickySearchCompact.classList.remove('hidden');
