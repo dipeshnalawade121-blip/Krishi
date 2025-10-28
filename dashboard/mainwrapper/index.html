@@ -12,28 +12,25 @@
         font-family: 'Inter', sans-serif;  
     }  
 
-    /* 🔑 KEY CHANGE 1: Use viewport units to define the responsive gap/padding */
+    /* Ensure the main container takes full viewport height for centering */  
     .mobile-frame-container {  
         height: 100vh;
         width: 100vw;
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        /* Responsive Gaps */
-        padding-top: 9.55vh; 
-        padding-left: 6.25vw; 
-        padding-right: 6.25vw; 
-        padding-bottom: 2vh; /* Adjusted for better centering */
-        box-sizing: border-box;
-        position: relative; /* Needed for centering (though flex handles it) */
     }  
       
-    /* 🔑 KEY CHANGE 2: Define dimensions relative to the container, with a max size */
+    /* 🔑 KEY CHANGE: Use max-width/height with viewport units to enforce responsive gaps */
     .precise-dimensions {  
-        width: 100%; /* Fill available width after padding */
-        height: 100%; /* Fill available height after padding */
-        max-width: 366px; /* Do not exceed fixed size on large screens */
-        max-height: 672px; /* Do not exceed fixed size on large screens */
+        width: 366px; /* Fixed Base Width */
+        height: 672px; /* Fixed Base Height */
+        
+        /* 6.25% side gap * 2 = 12.5% total horizontal padding */
+        max-width: calc(100vw - 12.5vw); 
+        
+        /* 9.55% top gap + 2% bottom gap = 11.55% total vertical padding */
+        max-height: calc(100vh - 11.55vh); 
+        
+        /* This ensures the frame scales down if the screen is too small */
+        overflow: hidden; 
     }  
 
     /* Define the custom color for the header and body background */  
@@ -96,8 +93,9 @@
             </svg>  
         </div>  
         
-        <div class="mobile-frame-container">  
-            <div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" style="border-color: #474747;">  
+        <div class="mobile-frame-container flex items-center justify-center">  
+            <div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" 
+                style="border-color: #474747; transform: translateY(1.5vh);">
                 <div class="w-full h-full bg-[#1b1c1d] flex flex-col">  
                     <header class="w-full h-[57px] bg-1b1c1d flex items-center justify-between px-4 text-white border-b" style="border-color: #434343;">  
                         <div class="flex space-x-2">  
@@ -140,14 +138,12 @@
     <div id="publish-modal" class="fixed inset-0 z-[110] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 transition-opacity duration-300">  
         <div class="bg-1b1c1d rounded-xl shadow-2xl max-w-sm w-full p-6 mx-auto transform transition-all scale-100 border border-gray-700">  
             <h3 class="text-xl font-extrabold text-white mb-4">Publish Store</h3>  
-            
             <p class="text-gray-300 mb-6 text-sm">  
                 You’re about to make your store publicly available at:  
                 <span class="block font-semibold text-blue-400 my-1">[yourstore.krishi.site]</span>  
                 Please review all content and settings before proceeding.  
                 Select <strong class="text-white">Publish</strong> to go live or <strong class="text-white">Cancel</strong> to return.  
             </p>  
-
             <div class="flex justify-end space-x-3">  
                 <button onclick="hidePublishModal()" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-200 bg-gray-700 hover:bg-gray-600 transition">  
                     Cancel  
@@ -166,10 +162,8 @@
                 This will erase all products, images, and settings.  
                 Your store (<span class="font-semibold text-red-400">[yourstore.krishi.site]</span>) will be permanently deleted and cannot be recovered.  
             </p>  
-
             <label for="delete-confirm-input" class="block text-sm font-medium text-gray-400 mb-2">Type "DELETE" to confirm:</label>  
             <input type="text" id="delete-confirm-input" placeholder="Type DELETE" class="block w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm mb-6">  
-
             <div class="flex justify-end space-x-3">  
                 <button onclick="hideDeleteModal()" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-200 bg-gray-700 hover:bg-gray-600 transition">  
                     Cancel  
@@ -187,7 +181,6 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>  
             </button>  
         </div>  
-
         <div class="max-w-md mx-auto p-6 md:p-8 pt-16"> 
             <div class="flex items-center space-x-3 mb-8">  
                 <div class="bg-green-100 p-2 rounded-full">  
@@ -197,18 +190,15 @@
                 </div>  
                 <h1 class="text-xl md:text-2xl font-extrabold text-gray-900">Create Your Digital Profile</h1>  
             </div>  
-
             <div class="space-y-6">  
                 <div>  
                     <label for="shop-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Name</label>  
                     <input type="text" id="shop-name" placeholder="e.g., Kisan Fertilizer Store" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">  
                 </div>  
-
                 <div>  
                     <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Your Name</label>  
                     <input type="text" id="user-name" placeholder="Your Full Name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">  
                 </div>  
-
                 <div>  
                     <label for="mobile-number" class="block text-sm font-medium text-gray-700 mb-1">User Mobile Number</label>  
                     <div class="mt-1 flex rounded-lg shadow-sm">  
@@ -218,130 +208,87 @@
                         <input type="tel" id="mobile-number" placeholder="10 digit number" class="flex-1 block w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">  
                     </div>  
                 </div>  
-
                 <div>  
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Enter Email (Optional)</label>  
                     <input type="email" id="email" placeholder="optional@gmail.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">  
                 </div>  
-
                 <div>  
                     <label for="shop-address" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Address</label>  
                     <textarea id="shop-address" rows="3" placeholder="Full physical address" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>  
                 </div>  
-
                 <button class="w-full flex items-center justify-center px-4 py-2.5 border border-green-600 rounded-lg shadow-sm text-base font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">  
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>  
                     Select Shop Location on Map  
                 </button>  
             </div>  
-
             <div class="mt-8 mb-4">  
                 <button class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">  
                     Save Profile  
                 </button>  
             </div>  
-
             <div class="text-center text-xs text-gray-500 mt-4">  
                 Your User ID: Loading...  
             </div>  
-
         </div>  
     </div>  
 
     <script>  
-        // Global State (Simulating published status)  
+        // JavaScript logic (No changes needed here as the fix is in CSS/HTML)
         let isPublished = false;  
-
-        // --- Edit/Save Lock/Unlock Functions (NEW) ---  
         function saveAction() {  
             const saveBtn = document.getElementById('save-btn');  
             const editBtn = document.getElementById('edit-btn');  
-            
-            // 1. Lock Save Button  
             saveBtn.disabled = true;  
             saveBtn.classList.add('opacity-50', 'cursor-not-allowed');  
             saveBtn.classList.remove('hover:from-teal-400', 'hover:to-green-400', 'hover:scale-[1.03]');  
-            
-            // 2. Unlock Edit Button  
             editBtn.disabled = false;  
             editBtn.classList.remove('opacity-50', 'cursor-not-allowed');  
-
-            // Show a temporary message that settings are saved  
             showTempMessage("Profile settings saved successfully!", true);  
         }  
-
         function editAction() {  
             const saveBtn = document.getElementById('save-btn');  
             const editBtn = document.getElementById('edit-btn');  
-
-            // 1. Unlock Save Button  
             saveBtn.disabled = false;  
             saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');  
             saveBtn.classList.add('hover:from-teal-400', 'hover:to-green-400', 'hover:scale-[1.03]');  
-            
-            // 2. Lock Edit Button (since we are now in edit mode)  
             editBtn.disabled = true;  
             editBtn.classList.add('opacity-50', 'cursor-not-allowed');  
-            
-            // Show a temporary message that editing is enabled  
             showTempMessage("Edit mode enabled. Don't forget to Save!", false); 
         }  
-
-
-        // --- Status Message Functions ---  
         function showTempMessage(message, isSuccess) {  
             const statusDiv = document.getElementById('status-message');  
-            
-            // Apply appropriate styling based on success/error  
             const bgClass = isSuccess ? 'bg-green-500 text-white' : 'bg-red-500 text-white';  
-            
             statusDiv.className = `absolute top-4 left-1/2 -translate-x-1/2 w-11/12 text-center p-3 rounded-xl z-50 transition-all duration-500 transform pointer-events-none ${bgClass}`;  
             statusDiv.innerHTML = message;  
-            
-            // Show the message (remove opacity and translate class)  
             setTimeout(() => {  
                 statusDiv.classList.remove('opacity-0', '-translate-y-4');  
             }, 50);   
-            
-            // Hide the message after 4 seconds  
             setTimeout(() => {  
                 statusDiv.classList.add('opacity-0', '-translate-y-4');  
             }, 4000);  
         }  
-
-        // --- Publish/Delete Button Update ---  
         function updatePublishButton() {  
             const btn = document.getElementById('publish-delete-btn');  
-            
             if (isPublished) {  
-                // Change to DELETE button style (matching Edit button style, but red text)  
                 btn.textContent = 'Delete Store';  
                 btn.onclick = showDeleteModal;  
-                // CHANGED: Styling to match edit-btn  
                 btn.className = 'edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-red-500 transition duration-200 hover:border-red-500 hover:text-red-500/80';  
             } else {  
-                // Change back to PUBLISH button style  
                 btn.textContent = 'Publish';  
                 btn.onclick = showPublishModal;  
                 btn.className = 'px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]';  
             }  
         }  
-
-        // --- Publish Modal Functions ---  
         function showPublishModal() {  
             document.getElementById('publish-modal').classList.remove('hidden');  
         }  
-
         function hidePublishModal() {  
             document.getElementById('publish-modal').classList.add('hidden');  
         }  
-
         function publishAction() {  
             hidePublishModal();   
             isPublished = true;  
             updatePublishButton();  
-            
-            // Show temporary success message  
             const link = '[yourstore.krishi.site]';  
             const message = `  
                 Congratulations! Your store is online now at   
@@ -349,38 +296,24 @@
             `;  
             showTempMessage(message, true);  
         }  
-
-        // --- Delete Modal Functions ---  
         function showDeleteModal() {  
             document.getElementById('delete-modal').classList.remove('hidden');  
-            // Clear input on open  
             document.getElementById('delete-confirm-input').value = '';   
         }  
-
         function hideDeleteModal() {  
             document.getElementById('delete-modal').classList.add('hidden');  
         }  
-
         function confirmDeleteAction() {  
             const input = document.getElementById('delete-confirm-input').value;  
-
-            // CHANGED: Use .toUpperCase() to allow any case (e.g., 'delete', 'Delete', 'DELETE')  
             if (input.toUpperCase() === 'DELETE') {  
                 hideDeleteModal();  
-                
-                // Perform delete action (simulate)  
                 isPublished = false;  
                 updatePublishButton();  
-                
-                // Show temporary delete success message  
                 showTempMessage("Store successfully deleted. You can publish again anytime.", false); 
             } else {  
                 showTempMessage("Error: Confirmation text did not match 'DELETE'. Deletion aborted.", false);  
             }  
         }  
-        
-        // --- Profile Page/Menu Functions (Untouched) ---  
-
         function toggleProfilePage(isVisible) {  
             const profilePage = document.getElementById('profile-page');  
             if (typeof isVisible === 'boolean') {  
@@ -389,41 +322,29 @@
                 profilePage.classList.toggle('visible');  
             }  
         }  
-        
         function closeProfilePage() {  
             toggleProfilePage(false);  
         }  
-
         function toggleProfileMenu() {  
             const profileMenu = document.getElementById('profile-menu');  
             profileMenu.classList.toggle('visible');  
         }  
-
         function openProfilePage(event) {  
             event.preventDefault();  
             toggleProfileMenu();   
             toggleProfilePage(true);   
         }  
-
-        // --- Initialization ---  
         window.onload = function() {  
             const profileIcon = document.getElementById('profile-icon');  
             const profilePage = document.getElementById('profile-page');  
             const profileMenu = document.getElementById('profile-menu');   
-
             if (profileIcon) {  
                 profileIcon.addEventListener('click', toggleProfileMenu);  
             }  
-            
             profilePage.classList.remove('visible');   
-
-            // Initialize button state  
             updatePublishButton();   
-
-            // Global click listener to close the menu when clicking outside  
             document.addEventListener('click', function(event) {  
                 const isMenuVisible = profileMenu.classList.contains('visible');  
-                
                 if (isMenuVisible && !profileIcon.contains(event.target) && !profileMenu.contains(event.target)) {  
                     profileMenu.classList.remove('visible');  
                 }  
