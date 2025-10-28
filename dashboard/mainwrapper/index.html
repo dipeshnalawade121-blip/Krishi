@@ -18,10 +18,18 @@
             height: 100vh;
         }
         
-        /* Define the exact fractional pixel dimensions */
+        /* Make the phone mock responsive:
+           - width uses min() so it never exceeds the original 366px but will shrink to fit viewport (92vw)
+           - aspect-ratio keeps the visual proportions intact
+           - max-height prevents it from being taller than the viewport on very short screens
+           - height:auto lets the browser compute height from aspect-ratio
+        */
         .precise-dimensions {
-            width: 366px; /* Retained: 366px width */
-            height: 672px; /* Retained: 672px height */
+            width: min(366px, 92vw); /* responsive width: up to 366px, otherwise 92% of viewport width */
+            aspect-ratio: 366 / 672; /* keeps the same proportion as the original fixed size */
+            max-width: 366px;
+            height: auto;
+            max-height: 95vh; /* don't exceed viewport height */
         }
 
         /* Define the custom color for the header and body background */
@@ -65,8 +73,11 @@
         /* END ADDED */
 
         html, body {
-    height: 100%;
-    overflow: hidden; /* Prevent any scrolling */
+            height: 100%;
+            /* Allow scrolling when content is taller than viewport.
+               Previously overflow: hidden; caused clipping on small screens when the phone mock was fixed size.
+            */
+            overflow: auto;
         }      
         
     </style>
@@ -109,11 +120,15 @@
                             
                             
 <!-- UPDATED: Added ID and onclick for the Save button -->
-<button id="save-btn" onclick="saveAction()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white transition duration-300 transform hover:scale-[1.03]">Save</button>
+<button id="save-btn" onclick="saveAction()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white transition duration-300 transform hover:scale-[1.03]">
+                            Save
+                        </button>
                         </div>
                         
                         
-<button id="publish-delete-btn" onclick="showPublishModal()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]">Publish</button>
+<button id="publish-delete-btn" onclick="showPublishModal()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform">
+    Publish
+</button>
                     </header>
 
                     
@@ -134,21 +149,21 @@
     </div>
 
     
-<div id="profile-menu" class="absolute top-16 right-6 z-50 rounded-xl shadow-2xl bg-white border border-gray-200 opacity-0 pointer-events-none transition duration-300 transform scale-95 origin-top-right w-48">
+<div id="profile-menu" class="absolute top-16 right-6 z-50 rounded-xl shadow-2xl bg-white border border-gray-200 opacity-0 pointer-events-none transition duration-300 transform scale-95 origin-top-right">
         <div class="p-2 space-y-1">
             
 <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition" onclick="openProfilePage(event)">
-                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.76 0 5.3.88 7.379 2.388M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 Profile
             </a>
             
 <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition">
-                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20h.01"></path></svg>
                 About Us
             </a>
             
 <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition">
-                <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.247a1 1 0 01.768-.135l2.748.718a.99.99 0 001.258-.879V8a2 2 0 10-4 0v1.247zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414 1.414M5.636 18.364l-1.414 1.414M6 6l12 12"></path></svg>
                 Help / Support
             </a>
         </div>
@@ -191,7 +206,7 @@
 
             <!-- Confirmation Input -->
             <label for="delete-confirm-input" class="block text-sm font-medium text-gray-400 mb-2">Type "DELETE" to confirm:</label>
-            <input type="text" id="delete-confirm-input" placeholder="Type DELETE" class="block w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm mb-6">
+            <input type="text" id="delete-confirm-input" placeholder="Type DELETE" class="block w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-red-500">
 
             <!-- Buttons -->
             <div class="flex justify-end space-x-3">
@@ -210,7 +225,7 @@
     <!-- PROFILE PAGE (Full-Screen Overlay) --><div id="profile-page" class="profile-page-container">
         <!-- Close Button (Top Left of the profile page) --><div class="absolute top-4 left-4 z-10">
             <button onclick="closeProfilePage()" class="p-2 rounded-full text-gray-600 hover:bg-gray-200 transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
 
@@ -226,12 +241,12 @@
             <!-- Form Fields --><div class="space-y-6">
                 <!-- Shop Name --><div>
                     <label for="shop-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Name</label>
-                    <input type="text" id="shop-name" placeholder="e.g., Kisan Fertilizer Store" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <input type="text" id="shop-name" placeholder="e.g., Kisan Fertilizer Store" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                 </div>
 
                 <!-- Your Name --><div>
                     <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Your Name</label>
-                    <input type="text" id="user-name" placeholder="Your Full Name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <input type="text" id="user-name" placeholder="Your Full Name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                 </div>
 
                 <!-- Mobile Number --><div>
@@ -240,22 +255,22 @@
                         <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
                             +91
                         </span>
-                        <input type="tel" id="mobile-number" placeholder="10 digit number" class="flex-1 block w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <input type="tel" id="mobile-number" placeholder="10 digit number" class="flex-1 block w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500">
                     </div>
                 </div>
 
                 <!-- Email Address --><div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Enter Email (Optional)</label>
-                    <input type="email" id="email" placeholder="optional@gmail.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <input type="email" id="email" placeholder="optional@gmail.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                 </div>
 
                 <!-- Shop Address --><div>
                     <label for="shop-address" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Address</label>
-                    <textarea id="shop-address" rows="3" placeholder="Full physical address" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>
+                    <textarea id="shop-address" rows="3" placeholder="Full physical address" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500"></textarea>
                 </div>
 
-                <!-- Select Shop Location on Map Button --><button class="w-full flex items-center justify-center px-4 py-2.5 border border-green-600 rounded-lg shadow-sm text-base font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <!-- Select Shop Location on Map Button --><button class="w-full flex items-center justify-center px-4 py-2.5 border border-green-600 rounded-lg shadow-sm text-base font-medium text-gray-800 hover:bg-green-50 transition">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3z"></path></svg>
                     Select Shop Location on Map
                 </button>
             </div>
@@ -348,7 +363,7 @@
                 // Change back to PUBLISH button style
                 btn.textContent = 'Publish';
                 btn.onclick = showPublishModal;
-                btn.className = 'px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]';
+                btn.className = 'px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform';
             }
         }
 
@@ -457,4 +472,3 @@
     </script>
 </body>
 </html>
-
