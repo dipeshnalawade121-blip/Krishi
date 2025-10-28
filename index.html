@@ -10,6 +10,7 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap"></noscript>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Load Lucide Icons for potential use -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -309,6 +310,11 @@
     <!-- Initialize Lucide Icons and Modal Logic -->
     <script>
         lucide.createIcons();
+        // Initialize Supabase client
+
+        const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co'; // e.g., 'https://yourproject.supabase.co'    
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU'; // From Supabase dashboard
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         const BACKEND_URL = 'https://api.krishi.site';
         
@@ -531,38 +537,60 @@
           }
         });
 
+        
         // Login Form Submit
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const mobile = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
-          const pw = document.getElementById('login-password').value;
-          if (mobile.length === 10 && pw.length >= 6) {
-            try {
-              const response = await fetch(`${BACKEND_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mobile: mobile, password: pw })
-              });
-              const data = await response.json();
-              if (response.ok && data.success) {
-                  alert('Logged in successfully!');
-                  const mobile = data.user.mobile;
-                  const userId = data.user.id;
-                  // Redirect to profile with mobile and id params
-                  window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`; 
-                  resetLogin();  
-                  closeModal('login-modal');
-              } else { 
-                  throw new Error(data.message || 'Login failed');
-              }
-            } catch (error) {
-              console.error(error);
-              alert('Error during login: ' + error.message);
-            }
-          } else {
-            alert('Please enter valid mobile number and password (at least 6 characters).');
-          }
-        });
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const mobile = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
+  const pw = document.getElementById('login-password').value;
+  if (mobile.length === 10 && pw.length >= 6) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: mobile, password: pw })
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        alert('Logged in successfully!');
+        const userId = data.user.id; // Assuming backend returns { user: { id: ..., mobile: ... } }
+
+        // Step 2a: Query Supabase to check profile completion
+        const { data: userProfile, error } = await supabase
+          .from('users')
+          .select('name, shop_name, address') // Add other fields like banner1_url if needed
+          .eq('id', userId) // Match by user ID from login response
+          .single(); // Get single row
+
+        if (error) {
+          console.error('Supabase query error:', error);
+          alert('Error checking profile. Redirecting to creation...');
+          // Fallback: Always go to profile creation on error
+          window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+        } else if (userProfile && 
+                   userProfile.name && userProfile.name.trim() !== '' &&
+                   userProfile.shop_name && userProfile.shop_name.trim() !== '' &&
+                   userProfile.address && userProfile.address.trim() !== '') {
+          // Step 2b: Profile complete → Redirect to dashboard
+          window.location.href = `https://www.krishi.site/dashboard/hardware?id=${userId}`; // Or /hardware if separate
+        } else {
+          // Step 2c: Profile incomplete → Redirect to creation
+          window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+        }
+
+        resetLogin();  
+        closeModal('login-modal');
+      } else { 
+        throw new Error(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error during login: ' + error.message);
+    }
+  } else {
+    alert('Please enter valid mobile number and password (at least 6 characters).');
+  }
+});
 
         // Forgot Password Send OTP
         document.getElementById('forgot-send-otp').addEventListener('click', async () => {
