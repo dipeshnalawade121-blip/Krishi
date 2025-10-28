@@ -68,10 +68,33 @@
     height: 100%;
     overflow: hidden; /* Prevent any scrolling */
         }      
+
+        .fixed-mobile-wrapper {
+  width: 360px;
+  height: 800px;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #111; /* match your page bg */
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
         
     </style>
 </head>
 <body class="bg-1b1c1d">
+    <div class="fixed-mobile-wrapper">
 
     
 <div class="h-screen w-screen relative">
@@ -455,5 +478,6 @@
             });
         };
     </script>
+  </div> <!-- end of fixed-mobile-wrapper -->
 </body>
 </html>
