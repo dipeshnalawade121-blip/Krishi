@@ -20,22 +20,18 @@
       
     /* 🔑 KEY CHANGE: Updated max-height to account for 12% top gap + 2% bottom gap (14% total) */
     .precise-dimensions {  
-    width: 366px; 
-    height: 672px; 
-    
-    /* 6.25% side gap * 2 = 12.5% total horizontal padding (UNCHANGED) */
-    max-width: calc(100vw - 12.5vw); 
-    
-    /* 🔑 Total space reserved for gaps is 14vh (10vh top + 4vh bottom) */
-    max-height: calc(100vh - 14vh); 
-    
-    /* This ensures the frame scales down if the screen is too small */
-    overflow: hidden; 
-
-    /* ✅ EXPLICIT POSITIONING: Defines the required gaps */
-    margin-top: 10vh;    /* Pushes screen down from the top by 10% */
-    margin-bottom: 4vh;  /* Pushes content below the screen by 4% (ensures 4% gap at bottom) */
-}  
+        width: 366px; /* Fixed Base Width */
+        height: 672px; /* Fixed Base Height */
+        
+        /* 6.25% side gap * 2 = 12.5% total horizontal padding (UNCHANGED) */
+        max-width: calc(100vw - 12.5vw); 
+        
+        /* 12% top gap + 2% bottom gap = 14% total vertical padding */
+        max-height: calc(100vh - 12vh); 
+        
+        /* This ensures the frame scales down if the screen is too small */
+        overflow: hidden; 
+    }  
 
     /* Define the custom color for the header and body background */  
     .bg-1b1c1d {  
@@ -105,7 +101,7 @@
     </div>  
 
             <div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" 
-    style="border-color: #474747;">                    
+                style="border-color: #474747; margin-top: 10vh;">                   
                 <div class="w-full h-full bg-[#1b1c1d] flex flex-col">  
                     <header class="w-full h-[57px] bg-1b1c1d flex items-center justify-between px-4 text-white border-b" style="border-color: #434343;">  
                         <div class="flex space-x-2">  
