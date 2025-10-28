@@ -19,10 +19,31 @@
         }
         
         /* Define the exact fractional pixel dimensions */
-        .precise-dimensions {
-            width: 366px; /* Retained: 366px width */
-            height: 672px; /* Retained: 672px height */
-        }
+        /* Responsive screen container */
+.responsive-screen {
+  width: 100%;
+  max-width: 400px; /* optional limit for desktop previews */
+  height: 80vh; /* dynamic height based on viewport */
+  max-height: 800px;
+  display: flex;
+  flex-direction: column;
+  background: black;
+  border-radius: 1.5rem;
+  border: 2px solid #474747;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+/* Fullscreen mode (like fullscreen-web-preview) */
+.fullscreen-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  z-index: 1000;
+}
 
         /* Define the custom color for the header and body background */
         .bg-1b1c1d {
@@ -94,8 +115,7 @@
 <div class="mobile-frame-container flex items-center justify-center w-full h-[98vh]">
 
             
-<div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" style="transform: translateY(-1.5%); border-color: #474747;">
-
+<div id="mobile-frame" class="responsive-screen bg-black relative">
                 
 <div class="w-full h-full bg-[#1b1c1d] flex flex-col">
                     
@@ -454,6 +474,12 @@
                 }
             });
         };
+
+        function toggleFullscreen() {
+  const frame = document.getElementById("mobile-frame");
+  frame.classList.toggle("fullscreen-screen");
+        }
+        
     </script>
 </body>
 </html>
