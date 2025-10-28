@@ -1,72 +1,71 @@
- <!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Responsive Rounded Wrapper</title>
+  <title>Gemini-like Preview Container (Minimal)</title>
   <style>
-    :root {
-      --bg-page: #f5f7fb;
-      --bg-card: #ffffff;
-      --border: #e6e8ee;
-      --shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-      --radius: 16px;
+    :root{
+      --bg-page:#f6f7fb;--bg-surface:#fff;--on-surface:#1f2937;--muted:#6b7280;--primary:#1967d2;
+      --border:#e5e7eb;--shadow:0 10px 30px rgba(2,6,23,.06);--radius:16px;
+      --spacing-xs:8px;--spacing-s:12px;--spacing-m:16px;--spacing-l:24px;
+      --toolbar-h:56px;
     }
-
-    html, body { height: 100%; margin: 0; }
-    body { background: var(--bg-page); }
-
-    .viewport-center {
-      height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 16px;
-      box-sizing: border-box;
-    }
-
-    /* The responsive, rounded wrapper */
-    .preview-box {
-      width: min(94vw, 1100px);
-      height: min(70vh, 720px);
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Optional inner padding area for your content */
-    .content {
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-      padding: 24px;
-      display: grid;
-      place-items: center;
-      color: #1f2937;
-      text-align: center;
-      font: 500 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    /* Make it taller on very small screens */
-    @media (max-width: 480px) {
-      .preview-box { height: min(80vh, 720px); }
-    }
+    html,body{height:100%;margin:0;background:var(--bg-page);color:var(--on-surface);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .page{min-height:100%;display:grid;place-items:center;padding:var(--spacing-l)}
+    .container{width:min(96vw,1200px);background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+    .toolbar{height:var(--toolbar-h);display:flex;align-items:center;gap:var(--spacing-s);padding:0 var(--spacing-m);border-bottom:1px solid var(--border);background:var(--bg-surface)}
+    .title{font-weight:600}
+    .tabs{display:inline-flex;gap:2px;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-left:var(--spacing-m)}
+    .tab{padding:6px 12px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+    .tab.active{background:#eef2ff;color:var(--primary)}
+    .spacer{flex:1}
+    .btn{height:36px;min-width:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:#111827;cursor:pointer}
+    .btn.tonal{background:#eef2ff;border-color:#e4e7ff;color:#1e40af}
+    .content{display:flex;flex-direction:column;min-height:360px;max-height:70vh}
+    .pane{flex:1;display:flex}
+    .pane .placeholder{margin:auto;color:var(--muted)}
+    .artifact-container{flex:1;display:flex;flex-direction:column;background:#fafafa}
+    .artifact{flex:1;border:0}
+    .footer{display:flex;gap:var(--spacing-s);padding:var(--spacing-m);border-top:1px solid var(--border);background:#fff}
+    @media (max-width: 640px){.toolbar{height:48px}.title{display:none}}
   </style>
 </head>
 <body>
-  <div class="viewport-center">
-    <div class="preview-box" role="group" aria-label="Responsive wrapper">
+  <div class="page">
+    <div class="container" role="region" aria-label="Preview container">
+      <div class="toolbar">
+        <div class="title">Project</div>
+        <div class="tabs" role="tablist" aria-label="View">
+          <button class="tab active" role="tab" aria-selected="true">Code</button>
+          <button class="tab" role="tab" aria-selected="false">Preview</button>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn" title="Download preview">Download</button>
+        <button class="btn" title="Console">Console</button>
+        <button class="btn" title="Diff">Diff</button>
+        <button class="btn" title="Refresh">Refresh</button>
+        <button class="btn tonal" title="Share">Share</button>
+      </div>
+
       <div class="content">
-        Place your site or code preview here<br/>
-        (responsive rounded wrapper)
+        <div class="pane" aria-label="Code">
+          <div class="placeholder">Code area (placeholder)</div>
+        </div>
+        <div class="pane" aria-label="Preview" style="display:none">
+          <div class="artifact-container">
+            <iframe class="artifact" title="Preview (placeholder)"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button class="btn">Export</button>
+        <button class="btn">Slides</button>
+        <button class="btn">Image</button>
       </div>
     </div>
   </div>
 </body>
 </html>
-
 
