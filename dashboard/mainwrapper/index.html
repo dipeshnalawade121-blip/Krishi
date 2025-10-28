@@ -13,7 +13,7 @@
     }
     html,body{height:100%;margin:0;background:var(--bg-page);color:var(--on-surface);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
     .page{min-height:100%;display:grid;place-items:center;padding:var(--spacing-l)}
-    .container{width:min(96vw,1200px);background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+    .container{width:min(96vw,1200px);height:min(80vh,820px);background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
     .toolbar{height:var(--toolbar-h);display:flex;align-items:center;gap:var(--spacing-s);padding:0 var(--spacing-m);border-bottom:1px solid var(--border);background:var(--bg-surface)}
     .title{font-weight:600}
     .tabs{display:inline-flex;gap:2px;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-left:var(--spacing-m)}
@@ -22,13 +22,16 @@
     .spacer{flex:1}
     .btn{height:36px;min-width:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:#111827;cursor:pointer}
     .btn.tonal{background:#eef2ff;border-color:#e4e7ff;color:#1e40af}
-    .content{display:flex;flex-direction:column;min-height:360px;max-height:70vh}
+    .content{display:flex;flex-direction:column;flex:1;height:100%}
     .pane{flex:1;display:flex}
     .pane .placeholder{margin:auto;color:var(--muted)}
-    .artifact-container{flex:1;display:flex;flex-direction:column;background:#fafafa}
-    .artifact{flex:1;border:0}
+    /* Gemini-like responsive rules */
+    .artifact-container{width:100%;height:100%;display:flex;flex-direction:column;background:#fafafa}
+    .artifact{border:none;flex-grow:1;width:100%;min-width:100%;height:100%}
+    .fullscreen-web-preview{position:fixed;left:0;width:100vw;height:100vh;z-index:2;top:0}
     .footer{display:flex;gap:var(--spacing-s);padding:var(--spacing-m);border-top:1px solid var(--border);background:#fff}
     @media (max-width: 640px){.toolbar{height:48px}.title{display:none}}
+    @media (max-width: 480px){.container{height:min(90vh,820px)}}
   </style>
 </head>
 <body>
@@ -68,4 +71,6 @@
   </div>
 </body>
 </html>
+
+
 
