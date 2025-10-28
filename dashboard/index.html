@@ -14,15 +14,25 @@
         }
 
         /* Ensure the main container takes full viewport height for centering */
-        .mobile-frame-container {
-            height: 100vh;
-        }
+        .mobile-frame-container {  
+        height: 100vh;
+        width: 100vw;
+    }
         
         /* Define the exact fractional pixel dimensions */
-        .precise-dimensions {
-            width: 366px; /* Retained: 366px width */
-            height: 672px; /* Retained: 672px height */
-        }
+        .precise-dimensions {  
+        width: 366px; /* Fixed Base Width */
+        height: 672px; /* Fixed Base Height */
+        
+        /* 6.25% side gap * 2 = 12.5% total horizontal padding (UNCHANGED) */
+        max-width: calc(100vw - 12.5vw); 
+        
+        /* 12% top gap + 2% bottom gap = 14% total vertical padding */
+        max-height: calc(100vh - 12vh); 
+        
+        /* This ensures the frame scales down if the screen is too small */
+        overflow: hidden; 
+    }
 
         /* Define the custom color for the header and body background */
         .bg-1b1c1d {
@@ -141,10 +151,10 @@
         
         
 <!-- Top Left Title + Subtitle -->
-<div class="absolute top-8 left-8 z-10">
+<!--<div class="absolute top-8 left-8 z-10">
     <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>
     <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>
-</div>
+</div>-->
         
 <div id="profile-icon" class="absolute top-6 right-6 cursor-pointer z-10 hover:opacity-80 transition duration-150">        
 
@@ -154,11 +164,15 @@
         </div>
 
         
-<div class="mobile-frame-container flex items-center justify-center w-full h-[98vh]">
+<div class="mobile-frame-container flex justify-center">
+    <div class="absolute left-6 z-10" style="top: 2%;">  
+    <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>  
+    <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>  
+</div>
 
             
-<div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" style="transform: translateY(-1.5%); border-color: #474747;">
-
+<div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" 
+                style="border-color: #474747; margin-top: 10vh;">
                 
 <div class="w-full h-full bg-[#1b1c1d] flex flex-col">
                     
