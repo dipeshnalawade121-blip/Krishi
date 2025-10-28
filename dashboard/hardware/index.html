@@ -14,15 +14,25 @@
         }
 
         /* Ensure the main container takes full viewport height for centering */
-        .mobile-frame-container {
-            height: 100vh;
-        }
+        .mobile-frame-container {  
+        height: 100vh;
+        width: 100vw;
+    }
         
         /* Define the exact fractional pixel dimensions */
-        .precise-dimensions {
-            width: 366px; /* Retained: 366px width */
-            height: 672px; /* Retained: 672px height */
-        }
+        .precise-dimensions {  
+        width: 366px; /* Fixed Base Width */
+        height: 672px; /* Fixed Base Height */
+        
+        /* 6.25% side gap * 2 = 12.5% total horizontal padding (UNCHANGED) */
+        max-width: calc(100vw - 12.5vw); 
+        
+        /* 12% top gap + 2% bottom gap = 14% total vertical padding */
+        max-height: calc(100vh - 20vh); 
+        
+        /* This ensures the frame scales down if the screen is too small */
+        overflow: hidden; 
+    }
 
         /* Define the custom color for the header and body background */
         .bg-1b1c1d {
@@ -106,6 +116,38 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+
+
+        
+  #banner-slider {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #banner-slider > div {
+    scroll-snap-align: center;
+  }        
+        .profile-field {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.profile-field .hidden {
+    display: none !important;
+}
+
+/* Smooth transitions for edit mode */
+.profile-field input, .profile-field textarea {
+    transition: opacity 0.2s ease;
+}
+
+.profile-field span {
+    word-break: break-word;
+}
     </style>
     <script>
         tailwind.config = {
@@ -127,10 +169,10 @@
         
         
 <!-- Top Left Title + Subtitle -->
-<div class="absolute top-8 left-8 z-10">
+<!--<div class="absolute top-8 left-8 z-10">
     <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>
     <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>
-</div>
+</div>-->
         
 <div id="profile-icon" class="absolute top-6 right-6 cursor-pointer z-10 hover:opacity-80 transition duration-150">        
 
@@ -140,11 +182,15 @@
         </div>
 
         
-<div class="mobile-frame-container flex items-center justify-center w-full h-[98vh]">
+<div class="mobile-frame-container flex justify-center">
+    <div class="absolute left-6 z-10" style="top: 2%;">  
+    <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>  
+    <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>  
+</div>
 
             
-<div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" style="transform: translateY(-1.5%); border-color: #474747;">
-
+<div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" 
+                style="border-color: #474747; margin-top: 10vh;">
                 
 <div class="w-full h-full bg-[#1b1c1d] flex flex-col">
                     
@@ -240,13 +286,7 @@
                         </div>
                     </div>
 
-                    <button onclick="changeSlide(-1)" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <button onclick="changeSlide(1)" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/30 p-2 rounded-full text-white hover:bg-black/50 transition z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
-
+                   
                     <div id="slider-dots" class="absolute bottom-2 left-0 right-0 flex justify-center space-x-2">
                         </div>
                 </div>
@@ -554,71 +594,110 @@
 
 
     <!-- PROFILE PAGE (Full-Screen Overlay) --><div id="profile-page" class="profile-page-container">
-        <!-- Close Button (Top Left of the profile page) --><div class="absolute top-4 left-4 z-10">
-            <button onclick="closeProfilePage()" class="p-2 rounded-full text-gray-600 hover:bg-gray-200 transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
+        <!-- Close Button (Top Left of the profile page) -->
+<div class="absolute top-4 left-4 z-10">
+    <button onclick="closeProfilePage()" class="p-2 rounded-full text-gray-600 hover:bg-gray-200 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    </button>
+</div>
+
+<div class="max-w-md mx-auto p-6 md:p-8 pt-16"> <!-- Padding top for close button -->
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900">Profile</h1>
+    </div>
+
+    <!-- Profile Fields List -->
+    <div class="space-y-6">
+        <!-- Username -->
+        <div class="profile-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <div class="flex items-center justify-between">
+                <span id="username-display" class="text-lg font-medium text-gray-900 flex-1">[Your Username]</span>
+                <button onclick="toggleEdit('username')" class="ml-4 px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800">Edit</button>
+            </div>
+            <input type="text" id="username-input" placeholder="Enter username" class="mt-2 hidden w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500" maxlength="50">
+            <div id="username-actions" class="hidden mt-2 flex space-x-2">
+                <button onclick="saveField('username')" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="cancelEdit('username')" class="px-4 py-1.5 bg-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-400">Cancel</button>
+            </div>
         </div>
 
-        <div class="max-w-md mx-auto p-6 md:p-8 pt-16"> <!-- Increased padding top to account for close button --><!-- Header Section --><div class="flex items-center space-x-3 mb-8">
-                <div class="bg-green-100 p-2 rounded-full">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-                <h1 class="text-xl md:text-2xl font-extrabold text-gray-900">Create Your Digital Profile</h1>
+        <!-- Mobile Number -->
+        <div class="profile-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+            <div class="flex items-center justify-between">
+                <span id="mobile-display" class="text-lg font-medium text-gray-900 flex-1">+91 [Your Mobile]</span>
+                <button onclick="toggleEdit('mobile')" class="ml-4 px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800">Edit</button>
             </div>
-
-            <!-- Form Fields --><div class="space-y-6">
-                <!-- Shop Name --><div>
-                    <label for="shop-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Name</label>
-                    <input type="text" id="shop-name" placeholder="e.g., Kisan Fertilizer Store" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <!-- Your Name --><div>
-                    <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Your Name</label>
-                    <input type="text" id="user-name" placeholder="Your Full Name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <!-- Mobile Number --><div>
-                    <label for="mobile-number" class="block text-sm font-medium text-gray-700 mb-1">User Mobile Number</label>
-                    <div class="mt-1 flex rounded-lg shadow-sm">
-                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                            +91
-                        </span>
-                        <input type="tel" id="mobile-number" placeholder="10 digit number" class="flex-1 block w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    </div>
-                </div>
-
-                <!-- Email Address --><div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Enter Email (Optional)</label>
-                    <input type="email" id="email" placeholder="optional@gmail.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <!-- Shop Address --><div>
-                    <label for="shop-address" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Address</label>
-                    <textarea id="shop-address" rows="3" placeholder="Full physical address" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>
-                </div>
-
-                <!-- Select Shop Location on Map Button --><button class="w-full flex items-center justify-center px-4 py-2.5 border border-green-600 rounded-lg shadow-sm text-base font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Select Shop Location on Map
-                </button>
+            <div class="mt-2 flex rounded-lg shadow-sm hidden" id="mobile-input-wrapper">
+                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">+91</span>
+                <input type="tel" id="mobile-input" placeholder="10 digit number" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500" maxlength="10">
             </div>
-
-            <!-- Save Profile Button --><div class="mt-8 mb-4">
-                <button class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">
-                    Save Profile
-                </button>
+            <div id="mobile-actions" class="hidden mt-2 flex space-x-2">
+                <button onclick="saveField('mobile')" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="cancelEdit('mobile')" class="px-4 py-1.5 bg-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-400">Cancel</button>
             </div>
+        </div>
 
-            <!-- User ID --><div class="text-center text-xs text-gray-500 mt-4">
-                Your User ID: Loading...
+        <!-- Email Address -->
+        <div class="profile-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <div class="flex items-center justify-between">
+                <span id="email-display" class="text-lg font-medium text-gray-900 flex-1">[your.email@example.com]</span>
+                <button onclick="toggleEdit('email')" class="ml-4 px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800">Edit</button>
             </div>
+            <input type="email" id="email-input" placeholder="Enter email (optional)" class="mt-2 hidden w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <div id="email-actions" class="hidden mt-2 flex space-x-2">
+                <button onclick="saveField('email')" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="cancelEdit('email')" class="px-4 py-1.5 bg-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-400">Cancel</button>
+            </div>
+        </div>
 
+        <!-- Password -->
+        <div class="profile-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <div class="flex items-center justify-between">
+                <span class="text-lg font-medium text-gray-900 flex-1">********</span>
+                <button onclick="changePassword()" class="ml-4 px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800">Change Password</button>
+            </div>
+        </div>
+
+        <!-- Shop Name -->
+        <div class="profile-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Shop Name</label>
+            <div class="flex items-center justify-between">
+                <span id="shopname-display" class="text-lg font-medium text-gray-900 flex-1">[Your Shop Name]</span>
+                <button onclick="toggleEdit('shopname')" class="ml-4 px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800">Edit</button>
+            </div>
+            <input type="text" id="shopname-input" placeholder="e.g., Kisan Fertilizer Store" class="mt-2 hidden w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500" maxlength="100">
+            <div id="shopname-actions" class="hidden mt-2 flex space-x-2">
+                <button onclick="saveField('shopname')" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="cancelEdit('shopname')" class="px-4 py-1.5 bg-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-400">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Shop Address -->
+        <div class="profile-field">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Shop Address</label>
+            <div class="flex items-center justify-between">
+                <span id="shopaddress-display" class="text-lg font-medium text-gray-900 flex-1">[Full Shop Address]</span>
+                <button onclick="toggleEdit('shopaddress')" class="ml-4 px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-800">Edit</button>
+            </div>
+            <textarea id="shopaddress-input" rows="3" placeholder="Full physical address" class="mt-2 hidden w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 resize-none" maxlength="500"></textarea>
+            <div id="shopaddress-actions" class="hidden mt-2 flex space-x-2">
+                <button onclick="saveField('shopaddress')" class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">Save</button>
+                <button onclick="cancelEdit('shopaddress')" class="px-4 py-1.5 bg-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-400">Cancel</button>
+            </div>
         </div>
     </div>
 
+    <!-- User ID (Optional, keep if needed) -->
+    <div class="text-center text-xs text-gray-500 mt-8">
+        Your User ID: <span id="user-id">Loading...</span>
+    </div>
+</div>
+    </div>
     <script>
         // --- JAVASCRIPT LOGIC ---
 
@@ -807,52 +886,118 @@
 
 
         // 7. Sliding Banner Logic (Existing)
-        const slider = document.getElementById('banner-slider');
-        const dotsContainer = document.getElementById('slider-dots');
-        const slides = slider.children;
-        const totalSlides = slides.length;
-        let currentSlide = 0;
+        // Banner slider - scroll-snap friendly implementation
+// Replace the old transform-based updateSlider/changeSlide code with this.
 
-        // Function to update the slider's position
-        function updateSlider() {
-            const offset = -currentSlide * 100;
-            slider.style.transform = `translateX(${offset}%)`;
-            updateDots();
-        }
+(function () {
+  const slider = document.getElementById('banner-slider');
+  const dotsContainer = document.getElementById('slider-dots');
+  if (!slider || !dotsContainer) return;
 
-        // Function to change the slide
-        window.changeSlide = function(direction) {
-            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
-            updateSlider();
-        }
+  const slides = Array.from(slider.children);
+  const totalSlides = slides.length;
+  let currentSlide = 0;
+  let autoInterval = 5000;
+  let autoTimer = null;
+  let resumeTimer = null;
+  const resumeDelayAfterInteraction = 3500; // resume auto after X ms of inactivity
+  const scrollDebounceMs = 120;
 
-        // Function to jump to a specific slide
-        function goToSlide(index) {
-            currentSlide = index;
-            updateSlider();
-        }
-        
-        // Function to create and update navigation dots
-        function updateDots() {
-            dotsContainer.innerHTML = '';
-            for (let i = 0; i < totalSlides; i++) {
-                const dot = document.createElement('button');
-                // Dot color uses white for contrast against the banner backgrounds
-                dot.className = `w-2 h-2 rounded-full transition-colors ${i === currentSlide ? 'bg-white scale-125' : 'bg-white bg-opacity-75'}`;
-                dot.onclick = () => goToSlide(i);
-                dotsContainer.appendChild(dot);
-            }
-        }
+  // create dots
+  function renderDots() {
+    dotsContainer.innerHTML = '';
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('button');
+      dot.className = `w-2 h-2 rounded-full transition-colors ${i === currentSlide ? 'bg-white scale-125' : 'bg-white bg-opacity-75'}`;
+      dot.type = 'button';
+      dot.onclick = () => goToSlide(i, true);
+      dotsContainer.appendChild(dot);
+    }
+  }
 
-        // Initialize slider on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            updateSlider();
-        });
+  // compute slide width (assumes each slide is full container width)
+  function slideWidth() {
+    return slider.clientWidth || slider.offsetWidth || (slides[0] && slides[0].clientWidth) || 0;
+  }
 
-        // Auto-slide functionality 
-        setInterval(() => {
-            changeSlide(1);
-        }, 5000); 
+  // go to slide using scrollTo (smooth)
+  function goToSlide(index, smooth = true) {
+    index = (index + totalSlides) % totalSlides;
+    currentSlide = index;
+    const left = Math.round(index * slideWidth());
+    slider.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
+    renderDots();
+  }
+
+  // auto advance
+  function startAuto() {
+    stopAuto();
+    autoTimer = setInterval(() => {
+      goToSlide((currentSlide + 1) % totalSlides, true);
+    }, autoInterval);
+  }
+  function stopAuto() {
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
+  }
+
+  // debounce helper
+  function debounce(fn, wait) {
+    let t;
+    return function (...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), wait);
+    };
+  }
+
+  // sync currentSlide from scrollLeft (debounced)
+  const onScroll = debounce(() => {
+    const w = slideWidth() || 1;
+    const index = Math.round(slider.scrollLeft / w);
+    if (index !== currentSlide) {
+      currentSlide = Math.max(0, Math.min(totalSlides - 1, index));
+      renderDots();
+    }
+  }, scrollDebounceMs);
+
+  // Pause when user interacts, resume later
+  function userInteracted() {
+    stopAuto();
+    if (resumeTimer) clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      startAuto();
+    }, resumeDelayAfterInteraction);
+  }
+
+  // events
+  slider.addEventListener('scroll', onScroll, { passive: true });
+  slider.addEventListener('pointerdown', () => userInteracted());
+  slider.addEventListener('touchstart', () => userInteracted(), { passive: true });
+  slider.addEventListener('mouseenter', () => stopAuto());      // optional: pause on hover (desktop)
+  slider.addEventListener('mouseleave', () => {
+    if (resumeTimer) clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => startAuto(), resumeDelayAfterInteraction);
+  });
+
+  // window resize: ensure we snap to the correct offset
+  window.addEventListener('resize', debounce(() => {
+    goToSlide(currentSlide, false); // snap instantly to correct position
+  }, 120));
+
+  // build dots and initialize
+  renderDots();
+  goToSlide(0, false);
+  startAuto();
+
+  // expose helpers if you need them
+  window.bannerSlider = {
+    goToSlide,
+    startAuto,
+    stopAuto
+  };
+})();
         
         // Global State (Simulating published status)
         let isPublished = false;
@@ -1010,6 +1155,109 @@
             toggleProfilePage(true); 
         }
 
+
+        // Profile data storage (use localStorage)
+let profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+
+// Initialize displays on load
+function initProfileDisplays() {
+    document.getElementById('username-display').textContent = profileData.username || '[Your Username]';
+    document.getElementById('mobile-display').textContent = profileData.mobile ? `+91 ${profileData.mobile}` : '+91 [Your Mobile]';
+    document.getElementById('email-display').textContent = profileData.email || '[your.email@example.com]';
+    document.getElementById('shopname-display').textContent = profileData.shopName || '[Your Shop Name]';
+    document.getElementById('shopaddress-display').textContent = profileData.shopAddress || '[Full Shop Address]';
+    // Set inputs to current values
+    document.getElementById('username-input').value = profileData.username || '';
+    document.getElementById('mobile-input').value = profileData.mobile || '';
+    document.getElementById('email-input').value = profileData.email || '';
+    document.getElementById('shopname-input').value = profileData.shopName || '';
+    document.getElementById('shopaddress-input').value = profileData.shopAddress || '';
+}
+
+// Toggle edit mode for a field
+function toggleEdit(field) {
+    const display = document.getElementById(`${field}-display`);
+    const input = document.getElementById(`${field}-input`);
+    const wrapper = document.getElementById(`${field}-input-wrapper`) || input.parentElement; // For mobile wrapper
+    const actions = document.getElementById(`${field}-actions`);
+    
+    display.classList.add('hidden');
+    wrapper.classList.remove('hidden');
+    input.classList.remove('hidden');
+    actions.classList.remove('hidden');
+    input.focus();
+}
+
+// Cancel edit (revert to display)
+function cancelEdit(field) {
+    const display = document.getElementById(`${field}-display`);
+    const input = document.getElementById(`${field}-input`);
+    const wrapper = document.getElementById(`${field}-input-wrapper`) || input.parentElement;
+    const actions = document.getElementById(`${field}-actions`);
+    
+    // Revert input value
+    if (field === 'mobile') input.value = profileData.mobile || '';
+    else if (field === 'username') input.value = profileData.username || '';
+    else if (field === 'email') input.value = profileData.email || '';
+    else if (field === 'shopname') input.value = profileData.shopName || '';
+    else if (field === 'shopaddress') input.value = profileData.shopAddress || '';
+    
+    display.classList.remove('hidden');
+    wrapper.classList.add('hidden');
+    input.classList.add('hidden');
+    actions.classList.add('hidden');
+}
+
+// Save field
+function saveField(field) {
+    let value;
+    if (field === 'mobile') {
+        value = document.getElementById('mobile-input').value.replace(/\D/g, ''); // Strip non-digits
+        if (!/^\d{10}$/.test(value)) return alert('Invalid mobile number');
+    } else if (field === 'email') {
+        value = document.getElementById('email-input').value;
+        if (value && !/^\S+@\S+\.\S+$/.test(value)) return alert('Invalid email');
+    } else {
+        value = document.getElementById(`${field}-input`).value.trim();
+    }
+    
+    // Save to localStorage
+    profileData[field === 'shopname' ? 'shopName' : field] = value;
+    localStorage.setItem('profileData', JSON.stringify(profileData));
+    
+    // Update display
+    if (field === 'mobile') {
+        document.getElementById('mobile-display').textContent = value ? `+91 ${value}` : '+91 [Your Mobile]';
+    } else if (field === 'shopname') {
+        document.getElementById('shopname-display').textContent = value || '[Your Shop Name]';
+        // Optional: Update header shop name
+        document.querySelector('#shop-logo-name h1').textContent = value || '[Your Shop Name]';
+    } else if (field === 'shopaddress') {
+        document.getElementById('shopaddress-display').textContent = value || '[Full Shop Address]';
+        // Optional: Update address modal
+        document.querySelector('#address-modal p').innerHTML = `${profileData.shopName || '[Your Shop Name]'}<br>${value}`;
+    } else {
+        document.getElementById(`${field}-display`).textContent = value || `[Your ${field.charAt(0).toUpperCase() + field.slice(1)}]`;
+    }
+    
+    cancelEdit(field);
+    showTempMessage(`${field.charAt(0).toUpperCase() + field.slice(1)} updated!`, true); // Reuse existing toast
+}
+
+// Change Password (Placeholder - opens a simple alert; expand to modal)
+function changePassword() {
+    const newPass = prompt('Enter new password (min 8 chars):');
+    if (newPass && newPass.length >= 8) {
+        // In real app, hash and send to backend
+        alert('Password changed successfully! (Placeholder)');
+        // Update display if needed (e.g., still show ********)
+    } else if (newPass) {
+        alert('Password must be at least 8 characters.');
+    }
+}
+
+        
+        
         // --- Initialization ---
         window.onload = function() {
             const profileIcon = document.getElementById('profile-icon');
@@ -1024,6 +1272,7 @@
 
             // Initialize button state
             updatePublishButton(); 
+            initProfileDisplays();
 
             // Global click listener to close the menu when clicking outside
             document.addEventListener('click', function(event) {
