@@ -1,248 +1,71 @@
-<!doctype html>
+ <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Responsive Preview Container</title>
+  <title>Responsive Rounded Wrapper</title>
   <style>
     :root {
-      --spacing-xs: 8px;
-      --spacing-s: 12px;
-      --spacing-m: 16px;
-      --spacing-l: 24px;
-      --toolbar-height: 48px;
-      --border-color: #e3e3e3;
-      --bg-surface: #ffffff;
-      --bg-container: #fafafa;
-      --text: #161616;
-      --muted: #555;
-      --primary: #1967d2;
+      --bg-page: #f5f7fb;
+      --bg-card: #ffffff;
+      --border: #e6e8ee;
+      --shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+      --radius: 16px;
     }
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      color: var(--text);
-      background: var(--bg-surface);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    }
+    html, body { height: 100%; margin: 0; }
+    body { background: var(--bg-page); }
 
-    .container {
-      display: flex;
-      flex-direction: column;
+    .viewport-center {
       height: 100vh;
-      width: 100%;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      box-sizing: border-box;
     }
 
-    .toolbar {
+    /* The responsive, rounded wrapper */
+    .preview-box {
+      width: min(94vw, 1100px);
+      height: min(70vh, 720px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
       display: flex;
       align-items: center;
-      gap: var(--spacing-s);
-      height: var(--toolbar-height);
-      padding: 0 var(--spacing-m);
-      border-bottom: 1px solid var(--border-color);
-      background: var(--bg-surface);
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      justify-content: center;
     }
 
-    .toolbar .tabs {
-      display: inline-flex;
-      gap: 2px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .tab-btn {
-      padding: 6px 12px;
-      background: transparent;
-      border: 0;
-      cursor: pointer;
-      color: var(--muted);
-    }
-    .tab-btn.active { background: #eef2ff; color: var(--primary); }
-
-    .spacer { flex: 1; }
-
-    .actions { display: inline-flex; gap: var(--spacing-s); }
-    .icon-btn {
-      height: 32px;
-      min-width: 32px;
-      padding: 0 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      background: #fff;
-      cursor: pointer;
-    }
-
-    .wrapper {
-      position: relative;
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-      background: var(--bg-container);
-    }
-
-    .pane {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .pane.hidden { display: none; }
-
-    .code-area {
-      flex: 1;
-      width: 100%;
-      border: 0;
-      resize: none;
-      padding: var(--spacing-m);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 14px;
-      line-height: 1.5;
-      background: #0b1020;
-      color: #e7e7e7;
-      outline: none;
-    }
-
-    .artifact-container {
+    /* Optional inner padding area for your content */
+    .content {
       width: 100%;
       height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    .artifact-container iframe {
-      border: none;
-      flex-grow: 1;
-      width: 100%;
-      min-width: 100%;
-      height: 100%;
-      background: #fff;
+      box-sizing: border-box;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      color: #1f2937;
+      text-align: center;
+      font: 500 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     }
 
-    .fullscreen-web-preview {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 999;
-      background: var(--bg-container);
-    }
-
-    @media (max-width: 900px) {
-      .wrapper { flex-direction: column; }
+    /* Make it taller on very small screens */
+    @media (max-width: 480px) {
+      .preview-box { height: min(80vh, 720px); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="toolbar">
-      <div class="tabs" role="tablist" aria-label="View">
-        <button id="tab-code" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-code">Code</button>
-        <button id="tab-preview" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-preview">Preview</button>
+  <div class="viewport-center">
+    <div class="preview-box" role="group" aria-label="Responsive wrapper">
+      <div class="content">
+        Place your site or code preview here<br/>
+        (responsive rounded wrapper)
       </div>
-      <div class="spacer"></div>
-      <div class="actions">
-        <button id="run" class="icon-btn" title="Run (render preview)">Run</button>
-        <button id="fullscreen" class="icon-btn" title="Toggle Fullscreen">Fullscreen</button>
-      </div>
-    </div>
-
-    <div id="wrapper" class="wrapper" aria-live="polite">
-      <section id="panel-code" class="pane" role="tabpanel" aria-labelledby="tab-code">
-        <textarea id="code" class="code-area" spellcheck="false"></textarea>
-      </section>
-      <section id="panel-preview" class="pane hidden" role="tabpanel" aria-labelledby="tab-preview">
-        <div class="artifact-container">
-          <iframe id="preview" title="Preview"></iframe>
-        </div>
-      </section>
     </div>
   </div>
-
-  <script>
-    (function(){
-      const tabCode = document.getElementById('tab-code');
-      const tabPreview = document.getElementById('tab-preview');
-      const panelCode = document.getElementById('panel-code');
-      const panelPreview = document.getElementById('panel-preview');
-      const code = document.getElementById('code');
-      const preview = document.getElementById('preview');
-      const runBtn = document.getElementById('run');
-      const fullscreenBtn = document.getElementById('fullscreen');
-      const wrapper = document.getElementById('wrapper');
-
-      // Seed example content
-      const initial = `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Preview</title>
-    <style>
-      html, body { height: 100%; margin: 0; }
-      body { display: grid; place-items: center; font: 16px/1.4 system-ui, sans-serif; }
-      .card { width: min(92vw, 800px); padding: 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.08); border: 1px solid #eee; }
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-      .item { background: #f7f9ff; border: 1px solid #e4e8ff; padding: 12px; border-radius: 8px; }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h2>Responsive Preview</h2>
-      <div class="grid">
-        <div class="item">Resize the window to see responsive layout.</div>
-        <div class="item">Uses grid with auto-fit minmax.</div>
-        <div class="item">Container fills available space.</div>
-      </div>
-    </div>
-  </body>
-</html>`;
-      code.value = initial;
-
-      function setActive(tab) {
-        const isCode = tab === 'code';
-        tabCode.classList.toggle('active', isCode);
-        tabPreview.classList.toggle('active', !isCode);
-        tabCode.setAttribute('aria-selected', String(isCode));
-        tabPreview.setAttribute('aria-selected', String(!isCode));
-        panelCode.classList.toggle('hidden', !isCode);
-        panelPreview.classList.toggle('hidden', isCode);
-      }
-
-      function run() {
-        const html = code.value;
-        // Use srcdoc for a self-contained preview
-        preview.srcdoc = html;
-      }
-
-      function toggleFullscreen() {
-        wrapper.classList.toggle('fullscreen-web-preview');
-      }
-
-      tabCode.addEventListener('click', () => setActive('code'));
-      tabPreview.addEventListener('click', () => setActive('preview'));
-      runBtn.addEventListener('click', run);
-      fullscreenBtn.addEventListener('click', toggleFullscreen);
-
-      // Keyboard shortcuts: Ctrl/Cmd+S to Run
-      window.addEventListener('keydown', (e) => {
-        const isSave = (e.key === 's' || e.key === 'S') && (e.ctrlKey || e.metaKey);
-        if (isSave) {
-          e.preventDefault();
-          run();
-          setActive('preview');
-        }
-      });
-
-      // Auto-run on first load
-      run();
-    })();
-  </script>
 </body>
 </html>
 
