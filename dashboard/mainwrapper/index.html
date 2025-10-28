@@ -1,485 +1,249 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mobile Screen with Header</title>
-    
-<script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom font for a clean look */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Responsive Preview Container</title>
+  <style>
+    :root {
+      --spacing-xs: 8px;
+      --spacing-s: 12px;
+      --spacing-m: 16px;
+      --spacing-l: 24px;
+      --toolbar-height: 48px;
+      --border-color: #e3e3e3;
+      --bg-surface: #ffffff;
+      --bg-container: #fafafa;
+      --text: #161616;
+      --muted: #555;
+      --primary: #1967d2;
+    }
 
-        /* Ensure the main container takes full viewport height for centering */
-        .mobile-frame-container {
-            height: 100vh;
-        }
-        
-        /* Define the exact fractional pixel dimensions */
-        /* Responsive screen container */
-.responsive-screen {
-  width: 100%;
-  max-width: 400px; /* optional limit for desktop previews */
-  height: 80vh; /* dynamic height based on viewport */
-  max-height: 800px;
-  display: flex;
-  flex-direction: column;
-  background: black;
-  border-radius: 1.5rem;
-  border: 2px solid #474747;
-  overflow: hidden;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
-}
+    html, body {
+      height: 100%;
+      margin: 0;
+      color: var(--text);
+      background: var(--bg-surface);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
 
-/* Fullscreen mode (like fullscreen-web-preview) */
-.fullscreen-screen {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  border-radius: 0;
-  z-index: 1000;
-}
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
 
-        /* Define the custom color for the header and body background */
-        .bg-1b1c1d {
-            background-color: #1b1c1d;
-        }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-s);
+      height: var(--toolbar-height);
+      padding: 0 var(--spacing-m);
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-        /* Custom style for the subtle Edit button */
-        .edit-btn {
-            background-color: transparent;
-            border: 1px solid #3f4041;
-        }
-        .edit-btn:hover {
-            border-color: #ffffff;
-            background-color: #2c2d2e;
-        }
+    .toolbar .tabs {
+      display: inline-flex;
+      gap: 2px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
 
-        /* Profile Page Styles */
-        .profile-page-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #f7f7f7; /* Light background similar to image */
-            z-index: 100; /* Ensure it covers everything */
-            overflow-y: auto; /* Enable scrolling for content */
-            transition: transform 0.3s ease-out; /* Smooth slide-in effect */
-            transform: translateX(100%); /* Start off-screen to the right */
-        }
-        .profile-page-container.visible {
-            transform: translateX(0%); /* Slide in when visible */
-        }
+    .tab-btn {
+      padding: 6px 12px;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .tab-btn.active { background: #eef2ff; color: var(--primary); }
 
-        /* ADDED: Profile Menu Styles (for visibility) */
-        #profile-menu.visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale-100;
-        }
-        /* END ADDED */
+    .spacer { flex: 1; }
 
-        html, body {
-    height: 100%;
-    overflow: hidden; /* Prevent any scrolling */
-        }      
-        
-    </style>
+    .actions { display: inline-flex; gap: var(--spacing-s); }
+    .icon-btn {
+      height: 32px;
+      min-width: 32px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .wrapper {
+      position: relative;
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      background: var(--bg-container);
+    }
+
+    .pane {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pane.hidden { display: none; }
+
+    .code-area {
+      flex: 1;
+      width: 100%;
+      border: 0;
+      resize: none;
+      padding: var(--spacing-m);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #0b1020;
+      color: #e7e7e7;
+      outline: none;
+    }
+
+    .artifact-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .artifact-container iframe {
+      border: none;
+      flex-grow: 1;
+      width: 100%;
+      min-width: 100%;
+      height: 100%;
+      background: #fff;
+    }
+
+    .fullscreen-web-preview {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 999;
+      background: var(--bg-container);
+    }
+
+    @media (max-width: 900px) {
+      .wrapper { flex-direction: column; }
+    }
+  </style>
 </head>
-<body class="bg-1b1c1d">
-
-    
-<div class="h-screen w-screen relative">
-        
-        
-<!-- Top Left Title + Subtitle -->
-<div class="absolute top-8 left-8 z-10">
-    <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>
-    <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>
-</div>
-        
-<div id="profile-icon" class="absolute top-6 right-6 cursor-pointer z-10 hover:opacity-80 transition duration-150">        
-
-<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-        </div>
-
-        
-<div class="mobile-frame-container flex items-center justify-center w-full h-[98vh]">
-
-            
-<div id="mobile-frame" class="responsive-screen bg-black relative">
-                
-<div class="w-full h-full bg-[#1b1c1d] flex flex-col">
-                    
-                    
-<header class="w-full h-[57px] bg-1b1c1d flex items-center justify-between px-4 text-white border-b" style="border-color: #434343;">
-                        
-<div class="flex space-x-2">
-                            
-<!-- UPDATED: Added ID, onclick, and initial disabled state for the Edit button -->
-<button id="edit-btn" onclick="editAction()" disabled class="edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-gray-200 transition duration-200 opacity-50 cursor-not-allowed">Edit</button>
-                            
-                            
-<!-- UPDATED: Added ID and onclick for the Save button -->
-<button id="save-btn" onclick="saveAction()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white transition duration-300 transform hover:scale-[1.03]">Save</button>
-                        </div>
-                        
-                        
-<button id="publish-delete-btn" onclick="showPublishModal()" class="px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]">Publish</button>
-                    </header>
-
-                    
-<div id="mobile-content-area" class="flex-grow p-4 relative">
-                        <!-- NEW: Status Message Container -->
-                        <div id="status-message" class="absolute top-4 left-1/2 -translate-x-1/2 w-11/12 text-center p-3 rounded-xl z-50 transition-all duration-500 opacity-0 transform -translate-y-4 pointer-events-none">
-                            <!-- Content will be injected here -->
-                        </div>
-                        <div class="flex items-center justify-center h-full text-center text-gray-400">
-                            <p class="text-sm font-medium">Mobile Dashboard Screen</p>
-                        </div>
-                    </div>
-                    
-                </div>
-                
-            </div>
-        </div>
+<body>
+  <div class="container">
+    <div class="toolbar">
+      <div class="tabs" role="tablist" aria-label="View">
+        <button id="tab-code" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-code">Code</button>
+        <button id="tab-preview" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-preview">Preview</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="actions">
+        <button id="run" class="icon-btn" title="Run (render preview)">Run</button>
+        <button id="fullscreen" class="icon-btn" title="Toggle Fullscreen">Fullscreen</button>
+      </div>
     </div>
 
-    
-<div id="profile-menu" class="absolute top-16 right-6 z-50 rounded-xl shadow-2xl bg-white border border-gray-200 opacity-0 pointer-events-none transition duration-300 transform scale-95 origin-top-right w-48">
-        <div class="p-2 space-y-1">
-            
-<a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition" onclick="openProfilePage(event)">
-                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                Profile
-            </a>
-            
-<a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition">
-                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                About Us
-            </a>
-            
-<a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-800 rounded-lg hover:bg-gray-100 transition">
-                <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.247a1 1 0 01.768-.135l2.748.718a.99.99 0 001.258-.879V8a2 2 0 10-4 0v1.247zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Help / Support
-            </a>
+    <div id="wrapper" class="wrapper" aria-live="polite">
+      <section id="panel-code" class="pane" role="tabpanel" aria-labelledby="tab-code">
+        <textarea id="code" class="code-area" spellcheck="false"></textarea>
+      </section>
+      <section id="panel-preview" class="pane hidden" role="tabpanel" aria-labelledby="tab-preview">
+        <div class="artifact-container">
+          <iframe id="preview" title="Preview"></iframe>
         </div>
+      </section>
     </div>
-    
-    <!-- PUBLISH CONFIRMATION MODAL -->
-    <div id="publish-modal" class="fixed inset-0 z-[110] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-1b1c1d rounded-xl shadow-2xl max-w-sm w-full p-6 mx-auto transform transition-all scale-100 border border-gray-700">
-            <!-- Title -->
-            <h3 class="text-xl font-extrabold text-white mb-4">Publish Store</h3>
-            
-            <!-- Message -->
-            <p class="text-gray-300 mb-6 text-sm">
-                You’re about to make your store publicly available at:
-                <span class="block font-semibold text-blue-400 my-1">[yourstore.krishi.site]</span>
-                Please review all content and settings before proceeding.
-                Select <strong class="text-white">Publish</strong> to go live or <strong class="text-white">Cancel</strong> to return.
-            </p>
+  </div>
 
-            <!-- Buttons -->
-            <div class="flex justify-end space-x-3">
-                <button onclick="hidePublishModal()" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-200 bg-gray-700 hover:bg-gray-600 transition">
-                    Cancel
-                </button>
-                <button onclick="publishAction()" class="px-4 py-2 text-sm font-bold rounded-lg bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-400 hover:to-teal-400 text-white transition">
-                    Publish
-                </button>
-            </div>
-        </div>
+  <script>
+    (function(){
+      const tabCode = document.getElementById('tab-code');
+      const tabPreview = document.getElementById('tab-preview');
+      const panelCode = document.getElementById('panel-code');
+      const panelPreview = document.getElementById('panel-preview');
+      const code = document.getElementById('code');
+      const preview = document.getElementById('preview');
+      const runBtn = document.getElementById('run');
+      const fullscreenBtn = document.getElementById('fullscreen');
+      const wrapper = document.getElementById('wrapper');
+
+      // Seed example content
+      const initial = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview</title>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      body { display: grid; place-items: center; font: 16px/1.4 system-ui, sans-serif; }
+      .card { width: min(92vw, 800px); padding: 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.08); border: 1px solid #eee; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+      .item { background: #f7f9ff; border: 1px solid #e4e8ff; padding: 12px; border-radius: 8px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Responsive Preview</h2>
+      <div class="grid">
+        <div class="item">Resize the window to see responsive layout.</div>
+        <div class="item">Uses grid with auto-fit minmax.</div>
+        <div class="item">Container fills available space.</div>
+      </div>
     </div>
-    
-    <!-- NEW: DELETE CONFIRMATION MODAL -->
-    <div id="delete-modal" class="fixed inset-0 z-[115] hidden bg-black bg-opacity-70 flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-1b1c1d rounded-xl shadow-2xl max-w-sm w-full p-6 mx-auto transform transition-all scale-100 border border-gray-700">
-            <h3 class="text-xl font-extrabold text-red-500 mb-4">Delete Store Permanently</h3>
-            <p class="text-gray-300 mb-4 text-sm">
-                This will erase all products, images, and settings.
-                Your store (<span class="font-semibold text-red-400">[yourstore.krishi.site]</span>) will be permanently deleted and cannot be recovered.
-            </p>
+  </body>
+</html>`;
+      code.value = initial;
 
-            <!-- Confirmation Input -->
-            <label for="delete-confirm-input" class="block text-sm font-medium text-gray-400 mb-2">Type "DELETE" to confirm:</label>
-            <input type="text" id="delete-confirm-input" placeholder="Type DELETE" class="block w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm mb-6">
+      function setActive(tab) {
+        const isCode = tab === 'code';
+        tabCode.classList.toggle('active', isCode);
+        tabPreview.classList.toggle('active', !isCode);
+        tabCode.setAttribute('aria-selected', String(isCode));
+        tabPreview.setAttribute('aria-selected', String(!isCode));
+        panelCode.classList.toggle('hidden', !isCode);
+        panelPreview.classList.toggle('hidden', isCode);
+      }
 
-            <!-- Buttons -->
-            <div class="flex justify-end space-x-3">
-                <button onclick="hideDeleteModal()" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-200 bg-gray-700 hover:bg-gray-600 transition">
-                    Cancel
-                </button>
-                <button onclick="confirmDeleteAction()" class="px-4 py-2 text-sm font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white transition">
-                    Confirm Delete
-                </button>
-            </div>
-        </div>
-    </div>
-    <!-- END NEW -->
+      function run() {
+        const html = code.value;
+        // Use srcdoc for a self-contained preview
+        preview.srcdoc = html;
+      }
 
+      function toggleFullscreen() {
+        wrapper.classList.toggle('fullscreen-web-preview');
+      }
 
-    <!-- PROFILE PAGE (Full-Screen Overlay) --><div id="profile-page" class="profile-page-container">
-        <!-- Close Button (Top Left of the profile page) --><div class="absolute top-4 left-4 z-10">
-            <button onclick="closeProfilePage()" class="p-2 rounded-full text-gray-600 hover:bg-gray-200 transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-        </div>
+      tabCode.addEventListener('click', () => setActive('code'));
+      tabPreview.addEventListener('click', () => setActive('preview'));
+      runBtn.addEventListener('click', run);
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-        <div class="max-w-md mx-auto p-6 md:p-8 pt-16"> <!-- Increased padding top to account for close button --><!-- Header Section --><div class="flex items-center space-x-3 mb-8">
-                <div class="bg-green-100 p-2 rounded-full">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-                <h1 class="text-xl md:text-2xl font-extrabold text-gray-900">Create Your Digital Profile</h1>
-            </div>
-
-            <!-- Form Fields --><div class="space-y-6">
-                <!-- Shop Name --><div>
-                    <label for="shop-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Name</label>
-                    <input type="text" id="shop-name" placeholder="e.g., Kisan Fertilizer Store" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <!-- Your Name --><div>
-                    <label for="user-name" class="block text-sm font-medium text-gray-700 mb-1">Enter Your Name</label>
-                    <input type="text" id="user-name" placeholder="Your Full Name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <!-- Mobile Number --><div>
-                    <label for="mobile-number" class="block text-sm font-medium text-gray-700 mb-1">User Mobile Number</label>
-                    <div class="mt-1 flex rounded-lg shadow-sm">
-                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                            +91
-                        </span>
-                        <input type="tel" id="mobile-number" placeholder="10 digit number" class="flex-1 block w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    </div>
-                </div>
-
-                <!-- Email Address --><div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Enter Email (Optional)</label>
-                    <input type="email" id="email" placeholder="optional@gmail.com" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                </div>
-
-                <!-- Shop Address --><div>
-                    <label for="shop-address" class="block text-sm font-medium text-gray-700 mb-1">Enter Shop Address</label>
-                    <textarea id="shop-address" rows="3" placeholder="Full physical address" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>
-                </div>
-
-                <!-- Select Shop Location on Map Button --><button class="w-full flex items-center justify-center px-4 py-2.5 border border-green-600 rounded-lg shadow-sm text-base font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Select Shop Location on Map
-                </button>
-            </div>
-
-            <!-- Save Profile Button --><div class="mt-8 mb-4">
-                <button class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">
-                    Save Profile
-                </button>
-            </div>
-
-            <!-- User ID --><div class="text-center text-xs text-gray-500 mt-4">
-                Your User ID: Loading...
-            </div>
-
-        </div>
-    </div>
-
-    <script>
-        // Global State (Simulating published status)
-        let isPublished = false;
-
-        // --- Edit/Save Lock/Unlock Functions (NEW) ---
-        function saveAction() {
-            const saveBtn = document.getElementById('save-btn');
-            const editBtn = document.getElementById('edit-btn');
-            
-            // 1. Lock Save Button
-            saveBtn.disabled = true;
-            saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            saveBtn.classList.remove('hover:from-teal-400', 'hover:to-green-400', 'hover:scale-[1.03]');
-            
-            // 2. Unlock Edit Button
-            editBtn.disabled = false;
-            editBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            // Show a temporary message that settings are saved
-            showTempMessage("Profile settings saved successfully!", true);
+      // Keyboard shortcuts: Ctrl/Cmd+S to Run
+      window.addEventListener('keydown', (e) => {
+        const isSave = (e.key === 's' || e.key === 'S') && (e.ctrlKey || e.metaKey);
+        if (isSave) {
+          e.preventDefault();
+          run();
+          setActive('preview');
         }
+      });
 
-        function editAction() {
-            const saveBtn = document.getElementById('save-btn');
-            const editBtn = document.getElementById('edit-btn');
-
-            // 1. Unlock Save Button
-            saveBtn.disabled = false;
-            saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            saveBtn.classList.add('hover:from-teal-400', 'hover:to-green-400', 'hover:scale-[1.03]');
-            
-            // 2. Lock Edit Button (since we are now in edit mode)
-            editBtn.disabled = true;
-            editBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            
-            // Show a temporary message that editing is enabled
-            showTempMessage("Edit mode enabled. Don't forget to Save!", false); // Use non-success color to indicate active editing
-        }
-
-
-        // --- Status Message Functions ---
-        function showTempMessage(message, isSuccess) {
-            const statusDiv = document.getElementById('status-message');
-            
-            // Apply appropriate styling based on success/error
-            const bgClass = isSuccess ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
-            
-            statusDiv.className = `absolute top-4 left-1/2 -translate-x-1/2 w-11/12 text-center p-3 rounded-xl z-50 transition-all duration-500 transform pointer-events-none ${bgClass}`;
-            statusDiv.innerHTML = message;
-            
-            // Show the message (remove opacity and translate class)
-            setTimeout(() => {
-                statusDiv.classList.remove('opacity-0', '-translate-y-4');
-            }, 50); 
-            
-            // Hide the message after 4 seconds
-            setTimeout(() => {
-                statusDiv.classList.add('opacity-0', '-translate-y-4');
-            }, 4000);
-        }
-
-        // --- Publish/Delete Button Update ---
-        function updatePublishButton() {
-            const btn = document.getElementById('publish-delete-btn');
-            
-            if (isPublished) {
-                // Change to DELETE button style (matching Edit button style, but red text)
-                btn.textContent = 'Delete Store';
-                btn.onclick = showDeleteModal;
-                // CHANGED: Styling to match edit-btn
-                btn.className = 'edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-red-500 transition duration-200 hover:border-red-500 hover:text-red-500/80';
-            } else {
-                // Change back to PUBLISH button style
-                btn.textContent = 'Publish';
-                btn.onclick = showPublishModal;
-                btn.className = 'px-4 py-1.5 text-sm font-bold rounded-xl bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white transition duration-300 transform hover:scale-[1.03]';
-            }
-        }
-
-        // --- Publish Modal Functions ---
-        function showPublishModal() {
-            document.getElementById('publish-modal').classList.remove('hidden');
-        }
-
-        function hidePublishModal() {
-            document.getElementById('publish-modal').classList.add('hidden');
-        }
-
-        function publishAction() {
-            hidePublishModal(); 
-            isPublished = true;
-            updatePublishButton();
-            
-            // Show temporary success message
-            const link = '[yourstore.krishi.site]';
-            const message = `
-                Congratulations! Your store is online now at 
-                <a href="#" class="font-bold underline">${link}</a>
-            `;
-            showTempMessage(message, true);
-        }
-
-        // --- Delete Modal Functions ---
-        function showDeleteModal() {
-            document.getElementById('delete-modal').classList.remove('hidden');
-            // Clear input on open
-            document.getElementById('delete-confirm-input').value = ''; 
-        }
-
-        function hideDeleteModal() {
-            document.getElementById('delete-modal').classList.add('hidden');
-        }
-
-        function confirmDeleteAction() {
-            const input = document.getElementById('delete-confirm-input').value;
-
-            // CHANGED: Use .toUpperCase() to allow any case (e.g., 'delete', 'Delete', 'DELETE')
-            if (input.toUpperCase() === 'DELETE') {
-                hideDeleteModal();
-                
-                // Perform delete action (simulate)
-                isPublished = false;
-                updatePublishButton();
-                
-                // Show temporary delete success message
-                showTempMessage("Store successfully deleted. You can publish again anytime.", false); // Use red/error color for deletion success
-            } else {
-                showTempMessage("Error: Confirmation text did not match 'DELETE'. Deletion aborted.", false);
-            }
-        }
-        
-        // --- Profile Page/Menu Functions (Untouched) ---
-
-        function toggleProfilePage(isVisible) {
-            const profilePage = document.getElementById('profile-page');
-            if (typeof isVisible === 'boolean') {
-                profilePage.classList.toggle('visible', isVisible);
-            } else {
-                profilePage.classList.toggle('visible');
-            }
-        }
-        
-        function closeProfilePage() {
-            toggleProfilePage(false);
-        }
-
-        function toggleProfileMenu() {
-            const profileMenu = document.getElementById('profile-menu');
-            profileMenu.classList.toggle('visible');
-        }
-
-        function openProfilePage(event) {
-            event.preventDefault();
-            toggleProfileMenu(); 
-            toggleProfilePage(true); 
-        }
-
-        // --- Initialization ---
-        window.onload = function() {
-            const profileIcon = document.getElementById('profile-icon');
-            const profilePage = document.getElementById('profile-page');
-            const profileMenu = document.getElementById('profile-menu'); 
-
-            if (profileIcon) {
-                profileIcon.addEventListener('click', toggleProfileMenu);
-            }
-            
-            profilePage.classList.remove('visible'); 
-
-            // Initialize button state
-            updatePublishButton(); 
-
-            // Global click listener to close the menu when clicking outside
-            document.addEventListener('click', function(event) {
-                const isMenuVisible = profileMenu.classList.contains('visible');
-                
-                if (isMenuVisible && !profileIcon.contains(event.target) && !profileMenu.contains(event.target)) {
-                    profileMenu.classList.remove('visible');
-                }
-            });
-        };
-
-        function toggleFullscreen() {
-  const frame = document.getElementById("mobile-frame");
-  frame.classList.toggle("fullscreen-screen");
-        }
-        
-    </script>
+      // Auto-run on first load
+      run();
+    })();
+  </script>
 </body>
 </html>
+
+
