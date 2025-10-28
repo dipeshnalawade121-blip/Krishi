@@ -82,10 +82,10 @@
 </head>  
 <body class="bg-1b1c1d">  
     <div class="h-screen w-screen relative">  
-        <div class="absolute top-8 left-8 z-10">  
+       <!-- <div class="absolute top-8 left-8 z-10">  
             <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>  
             <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>  
-        </div>  
+        </div>  -->
         
         <div id="profile-icon" class="absolute top-6 right-6 cursor-pointer z-10 hover:opacity-80 transition duration-150">          
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">  
@@ -95,7 +95,14 @@
         
         <div class="mobile-frame-container flex justify-center">  
             <div class="precise-dimensions bg-black shadow-2xl rounded-3xl overflow-hidden border-2 relative" 
-                style="border-color: #474747; margin-top: 10vh;"> <div class="w-full h-full bg-[#1b1c1d] flex flex-col">  
+                style="border-color: #474747; margin-top: 10vh;"> 
+                
+    <div class="absolute left-6 z-10" style="top: 2%;">  
+        <h1 class="text-white text-lg font-extrabold tracking-wide">Krishi.site</h1>  
+        <p class="text-gray-400 text-xs font-medium">Manage your online krishi store!</p>  
+    </div>  
+
+                <div class="w-full h-full bg-[#1b1c1d] flex flex-col">  
                     <header class="w-full h-[57px] bg-1b1c1d flex items-center justify-between px-4 text-white border-b" style="border-color: #434343;">  
                         <div class="flex space-x-2">  
                             <button id="edit-btn" onclick="editAction()" disabled class="edit-btn px-4 py-1.5 text-sm font-medium rounded-xl text-gray-200 transition duration-200 opacity-50 cursor-not-allowed">Edit</button>
