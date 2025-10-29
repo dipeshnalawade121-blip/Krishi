@@ -6,7 +6,6 @@
     <title>Mobile Screen with Header</title>
     
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Custom font for a clean look */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
@@ -359,15 +358,15 @@
                 <div class="mb-4">
                     <h3 class="text-lg font-bold text-white mb-2">आमच्याशी संपर्क साधा</h3>
                     <div class="space-y-1 text-sm text-gray-100">
-                        <p class="flex items-center" id="footer-address">
+                        <p class="flex items-center">
                             <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                             पत्ता: [Full Shop Address Line 1]
                         </p>
-                        <p class="flex items-center" id="footer-mobile">
+                        <p class="flex items-center">
                             <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.83 21 3 13.17 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.57.11.35.03.75-.24 1.02l-2.2 2.2z"/></svg>
                             फोन: [Shop Mobile Number]
                         </p>
-                        <p class="flex items-center" id="footer-whatsapp">
+                        <p class="flex items-center">
                             <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm3 0h-2v-2h2v2zm-3-3H9V9h2v4zm3 0h-2V9h2v4z"/></svg>
                             व्हॉट्सॲप: [WhatsApp Number]
                         </p>
@@ -385,7 +384,7 @@
                 </div>
             </div>
 
-            <div class="text-center text-xs text-white/70 border-t border-white/40 mt-4 pt-2 px-4" id="footer-copyright">
+            <div class="text-center text-xs text-white/70 border-t border-white/40 mt-4 pt-2 px-4">
                 &copy; 2025 [Your Shop Name]. सर्व हक्क राखीव. (All Rights Reserved).
             </div>
         </footer>
@@ -394,7 +393,7 @@
         <div id="address-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
             <div class="bg-white rounded-lg p-6 shadow-2xl w-full max-w-sm">
                 <h3 class="text-xl font-bold mb-3 text-agri-dark">संपूर्ण पत्ता (Full Address)</h3>
-                <p class="text-gray-700 mb-4" id="address-modal-content">
+                <p class="text-gray-700 mb-4">
                     **[Your Shop Name]**<br>
                     Plot No. 123, New Market Yard,<br>
                     Main Road, Near Bus Stand,<br>
@@ -628,12 +627,12 @@
             </div>
 
             <!-- Save Profile Button --><div class="mt-8 mb-4">
-                <button id="save-profile-btn" class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50" disabled>
+                <button class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">
                     Save Profile
                 </button>
             </div>
 
-            <!-- User ID --><div class="text-center text-xs text-gray-500 mt-4" id="user-id-display">
+            <!-- User ID --><div class="text-center text-xs text-gray-500 mt-4">
                 Your User ID: Loading...
             </div>
 
@@ -641,130 +640,7 @@
     </div>
 
     <script>
-        // Supabase Initialization
-        const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const BACKEND_URL = 'https://api.krishi.site';
-
-        let currentUserData = null;
-        let hasProfileChanges = false;
-        let userId = null;
-
-        // Fetch and Fill User Data
-        async function fetchAndFillUserData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            userId = urlParams.get('id');
-            if (!userId) {
-                console.error('No user ID in URL');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('user_name, shop_name, email, shop_address, mobile')
-                    .eq('id', userId)
-                    .single();
-
-                if (error || !data) {
-                    console.error('Error fetching user data:', error);
-                    return;
-                }
-
-                currentUserData = data;
-
-                // Fill Dashboard Elements
-                // Shop Name
-                document.querySelector('#shop-logo-name h1').textContent = data.shop_name || '[Your Shop Name]';
-                document.getElementById('footer-copyright').innerHTML = `&copy; 2025 ${data.shop_name || '[Your Shop Name]'}. सर्व हक्क राखीव. (All Rights Reserved).`;
-
-                // Mobile
-                const mobile = data.mobile || '[Shop Mobile Number]';
-                document.getElementById('footer-mobile').innerHTML = `<svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.83 21 3 13.17 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.57.11.35.03.75-.24 1.02l-2.2 2.2z"/></svg> फोन: ${mobile}`;
-                document.getElementById('footer-whatsapp').innerHTML = `<svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm3 0h-2v-2h2v2zm-3-3H9V9h2v4zm3 0h-2V9h2v4z"/></svg> व्हॉट्सॲप: ${mobile}`;
-
-                // Address
-                const address = data.shop_address || '[Full Shop Address Line 1]';
-                document.getElementById('footer-address').innerHTML = `<svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> पत्ता: ${address}`;
-
-                // Address Modal
-                const addressParts = address.split(',').map(p => p.trim());
-                const pincode = addressParts[addressParts.length - 1] || '[Pincode]';
-                const city = addressParts[addressParts.length - 2] || '[City]';
-                document.getElementById('address-modal-content').innerHTML = `${data.shop_name || '[Your Shop Name]'}<br>Plot No. 123, New Market Yard,<br>Main Road, Near Bus Stand,<br>${city}, Maharashtra, ${pincode}`;
-
-                // Header City, Pincode
-                document.getElementById('address-btn-compact').textContent = `${city}, ${pincode}`;
-
-                // User ID
-                document.getElementById('user-id-display').textContent = `Your User ID: ${userId}`;
-
-                // Fill Profile Page (if open, but since load before, fill anyway)
-                fillProfilePage();
-
-            } catch (err) {
-                console.error('Fetch error:', err);
-            }
-        }
-
-        // Fill Profile Page Inputs
-        function fillProfilePage() {
-            if (!currentUserData) return;
-
-            document.getElementById('shop-name').value = currentUserData.shop_name || '';
-            document.getElementById('user-name').value = currentUserData.user_name || '';
-            document.getElementById('mobile-number').value = currentUserData.mobile || '';
-            document.getElementById('email').value = currentUserData.email || '';
-            document.getElementById('shop-address').value = currentUserData.shop_address || '';
-
-            // Reset changes flag
-            hasProfileChanges = false;
-            document.getElementById('save-profile-btn').disabled = true;
-        }
-
-        // Profile Save Logic
-        document.getElementById('save-profile-btn').addEventListener('click', async () => {
-            if (!hasProfileChanges || !currentUserData) return;
-
-            const formData = {
-                mobile: document.getElementById('mobile-number').value,
-                shop_name: document.getElementById('shop-name').value.trim(),
-                user_name: document.getElementById('user-name').value.trim(),
-                email: document.getElementById('email').value.trim() || null,
-                shop_address: document.getElementById('shop-address').value.trim()
-            };
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/save-profile`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    showTempMessage('Profile saved successfully!', true);
-                    hasProfileChanges = false;
-                    document.getElementById('save-profile-btn').disabled = true;
-                    // Refetch to update dashboard
-                    await fetchAndFillUserData();
-                } else {
-                    showTempMessage('Error saving profile: ' + (result.error || 'Unknown error'), false);
-                }
-            } catch (err) {
-                console.error('Save error:', err);
-                showTempMessage('Error saving profile.', false);
-            }
-        });
-
-        // Detect Changes in Profile Inputs
-        ['shop-name', 'user-name', 'mobile-number', 'email', 'shop-address'].forEach(id => {
-            document.getElementById(id).addEventListener('input', () => {
-                hasProfileChanges = true;
-                document.getElementById('save-profile-btn').disabled = false;
-            });
-        });
+        // --- JAVASCRIPT LOGIC ---
 
         // Get the elements required for the sticky search bar logic
         const contentArea = document.getElementById('mobile-content-area');
@@ -1221,9 +1097,7 @@
         }
 
         // --- Initialization ---
-        window.onload = async function() {
-            await fetchAndFillUserData();
-
+        window.onload = function() {
             const profileIcon = document.getElementById('profile-icon');
             const profilePage = document.getElementById('profile-page');
             const profileMenu = document.getElementById('profile-menu'); 
