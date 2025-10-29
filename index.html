@@ -547,7 +547,10 @@
               if (response.ok && data.success) {
                 const userId = data.user.id; // Assuming backend returns { user: { id: uuid, mobile: ... } }
                 alert('Logged in successfully!');
-                
+
+                  // Store mobile for dashboard auto-fill
+                  localStorage.setItem('userMobile', mobile);
+                  
                 // Reset and close modal before redirect
                 resetLogin();
                 closeModal('login-modal');
