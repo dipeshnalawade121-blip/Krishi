@@ -144,6 +144,9 @@
 </head>
 <body class="bg-1b1c1d">
 
+    <script>
+       const API_BASE = 'https://api.krishi.site';
+     </script>
     
 <div class="h-screen w-screen relative">
         
@@ -627,7 +630,7 @@
             </div>
 
             <!-- Save Profile Button --><div class="mt-8 mb-4">
-                <button class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">
+                <button onclick="saveProfileToBackend()" class="w-full py-3 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg shadow-green-500/50">
                     Save Profile
                 </button>
             </div>
@@ -1069,6 +1072,124 @@
                 showTempMessage("Error: Confirmation text did not match 'DELETE'. Deletion aborted.", false);
             }
         }
+
+        // Auto-fill user profile from backend on load
+        async function autoFillUserProfile() {
+          try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+            if (!userId) {
+              showTempMessage('User ID not found. Please log in again.', false);
+              window.location.href = '/login.html'; // Adjust to your login path
+              return;
+            }
+
+            const response = await fetch(`${API_BASE}/get-user-profile`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: userId })
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const { success, user } = await response.json();
+            if (!success || !user) {
+              throw new Error('Profile not found');
+            }
+
+            // Populate profile modal form fields
+            document.getElementById('shop-name').value = user.shop_name || '';
+            document.getElementById('user-name').value = user.user_name || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('shop-address').value = user.shop_address || '';
+            // Mobile: Set if included in API response; otherwise, add to endpoint select()
+            // document.getElementById('mobile-number').value = user.mobile || '';
+
+            // Update header placeholders
+            document.querySelector('#shop-logo-name h1').textContent = user.shop_name || '[Your Shop Name]';
+            document.getElementById('address-btn-compact').textContent = extractCityPincode(user.shop_address) || '[City], [Pincode]';
+
+            // Update footer contact section (use user.mobile if added to API; fallback to placeholder)
+            const mobile = user.mobile || '[Shop Mobile Number]'; // Assume added to response
+            document.querySelector('footer p:nth-of-type(1)').innerHTML = `
+              <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              पत्ता: ${user.shop_address || '[Full Shop Address Line 1]'}
+            `;
+            document.querySelector('footer p:nth-of-type(2)').innerHTML = `
+              <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.83 21 3 13.17 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.57.11.35.03.75-.24 1.02l-2.2 2.2z"/></svg>
+              फोन: ${mobile}
+            `;
+            document.querySelector('footer p:nth-of-type(3)').innerHTML = `
+              <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm3 0h-2v-2h2v2zm-3-3H9V9h2v4zm3 0h-2V9h2v4z"/></svg>
+              व्हॉट्सॲप: ${mobile}
+            `;
+            document.querySelector('footer .text-center').innerHTML = `&copy; 2025 ${user.shop_name || '[Your Shop Name]'}. सर्व हक्क राखीव. (All Rights Reserved).`;
+
+            // Update address modal
+            document.querySelector('#address-modal p').innerHTML = `
+              **${user.shop_name || '[Your Shop Name]'}**<br>
+              ${user.shop_address || 'Plot No. 123, New Market Yard,<br>Main Road, Near Bus Stand,<br>[City], Maharashtra, [Pincode]'}
+            `;
+
+            // Update User ID display in profile page
+            document.querySelector('#profile-page .text-center').innerHTML = `Your User ID: ${userId}`;
+
+            showTempMessage('Profile loaded successfully!', true);
+          } catch (err) {
+            console.error('Auto-fill error:', err);
+            showTempMessage('Failed to load profile. Please complete setup.', false);
+            // Auto-open profile for incomplete/missing data
+            openProfilePage({ preventDefault: () => {} });
+          }
+        }
+
+        // Helper: Extract city/pincode for compact address (simple comma-split; enhance with lib if needed)
+        function extractCityPincode(address) {
+          if (!address) return '';
+          const parts = address.split(',').map(p => p.trim());
+          const lastTwo = parts.slice(-2);
+          return `${lastTwo[0] || '[City]'}, ${lastTwo[1] || '[Pincode]'}`;
+        }
+
+        // Save profile updates to backend
+        async function saveProfileToBackend() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const userId = urlParams.get('id');
+          if (!userId) {
+            showTempMessage('User ID not available. Log in again.', false);
+            return;
+          }
+
+          const updates = {
+            id: userId,
+            user_name: document.getElementById('user-name').value,
+            shop_name: document.getElementById('shop-name').value,
+            email: document.getElementById('email').value,
+            shop_address: document.getElementById('shop-address').value
+            // mobile: read-only, skip
+          };
+
+          try {
+            const response = await fetch(`${API_BASE}/update-user-profile`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updates)
+            });
+
+            if (!response.ok) throw new Error('Update failed');
+            const { success } = await response.json();
+            if (!success) throw new Error('Update not confirmed');
+
+            closeProfilePage();
+            autoFillUserProfile(); // Refresh all placeholders
+            showTempMessage('Profile updated successfully!', true);
+          } catch (err) {
+            console.error(err);
+            showTempMessage('Save failed. Please try again.', false);
+          }
+        }
         
         // --- Profile Page/Menu Functions (Untouched) ---
 
@@ -1119,6 +1240,8 @@
                     profileMenu.classList.remove('visible');
                 }
             });
+
+            autoFillUserProfile();
         };
     </script>
 </body>
