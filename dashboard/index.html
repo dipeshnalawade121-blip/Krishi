@@ -1083,7 +1083,7 @@
   if (!mobile || mobile.length !== 10) {
     showTempMessage('Mobile not found. Please log in again.', false);
     localStorage.removeItem('userMobile'); // Clean up invalid
-    window.location.href = '/login.html';
+    window.location.href = 'https://krishi.site';
     return;
   }
 
@@ -1165,7 +1165,7 @@ async function saveProfileToBackend() {
   const mobile = localStorage.getItem('userMobile');
   if (!mobile || mobile.length !== 10) {
     showTempMessage('Mobile not available. Log in again.', false);
-    window.location.href = '/login.html';
+    window.location.href = 'https://krishi.site';
     return;
   }
 
