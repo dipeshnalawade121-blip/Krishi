@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
     <title>Krishi Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -798,7 +799,7 @@
           google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleCredentialResponse,
-            ux_mode: 'redirect' // Changed to redirect to avoid COOP/popup issues
+            ux_mode: 'popup' // Reverted to popup (default) to avoid redirect_uri_mismatch
           });
 
           // Render login button (full width via container)
