@@ -369,10 +369,7 @@
                             <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.83 21 3 13.17 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.57.11.35.03.75-.24 1.02l-2.2 2.2z"/></svg>
                             फोन: [Shop Mobile Number]
                         </p>
-                        <p class="flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm3 0h-2v-2h2v2zm-3-3H9V9h2v4zm3 0h-2V9h2v4z"/></svg>
-                            व्हॉट्सॲप: [WhatsApp Number]
-                        </p>
+                        
                     </div>
                 </div>
 
@@ -1113,25 +1110,25 @@
 
             // Update footer contact section (use user.mobile if added to API; fallback to placeholder)
             const displayMobile = user.mobile || mobile || '[Shop Mobile Number]'; // Use stored 'mobile' as fallback if API skips it
-            document.querySelector('footer p:nth-of-type(1)').innerHTML = `
-              <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-              पत्ता: ${user.shop_address || '[Full Shop Address Line 1]'}
-            `;
+            // NEW: Strip lat/lng before inserting
+const cleanFullAddress = (user.shop_address || '[Full Shop Address Line 1]').replace(/\|\s*Lat:\s*[\d.-]+,\s*Lng:\s*[\d.-]+/i, '').trim();
+document.querySelector('footer p:nth-of-type(1)').innerHTML = `
+  <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+  पत्ता: ${cleanFullAddress}
+`;
             document.querySelector('footer p:nth-of-type(2)').innerHTML = `
               <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.83 21 3 13.17 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.46.57 3.57.11.35.03.75-.24 1.02l-2.2 2.2z"/></svg>
               फोन: ${displayMobile}
             `;
-            document.querySelector('footer p:nth-of-type(3)').innerHTML = `
-              <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm3 0h-2v-2h2v2zm-3-3H9V9h2v4zm3 0h-2V9h2v4z"/></svg>
-              व्हॉट्सॲप: ${displayMobile}
-            `;
+            
             document.querySelector('footer .text-center').innerHTML = `&copy; 2025 ${user.shop_name || '[Your Shop Name]'}. सर्व हक्क राखीव. (All Rights Reserved).`;
 
-            // Update address modal
-            document.querySelector('#address-modal p').innerHTML = `
-              **${user.shop_name || '[Your Shop Name]'}**<br>
-              ${user.shop_address || 'Plot No. 123, New Market Yard,<br>Main Road, Near Bus Stand,<br>[City], Maharashtra, [Pincode]'}
-            `;
+           // NEW: Use clean address
+const cleanModalAddress = (user.shop_address || 'Plot No. 123, New Market Yard,<br>Main Road, Near Bus Stand,<br>[City], Maharashtra, [Pincode]').replace(/\|\s*Lat:\s*[\d.-]+,\s*Lng:\s*[\d.-]+/i, '').trim();
+document.querySelector('#address-modal p').innerHTML = `
+  **${user.shop_name || '[Your Shop Name]'}**<br>
+  ${cleanModalAddress}
+`;
 
             // Update User ID display in profile page
             document.querySelector('#profile-page .text-center').innerHTML = `Your User ID: ${userId}`;
@@ -1145,13 +1142,16 @@
           }
         }
 
-        // Helper: Extract city/pincode for compact address (simple comma-split; enhance with lib if needed)
-        function extractCityPincode(address) {
-          if (!address) return '';
-          const parts = address.split(',').map(p => p.trim());
-          const lastTwo = parts.slice(-2);
-          return `${lastTwo[0] || '[City]'}, ${lastTwo[1] || '[Pincode]'}`;
-        }
+        
+        // Helper: Extract city/pincode for compact address (now strips lat/lng)
+function extractCityPincode(address) {
+  if (!address) return '';
+  // NEW: Strip "| Lat: X, Lng: Y" suffix (case-insensitive, flexible)
+  const cleanAddress = address.replace(/\|\s*Lat:\s*[\d.-]+,\s*Lng:\s*[\d.-]+/i, '').trim();
+  const parts = cleanAddress.split(',').map(p => p.trim());
+  const lastTwo = parts.slice(-2);
+  return `${lastTwo[0] || '[City]'}, ${lastTwo[1] || '[Pincode]'}`;
+}
 
         
         // Save profile updates to backend
