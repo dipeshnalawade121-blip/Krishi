@@ -10,6 +10,13 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap"></noscript>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false
+            }
+        }
+    </script>
     <!-- Load Lucide Icons for potential use -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Identity Services -->
@@ -73,9 +80,6 @@
         }
         .modal-content-enter-active, .modal-content-leave-active {
             transition: transform 0.3s ease;
-        }
-        .modal-content-enter-from, .modal-content-leave-to {
-            transform: translateY(100%);
         }
         
     </style>
@@ -213,10 +217,10 @@
             </div>
 
             <!-- Google Sign-in (Register) -->
-<div class="mb-4">
-  <div id="google-register-btn"></div>
-  <p class="text-xs text-center text-gray-500 mt-2">Or register with your Google account</p>
-</div>
+            <div class="mb-4">
+                <div id="google-register-btn"></div>
+                <p class="text-xs text-center text-gray-500 mt-2">Or register with your Google account</p>
+            </div>
 
             <form id="registration-form" class="space-y-4">
                 <!-- Mobile Number & OTP -->
@@ -258,10 +262,10 @@
             </div>
 
             <!-- Google Sign-in (Login) -->
-<div class="mb-4">
-  <div id="google-login-btn"></div>
-  <p class="text-xs text-center text-gray-500 mt-2">Or login with mobile + password</p>
-</div>
+            <div class="mb-4">
+                <div id="google-login-btn"></div>
+                <p class="text-xs text-center text-gray-500 mt-2">Or login with mobile + password</p>
+            </div>
 
             <form id="login-form" class="space-y-4">
                 <!-- Registered Mobile Number -->
@@ -724,114 +728,115 @@
         });
 
         // ---------- Google Sign In Integration ----------
-const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com'; // <-- replace me
-// make sure BACKEND_URL is already defined above (you have it as const BACKEND_URL)
+        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com'; // <-- replace me
+        // make sure BACKEND_URL is already defined above (you have it as const BACKEND_URL)
 
-// Callback that receives the Google ID token (credential)
-async function handleGoogleCredentialResponse(response) {
-  // response.credential is the JWT id_token
-  const id_token = response.credential;
-  if (!id_token) {
-    alert('Google login failed: no token received');
-    return;
-  }
+        // Callback that receives the Google ID token (credential)
+        async function handleGoogleCredentialResponse(response) {
+          // response.credential is the JWT id_token
+          const id_token = response.credential;
+          console.log('Received Google token (partial):', id_token ? id_token.substring(0, 50) + '...' : 'No token'); // Debug log
+          if (!id_token) {
+            alert('Google login failed: no token received');
+            return;
+          }
 
-  try {
-    const res = await fetch(`${BACKEND_URL}/auth/google`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id_token }),
-    });
+          try {
+            const res = await fetch(`${BACKEND_URL}/auth/google`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id_token }),
+            });
 
-    const data = await res.json();
-    if (!res.ok) {
-      console.error('Backend /auth/google error', data);
-      alert('Google login failed: ' + (data.error || 'Server error'));
-      return;
-    }
+            const data = await res.json();
+            if (!res.ok) {
+              console.error('Backend /auth/google error', data);
+              alert('Google login failed: ' + (data.error || 'Server error'));
+              return;
+            }
 
-    if (data.success) {
-      const user = data.user;
-      // Save a small key so dashboard/profile pages can auto-fill if needed
-      // Use email / google_id depending on what you prefer for lookup
-      if (user.email) localStorage.setItem('userEmail', user.email);
-      if (user.google_id) localStorage.setItem('userGoogleId', user.google_id);
-      // If your frontend expects mobile in localStorage, keep both or modify other pages
-      // localStorage.setItem('userMobile', user.mobile || '');
+            if (data.success) {
+              const user = data.user;
+              // Save a small key so dashboard/profile pages can auto-fill if needed
+              // Use email / google_id depending on what you prefer for lookup
+              if (user.email) localStorage.setItem('userEmail', user.email);
+              if (user.google_id) localStorage.setItem('userGoogleId', user.google_id);
+              // If your frontend expects mobile in localStorage, keep both or modify other pages
+              // localStorage.setItem('userMobile', user.mobile || '');
 
-      // Decide redirect like you do after mobile login
-      const userId = user.id;
-      const isProfileComplete = user.user_name && user.shop_name && user.shop_address
-                                && user.user_name.trim() !== '' && user.shop_name.trim() !== '' && user.shop_address.trim() !== '';
+              // Decide redirect like you do after mobile login
+              const userId = user.id;
+              const isProfileComplete = user.user_name && user.shop_name && user.shop_address
+                                        && user.user_name.trim() !== '' && user.shop_name.trim() !== '' && user.shop_address.trim() !== '';
 
-      // Close any open modals (if any)
-      closeModal('login-modal');
-      closeModal('registration-modal');
+              // Close any open modals (if any)
+              closeModal('login-modal');
+              closeModal('registration-modal');
 
-      if (isProfileComplete) {
-        window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
-      } else {
-        // pass google_id so profile-creation can link row correctly (or use id)
-        window.location.href = `https://www.krishi.site/profile-creation?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
-      }
-    } else {
-      alert('Google login failed: ' + (data.error || 'Unknown'));
-    }
-  } catch (err) {
-    console.error('Google login exception', err);
-    alert('Google login error: ' + (err.message || err));
-  }
-}
+              if (isProfileComplete) {
+                window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
+              } else {
+                // pass google_id so profile-creation can link row correctly (or use id)
+                window.location.href = `https://www.krishi.site/profile-creation?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
+              }
+            } else {
+              alert('Google login failed: ' + (data.error || 'Unknown'));
+            }
+          } catch (err) {
+            console.error('Google login exception', err);
+            alert('Google login error: ' + (err.message || err));
+          }
+        }
 
-// Initialize Google button(s) when client library loads
-function initGoogleButtons() {
-  if (!window.google || !google.accounts || !google.accounts.id) {
-    console.warn('Google identity library not loaded yet');
-    return;
-  }
+        // Initialize Google button(s) when client library loads
+        function initGoogleButtons() {
+          if (!window.google || !google.accounts || !google.accounts.id) {
+            console.warn('Google identity library not loaded yet');
+            return;
+          }
 
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredentialResponse,
-    ux_mode: 'popup' // popup is good for SPAs / modals
-  });
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'redirect' // Changed to redirect to avoid COOP/popup issues
+          });
 
-  // Render login button (full width)
-  const loginBtnContainer = document.getElementById('google-login-btn');
-  if (loginBtnContainer) {
-    google.accounts.id.renderButton(loginBtnContainer, {
-      theme: 'outline',
-      size: 'large',
-      width: '100%',
-      type: 'standard',
-    });
-  }
+          // Render login button (full width via container)
+          const loginBtnContainer = document.getElementById('google-login-btn');
+          if (loginBtnContainer) {
+            google.accounts.id.renderButton(loginBtnContainer, {
+              theme: 'outline',
+              size: 'large',
+              // Removed width: '100%' to fix warning
+              type: 'standard',
+            });
+          }
 
-  // Render register button (same style)
-  const registerBtnContainer = document.getElementById('google-register-btn');
-  if (registerBtnContainer) {
-    google.accounts.id.renderButton(registerBtnContainer, {
-      theme: 'outline',
-      size: 'large',
-      width: '100%',
-      type: 'standard',
-    });
-  }
+          // Render register button (same style)
+          const registerBtnContainer = document.getElementById('google-register-btn');
+          if (registerBtnContainer) {
+            google.accounts.id.renderButton(registerBtnContainer, {
+              theme: 'outline',
+              size: 'large',
+              // Removed width: '100%' to fix warning
+              type: 'standard',
+            });
+          }
 
-  // Optional: don't auto prompt for one-tap; we only show explicit buttons
-  // google.accounts.id.prompt(); // Commented out by default
-}
+          // Optional: don't auto prompt for one-tap; we only show explicit buttons
+          // google.accounts.id.prompt(); // Commented out by default
+        }
 
-// Wait for library to load and DOM to be ready
-window.addEventListener('load', () => {
-  // try immediate init (script is async)
-  initGoogleButtons();
+        // Wait for library to load and DOM to be ready
+        window.addEventListener('load', () => {
+          // try immediate init (script is async)
+          initGoogleButtons();
 
-  // Also try init again after small delay if library not ready yet
-  if (!window.google || !google.accounts || !google.accounts.id) {
-    setTimeout(initGoogleButtons, 800);
-  }
-});
+          // Also try init again after small delay if library not ready yet
+          if (!window.google || !google.accounts || !google.accounts.id) {
+            setTimeout(initGoogleButtons, 800);
+          }
+        });
 
 
     </script>
