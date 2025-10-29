@@ -1076,19 +1076,19 @@
         // Auto-fill user profile from backend on load
         async function autoFillUserProfile() {
           try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('id');
-            if (!userId) {
-              showTempMessage('User ID not found. Please log in again.', false);
-              window.location.href = '/login.html'; // Adjust to your login path
-              return;
-            }
+  const mobile = localStorage.getItem('userMobile');
+  if (!mobile || mobile.length !== 10) {
+    showTempMessage('Mobile not found. Please log in again.', false);
+    localStorage.removeItem('userMobile'); // Clean up invalid
+    window.location.href = '/login.html';
+    return;
+  }
 
-            const response = await fetch(`${API_BASE}/get-user-profile`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id: userId })
-            });
+  const response = await fetch(`${API_BASE}/get-user-profile`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mobile })  // Changed: { mobile } instead of { id }
+  });
 
             if (!response.ok) {
               throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -1153,43 +1153,43 @@
           return `${lastTwo[0] || '[City]'}, ${lastTwo[1] || '[Pincode]'}`;
         }
 
+        
         // Save profile updates to backend
-        async function saveProfileToBackend() {
-          const urlParams = new URLSearchParams(window.location.search);
-          const userId = urlParams.get('id');
-          if (!userId) {
-            showTempMessage('User ID not available. Log in again.', false);
-            return;
-          }
+async function saveProfileToBackend() {
+  const mobile = localStorage.getItem('userMobile');
+  if (!mobile || mobile.length !== 10) {
+    showTempMessage('Mobile not available. Log in again.', false);
+    window.location.href = '/login.html';
+    return;
+  }
 
-          const updates = {
-            id: userId,
-            user_name: document.getElementById('user-name').value,
-            shop_name: document.getElementById('shop-name').value,
-            email: document.getElementById('email').value,
-            shop_address: document.getElementById('shop-address').value
-            // mobile: read-only, skip
-          };
+  const updates = {
+    mobile,  // NEW: Include mobile
+    user_name: document.getElementById('user-name').value,
+    shop_name: document.getElementById('shop-name').value,
+    email: document.getElementById('email').value,
+    shop_address: document.getElementById('shop-address').value
+  };
 
-          try {
-            const response = await fetch(`${API_BASE}/update-user-profile`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(updates)
-            });
+  try {
+    const response = await fetch(`${API_BASE}/update-user-profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)  // Changed: { mobile, updates }
+    });
 
-            if (!response.ok) throw new Error('Update failed');
-            const { success } = await response.json();
-            if (!success) throw new Error('Update not confirmed');
+    if (!response.ok) throw new Error('Update failed');
+    const { success } = await response.json();
+    if (!success) throw new Error('Update not confirmed');
 
-            closeProfilePage();
-            autoFillUserProfile(); // Refresh all placeholders
-            showTempMessage('Profile updated successfully!', true);
-          } catch (err) {
-            console.error(err);
-            showTempMessage('Save failed. Please try again.', false);
-          }
-        }
+    closeProfilePage();
+    autoFillUserProfile(); // Refresh all placeholders
+    showTempMessage('Profile updated successfully!', true);
+  } catch (err) {
+    console.error(err);
+    showTempMessage('Save failed. Please try again.', false);
+  }
+}
         
         // --- Profile Page/Menu Functions (Untouched) ---
 
