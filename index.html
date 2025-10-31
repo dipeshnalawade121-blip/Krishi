@@ -108,27 +108,37 @@
         }
 
         /* Google button container styling */
-        /* Enhanced Google button container for full-width */
+        /* Full-width Google button fix */
 .google-btn-container {
     margin-bottom: 1rem;
-    width: 100%; /* Fallback for non-Tailwind */
-    display: flex; /* Ensures button stretches */
-    justify-content: center; /* Centers if not full */
+    width: 100%;
+    display: block; /* Block for full stretch, no flex centering needed */
+    position: relative; /* For iframe targeting */
 }
 
-/* Anti-flicker: Hide until rendered */
+/* Force Google's iframe to 100% width & match rounded style */
+#google-login-btn iframe,
+#google-register-btn iframe {
+    width: 100% !important;
+    min-width: 100% !important;
+    border-radius: 0.75rem !important; /* Matches rounded-xl */
+    height: 48px !important; /* Matches large size */
+}
+
+/* Keep anti-flicker for the containers */
 #google-login-btn,
 #google-register-btn {
-    min-height: 50px; /* Matches large button height */
-    opacity: 0; /* Start hidden */
-    transition: opacity 0.2s ease; /* Smooth fade-in */
+    min-height: 50px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
-
 #google-login-btn.rendered,
 #google-register-btn.rendered {
-    opacity: 1; /* Show after render */
+    opacity: 1;
 }
-        }
+
+
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -264,7 +274,7 @@
             </div>
 
             <!-- Google Sign-in (Register) -->
-            <div class="google-btn-container w-full">
+            <div class="google-btn-container">
                 <div id="google-register-btn" ></div>
             </div>
 
@@ -308,7 +318,7 @@
             </div>
 
             <!-- Google Sign-in (Login) -->
-            <div class="google-btn-container w-full" >
+            <div class="google-btn-container" >
                 <div id="google-login-btn"></div>
             </div>
 
@@ -844,20 +854,21 @@
       theme: 'filled_blue',
       size: 'large',
       type: 'standard',
-      width: '100%'  // Key: Forces full-width!
+      shape: 'rectangular',  // Ensures rectangular for width
+      width: '100%'
     });
-    // Mark as rendered to fade in
     loginBtnContainer.classList.add('rendered');
   }
 
-  // Render for Register (same config)
+  // Render for Register
   const registerBtnContainer = document.getElementById('google-register-btn');
   if (registerBtnContainer) {
     google.accounts.id.renderButton(registerBtnContainer, {
       theme: 'filled_blue',
       size: 'large',
       type: 'standard',
-      width: '100%'  // Key: Forces full-width!
+      shape: 'rectangular',  // Ensures rectangular for width
+      width: '100%'
     });
     registerBtnContainer.classList.add('rendered');
   }
