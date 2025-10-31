@@ -111,6 +111,25 @@
         .google-btn-container {
             margin-bottom: 1rem;
         }
+
+        /* ensure the GSI button container and its injected elements stretch */
+.google-btn-container,
+.google-btn-container > div,
+#google-register-btn,
+#google-login-btn {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* the GSI script inserts an iframe — make it fill the container */
+.google-btn-container iframe,
+#google-register-btn iframe,
+#google-login-btn iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: block !important;
+  height: auto !important;
+}
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -247,7 +266,7 @@
 
             <!-- Google Sign-in (Register) -->
             <div class="google-btn-container">
-                <div id="google-register-btn" ></div>
+                <div id="google-register-btn" class="w-full" ></div>
             </div>
 
             <form id="registration-form" class="space-y-4">
@@ -291,7 +310,7 @@
 
             <!-- Google Sign-in (Login) -->
             <div class="google-btn-container">
-                <div id="google-login-btn"></div>
+                <div id="google-login-btn" class="w-full"></div>
             </div>
 
             <form id="login-form" class="space-y-4">
@@ -826,6 +845,8 @@
               size: 'large',
               type: 'standard',                
             });
+              // after renderButton(loginBtnContainer,...)
+forceStretchGoogleButton('google-login-btn');
           }
 
           const registerBtnContainer = document.getElementById('google-register-btn');
@@ -835,6 +856,8 @@
               size: 'large',
               type: 'standard',
             });
+              // after renderButton(loginBtnContainer,...)
+forceStretchGoogleButton('google-register-btn');
           }
         }
 
