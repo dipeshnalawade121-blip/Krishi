@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
     <title>Krishi Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -111,25 +111,6 @@
         .google-btn-container {
             margin-bottom: 1rem;
         }
-
-        /* ensure the GSI button container and its injected elements stretch */
-.google-btn-container,
-.google-btn-container > div,
-#google-register-btn,
-#google-login-btn {
-  width: 100% !important;
-  display: block !important;
-}
-
-/* the GSI script inserts an iframe — make it fill the container */
-.google-btn-container iframe,
-#google-register-btn iframe,
-#google-login-btn iframe {
-  width: 100% !important;
-  max-width: 100% !important;
-  display: block !important;
-  height: auto !important;
-}
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -266,7 +247,7 @@
 
             <!-- Google Sign-in (Register) -->
             <div class="google-btn-container">
-                <div id="google-register-btn" class="w-full" ></div>
+                <div id="google-register-btn" ></div>
             </div>
 
             <form id="registration-form" class="space-y-4">
@@ -310,7 +291,7 @@
 
             <!-- Google Sign-in (Login) -->
             <div class="google-btn-container">
-                <div id="google-login-btn" class="w-full"></div>
+                <div id="google-login-btn"></div>
             </div>
 
             <form id="login-form" class="space-y-4">
@@ -845,8 +826,6 @@
               size: 'large',
               type: 'standard',                
             });
-              // after renderButton(loginBtnContainer,...)
-forceStretchGoogleButton('google-login-btn');
           }
 
           const registerBtnContainer = document.getElementById('google-register-btn');
@@ -856,8 +835,6 @@ forceStretchGoogleButton('google-login-btn');
               size: 'large',
               type: 'standard',
             });
-              // after renderButton(loginBtnContainer,...)
-forceStretchGoogleButton('google-register-btn');
           }
         }
 
@@ -867,39 +844,6 @@ forceStretchGoogleButton('google-register-btn');
             setTimeout(initGoogleButtons, 800);
           }
         });
-
-        // helper function to stretch Google button full width
-function forceStretchGoogleButton(containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  container.classList.add('w-full');
-
-  const innerDiv = container.querySelector('div');
-  if (innerDiv) {
-    innerDiv.style.width = '100%';
-    innerDiv.style.maxWidth = '100%';
-    innerDiv.style.display = 'block';
-  }
-
-  const iframe = container.querySelector('iframe');
-  if (iframe) {
-    iframe.style.width = '100%';
-    iframe.style.maxWidth = '100%';
-    iframe.style.display = 'block';
-    iframe.style.height = 'auto';
-  }
-
-  const mo = new MutationObserver(() => {
-    const d = container.querySelector('div');
-    if (d) { d.style.width = '100%'; d.style.maxWidth = '100%'; d.style.display = 'block'; }
-    const f = container.querySelector('iframe');
-    if (f) { f.style.width = '100%'; f.style.maxWidth = '100%'; f.style.display = 'block'; f.style.height = 'auto'; }
-  });
-  mo.observe(container, { childList: true, subtree: true });
-
-  setTimeout(() => mo.disconnect(), 4000);
-}
 
     </script>
 </body>
