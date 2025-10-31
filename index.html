@@ -108,39 +108,9 @@
         }
 
         /* Google button container styling */
-        /* Google container: Full-width & centered */
-.google-btn-container {
-    margin-bottom: 1rem;
-    width: 100%;
-    display: flex !important;  /* Flex for center */
-    justify-content: center;   /* Centers button */
-    align-items: center;
-}
-
-/* Force iframe to match (anti-shrink override) */
-#google-login-btn iframe,
-#google-register-btn iframe {
-    width: 100% !important;
-    max-width: 400px !important;  /* Google's cap */
-    min-width: unset !important;
-    border-radius: 0.75rem !important;  /* rounded-xl */
-    height: 48px !important;  /* large size */
-    display: block !important;  /* No left align quirk */
-}
-
-/* Anti-flicker */
-#google-login-btn,
-#google-register-btn {
-    min-height: 50px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    width: 100%;  /* Ensure container stretches */
-}
-#google-login-btn.rendered,
-#google-register-btn.rendered {
-    opacity: 1;
-}
-
+        .google-btn-container {
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -320,7 +290,7 @@
             </div>
 
             <!-- Google Sign-in (Login) -->
-            <div class="google-btn-container" >
+            <div class="google-btn-container">
                 <div id="google-login-btn"></div>
             </div>
 
@@ -787,73 +757,6 @@
         // ---------- Google Sign In Integration ----------
         const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
 
-        // Helper: Render button with dynamic integer width & center
-function renderGoogleButton(containerId, isRegister = false) {
-  const container = document.getElementById(containerId);
-  if (!container || !window.google?.accounts?.id) return;
-
-  // Wait for modal to be fully visible (anti-shrink)
-  setTimeout(() => {
-    // Compute integer width (cap 400px, floor to int)
-    const rect = container.getBoundingClientRect();
-    const width = Math.floor(Math.min(rect.width || 400, 400)); // Fallback 400 if 0
-
-    google.accounts.id.renderButton(container, {
-      theme: 'filled_blue',
-      size: 'large',
-      type: 'standard',
-      shape: 'rectangular',
-      width: width,  // Integer! Key fix for shrink bug
-      logo_alignment: 'left'  // Keeps icon left for balance
-    });
-
-    // Mark rendered & fade in
-    container.classList.add('rendered');
-  }, 100);  // 100ms delay lets DOM settle
-}
-
-// Update openModal to render buttons fresh
-function openModal(modalId) {
-  const modal = document.getElementById(modalId);
-  modal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-
-  // Render Google buttons AFTER open (fixes hidden-width issue)
-  if (modalId === 'registration-modal') {
-    renderGoogleButton('google-register-btn', true);
-  } else if (modalId === 'login-modal') {
-    renderGoogleButton('google-login-btn', false);
-  }
-}
-
-// Re-render on window resize (for responsive/mobile)
-let resizeTimeout;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    // Re-render if modals open
-    if (!document.getElementById('registration-modal').classList.contains('hidden')) {
-      renderGoogleButton('google-register-btn', true);
-    }
-    if (!document.getElementById('login-modal').classList.contains('hidden')) {
-      renderGoogleButton('google-login-btn', false);
-    }
-  }, 200);  // Debounce 200ms
-});
-
-// Init library only (no render yet)
-function initGoogleLibrary() {
-  if (window.google?.accounts?.id) return;
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredentialResponse,
-    ux_mode: 'popup'
-  });
-}
-
-// Call on load to init lib, but defer render to openModal
-window.addEventListener('load', initGoogleLibrary);
-
         // Callback that receives the Google ID token (credential)
         async function handleGoogleCredentialResponse(response) {
           const id_token = response.credential;
@@ -905,45 +808,42 @@ window.addEventListener('load', initGoogleLibrary);
 
         // Initialize Google button(s) when client library loads
         function initGoogleButtons() {
-  if (!window.google || !google.accounts || !google.accounts.id) {
-    console.warn('Google identity library not loaded yet');
-    return;
-  }
+          if (!window.google || !google.accounts || !google.accounts.id) {
+            console.warn('Google identity library not loaded yet');
+            return;
+          }
 
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredentialResponse,
-    ux_mode: 'popup'
-  });
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'popup'
+          });
 
-  // Render for Login
-  const loginBtnContainer = document.getElementById('google-login-btn');
-  if (loginBtnContainer) {
-    google.accounts.id.renderButton(loginBtnContainer, {
-      theme: 'filled_blue',
-      size: 'large',
-      type: 'standard',
-      shape: 'rectangular',  // Ensures rectangular for width
-      width: '100%'
-    });
-    loginBtnContainer.classList.add('rendered');
-  }
+          const loginBtnContainer = document.getElementById('google-login-btn');
+          if (loginBtnContainer) {
+            google.accounts.id.renderButton(loginBtnContainer, {
+              theme: 'filled_blue',
+              size: 'large',
+              type: 'standard',                
+            });
+          }
 
-  // Render for Register
-  const registerBtnContainer = document.getElementById('google-register-btn');
-  if (registerBtnContainer) {
-    google.accounts.id.renderButton(registerBtnContainer, {
-      theme: 'filled_blue',
-      size: 'large',
-      type: 'standard',
-      shape: 'rectangular',  // Ensures rectangular for width
-      width: '100%'
-    });
-    registerBtnContainer.classList.add('rendered');
-  }
+          const registerBtnContainer = document.getElementById('google-register-btn');
+          if (registerBtnContainer) {
+            google.accounts.id.renderButton(registerBtnContainer, {
+              theme: 'filled_blue',
+              size: 'large',
+              type: 'standard',
+            });
+          }
         }
 
-       
+        window.addEventListener('load', () => {
+          initGoogleButtons();
+          if (!window.google || !google.accounts || !google.accounts.id) {
+            setTimeout(initGoogleButtons, 800);
+          }
+        });
 
     </script>
 </body>
