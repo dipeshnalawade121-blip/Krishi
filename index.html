@@ -108,8 +108,26 @@
         }
 
         /* Google button container styling */
-        .google-btn-container {
-            margin-bottom: 1rem;
+        /* Enhanced Google button container for full-width */
+.google-btn-container {
+    margin-bottom: 1rem;
+    width: 100%; /* Fallback for non-Tailwind */
+    display: flex; /* Ensures button stretches */
+    justify-content: center; /* Centers if not full */
+}
+
+/* Anti-flicker: Hide until rendered */
+#google-login-btn,
+#google-register-btn {
+    min-height: 50px; /* Matches large button height */
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.2s ease; /* Smooth fade-in */
+}
+
+#google-login-btn.rendered,
+#google-register-btn.rendered {
+    opacity: 1; /* Show after render */
+}
         }
     </style>
 </head>
@@ -246,7 +264,7 @@
             </div>
 
             <!-- Google Sign-in (Register) -->
-            <div class="google-btn-container">
+            <div class="google-btn-container w-full">
                 <div id="google-register-btn" ></div>
             </div>
 
@@ -290,7 +308,7 @@
             </div>
 
             <!-- Google Sign-in (Login) -->
-            <div class="google-btn-container" >
+            <div class="google-btn-container w-full" >
                 <div id="google-login-btn"></div>
             </div>
 
@@ -808,34 +826,41 @@
 
         // Initialize Google button(s) when client library loads
         function initGoogleButtons() {
-          if (!window.google || !google.accounts || !google.accounts.id) {
-            console.warn('Google identity library not loaded yet');
-            return;
-          }
+  if (!window.google || !google.accounts || !google.accounts.id) {
+    console.warn('Google identity library not loaded yet');
+    return;
+  }
 
-          google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            ux_mode: 'popup'
-          });
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredentialResponse,
+    ux_mode: 'popup'
+  });
 
-          const loginBtnContainer = document.getElementById('google-login-btn');
-          if (loginBtnContainer) {
-            google.accounts.id.renderButton(loginBtnContainer, {
-              theme: 'filled_blue',
-              size: 'large',
-              type: 'standard',                
-            });
-          }
+  // Render for Login
+  const loginBtnContainer = document.getElementById('google-login-btn');
+  if (loginBtnContainer) {
+    google.accounts.id.renderButton(loginBtnContainer, {
+      theme: 'filled_blue',
+      size: 'large',
+      type: 'standard',
+      width: '100%'  // Key: Forces full-width!
+    });
+    // Mark as rendered to fade in
+    loginBtnContainer.classList.add('rendered');
+  }
 
-          const registerBtnContainer = document.getElementById('google-register-btn');
-          if (registerBtnContainer) {
-            google.accounts.id.renderButton(registerBtnContainer, {
-              theme: 'filled_blue',
-              size: 'large',
-              type: 'standard',
-            });
-          }
+  // Render for Register (same config)
+  const registerBtnContainer = document.getElementById('google-register-btn');
+  if (registerBtnContainer) {
+    google.accounts.id.renderButton(registerBtnContainer, {
+      theme: 'filled_blue',
+      size: 'large',
+      type: 'standard',
+      width: '100%'  // Key: Forces full-width!
+    });
+    registerBtnContainer.classList.add('rendered');
+  }
         }
 
         window.addEventListener('load', () => {
