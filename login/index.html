@@ -51,21 +51,33 @@
         }
 
         /* Google button container styling */
-        .google-btn-container {
-            margin: 1rem 0;            
-        }
-
-        #google-login-btn > div {
-  width: 100% !important;
-  max-width: 340px;
-  margin: 0 auto;
-        }
-
-        @media (max-width: 420px) {
-  #google-login-btn > div {
-    max-width: 100% !important;
+        
+        
+  .google-btn-container {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center; /* centers horizontally */
   }
-        }
+
+  /* Force Google's rendered button to match your form width */
+  #google-login-btn {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Target inner div that Google injects */
+  #google-login-btn > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block;
+  }
+
+  @media (max-width: 420px) {
+    #google-login-btn > div {
+      width: 100% !important;
+    }
+  }
+
         
     </style>
 </head>
