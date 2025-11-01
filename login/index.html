@@ -47,8 +47,25 @@
             transition: all 0.3s ease;
             height: 56px; /* Match input height */
         }
-        .login-button:hover {
+        .login-button:hover:not(:disabled) {
             box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+        }
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Custom Google button styling */
+        .google-button-custom {
+            background-color: #4285F4;
+            box-shadow: 0 4px 10px rgba(66, 133, 244, 0.4);
+        }
+        .google-button-custom:hover:not(:disabled) {
+            background-color: #3371e2;
+        }
+        .google-button-custom:disabled {
+            opacity: 0.7;
+            cursor: wait;
         }
     </style>
 </head>
@@ -68,7 +85,7 @@
         <h1 class="text-2xl font-bold text-center mb-6 text-white">Sign in to Krishi</h1>
 
         <!-- Message Area (for displaying login status/errors) -->
-        <div id="message-area" class="mb-4 rounded-lg p-3 text-center transition-opacity duration-300 opacity-0 h-0 overflow-hidden"></div>
+        <div id="message-area" class="mb-4 rounded-lg p-3 text-center transition-all duration-300 opacity-0 h-0 overflow-hidden text-sm"></div>
 
         <!-- Login Form -->
         <form id="login-form" class="space-y-4">
@@ -118,17 +135,17 @@
         <!-- Custom Google Sign-in Button (Replaces GSI rendered button) -->
         <button 
             id="custom-google-login-btn"
-            class="w-full py-3 mt-4 text-white font-bold rounded-md text-base flex items-center justify-center space-x-3 transition duration-150"
-            style="background-color: #4285F4; box-shadow: 0 4px 10px rgba(66, 133, 244, 0.4); height: 56px;"
+            class="w-full py-3 mt-4 text-white font-bold rounded-md text-base flex items-center justify-center space-x-3 transition duration-150 google-button-custom"
+            style="height: 56px;"
         >
-            <!-- Google Icon SVG (For aesthetic custom button) -->
+            <!-- Google Icon SVG -->
             <svg class="w-6 h-6" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M44.5 24.16c0-1.72-.15-3.37-.44-4.93H24v9.33h11.95c-.5 2.57-2.03 4.75-4.48 6.22l.02.16 7.63 5.92c4.54-4.22 7.15-10.45 7.15-17.7Z" fill="#fff"/>
                 <path d="M24 44c6.3 0 11.58-2.08 15.44-5.65l-7.63-5.92c-2.12 1.4-4.8 2.22-7.8 2.22-5.9 0-10.92-3.98-12.75-9.33H3.63l-7.77 6.03C5.6 39.92 14.15 44 24 44Z" fill="#fff"/>
                 <path d="M11.25 28.5c-.47-1.4-.73-2.9-.73-4.5s.26-3.1.73-4.5V13.47L3.48 7.45C1.94 10.5 1 14.14 1 18s.94 7.5 2.48 10.5l7.77 6.03V28.5Z" fill="#fff"/>
                 <path d="M24 16.2c3.27 0 5.75 1.34 7.05 2.56L38.48 13c-2.28-2.18-5.26-3.48-8.5-3.48-9.85 0-18.4 4.08-22.12 11.27l7.77 6.03c1.83-5.35 6.85-9.33 12.75-9.33Z" fill="#fff"/>
             </svg>
-            <span>Sign in with Google</span>
+            <span id="google-btn-text">Sign in with Google</span>
         </button>
 
 
@@ -155,15 +172,16 @@
         
         const BACKEND_URL = 'https://api.krishi.site';
         const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
-
-        // Custom function to display messages (replaces alert())
+        
+        // --- UI Feedback Management ---
         function showMessage(message, isError = false) {
             const messageArea = document.getElementById('message-area');
             if (!messageArea) return;
             
             messageArea.textContent = message;
-            // Clear previous styles and set new ones for visibility
-            messageArea.classList.remove('bg-green-600', 'bg-red-600', 'text-white', 'opacity-0', 'h-0');
+            
+            // Set styles for visibility
+            messageArea.classList.remove('bg-green-600', 'bg-red-600', 'opacity-0', 'h-0');
             messageArea.classList.add(isError ? 'bg-red-600' : 'bg-green-600', 'text-white', 'opacity-100', 'h-auto', 'py-3');
             
             // Clear message after 5 seconds
@@ -173,14 +191,30 @@
             }, 5000);
         }
 
-        // Login Form Submit (Updated with profile check via API)
+        function setGoogleButtonState(isLoading = false, text = 'Sign in with Google') {
+            const button = document.getElementById('custom-google-login-btn');
+            const textSpan = document.getElementById('google-btn-text');
+            if (button) {
+                button.disabled = isLoading;
+                if (textSpan) {
+                    textSpan.textContent = isLoading ? 'Processing...' : text;
+                }
+            }
+        }
+        
+        // --- Authentication Flow ---
+
+        // 1. Standard Login Flow (Mobile/Password)
         document.getElementById('login-form').addEventListener('submit', async (e) => {
           e.preventDefault();
           const mobile = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
           const pw = document.getElementById('login-password').value;
           
           if (mobile.length === 10 && pw.length >= 6) {
+            const loginButton = e.submitter;
+            loginButton.disabled = true;
             showMessage('Logging in...', false);
+            
             try {
               const response = await fetch(`${BACKEND_URL}/login`, {
                 method: 'POST',
@@ -190,44 +224,32 @@
               const data = await response.json();
               
               if (response.ok && data.success) {
-                const userId = data.user.id; // Assuming backend returns { user: { id: uuid, mobile: ... } }
-                showMessage('Logged in successfully!', false);
-
-                // Store mobile for dashboard auto-fill
+                const userId = data.user.id;
                 localStorage.setItem('userMobile', mobile);
                   
-                // Fetch user profile via backend API to check completion
-                try {
-                  const profileResponse = await fetch(`${BACKEND_URL}/get-user-profile`, {
+                // Profile Check
+                const profileResponse = await fetch(`${BACKEND_URL}/get-user-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mobile: mobile })
-                  });
-                  const profileData = await profileResponse.json();
-                  
-                  if (profileResponse.ok && profileData.success) {
+                });
+                const profileData = await profileResponse.json();
+                
+                let isProfileComplete = false;
+                if (profileResponse.ok && profileData.success && profileData.user) {
                     const userProfile = profileData.user;
-                    // Check if required profile fields are complete (non-null and non-empty)
-                    const isProfileComplete = userProfile.user_name && userProfile.user_name.trim() !== '' &&
-                                             userProfile.shop_name && userProfile.shop_name.trim() !== '' &&
-                                             userProfile.shop_address && userProfile.shop_address.trim() !== '';
-                    
-                    if (isProfileComplete) {
-                      // Redirect to dashboard/hardware
-                      window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
-                    } else {
-                      // Redirect to profile creation
-                      window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
-                    }
-                  } else {
-                    // On profile fetch error or incomplete data, fallback to creation
-                    console.error('Profile fetch error:', profileData.message || 'Unknown error');
+                    isProfileComplete = userProfile.user_name && userProfile.user_name.trim() !== '' &&
+                                        userProfile.shop_name && userProfile.shop_name.trim() !== '' &&
+                                        userProfile.shop_address && userProfile.shop_address.trim() !== '';
+                }
+                
+                showMessage('Logged in successfully!', false);
+                loginButton.disabled = false; // Re-enable temporarily before redirect
+
+                if (isProfileComplete) {
+                    window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
+                } else {
                     window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
-                  }
-                } catch (profileError) {
-                  console.error('Profile check error:', profileError);
-                  // Fallback redirect on any profile fetch failure
-                  window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
                 }
               } else { 
                 throw new Error(data.message || 'Login failed');
@@ -235,23 +257,26 @@
             } catch (error) {
               console.error('Error during login:', error);
               showMessage('Error: ' + error.message, true);
+              loginButton.disabled = false;
             }
           } else {
             showMessage('Please enter valid mobile number (10 digits) and password (at least 6 characters).', true);
           }
         });
 
-        // ---------- Google Sign In Integration (Modified for Custom Button) ----------
-        
+        // 2. Google Sign-in Flow (Custom Button)
+
         // Callback that receives the Google ID token (credential)
         async function handleGoogleCredentialResponse(response) {
+          setGoogleButtonState(true, 'Verifying...');
+
           const id_token = response.credential;
-          console.log('Received Google token (partial):', id_token ? id_token.substring(0, 50) + '...' : 'No token');
           if (!id_token) {
             showMessage('Google login failed: no token received', true);
+            setGoogleButtonState(false);
             return;
           }
-
+          
           showMessage('Signing in with Google...', false);
 
           try {
@@ -262,6 +287,8 @@
             });
 
             const data = await res.json();
+            setGoogleButtonState(false);
+
             if (!res.ok) {
               console.error('Backend /auth/google error', data);
               throw new Error(data.error || 'Server error during Google login');
@@ -275,6 +302,7 @@
               if (user.google_id) localStorage.setItem('userGoogleId', user.google_id);
 
               const userId = user.id;
+              // Check profile completion based on backend data
               const isProfileComplete = user.user_name && user.shop_name && user.shop_address
                                         && user.user_name.trim() !== '' && user.shop_name.trim() !== '' && user.shop_address.trim() !== '';
 
@@ -288,51 +316,41 @@
             }
           } catch (err) {
             console.error('Google login exception', err);
-            showMessage('Google login error: ' + (err.message || err), true);
+            showMessage('Google login error: ' + (err.message || 'Check console for details.'), true);
+            setGoogleButtonState(false);
           }
         }
 
-        // Function to bind the custom button to the GSI prompt
-        function setupCustomGoogleButton() {
-            if (!window.google || !google.accounts || !google.accounts.id) {
-                console.warn('Google identity library not loaded yet for custom button setup');
-                return;
-            }
-
-            const customButton = document.getElementById('custom-google-login-btn');
-            
-            if (customButton) {
-                // Attach a click listener to your custom button
-                customButton.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    // Trigger the Google sign-in prompt/popup
-                    google.accounts.id.prompt(); 
-                });
-                console.log('Custom Google button handler attached.');
-            } else {
-                console.error('Custom Google button not found.');
-            }
-        }
-
-
-        // Initialize Google client (this needs to run once)
+        // Initialize Google client and bind custom button
         function initGoogleClient() {
           if (!window.google || !google.accounts || !google.accounts.id) {
-            console.warn('Google identity library not loaded yet');
+            console.warn('Google identity library not loaded yet. Retrying...');
             return;
           }
 
-          // Initialize the GSI client
+          // 1. Initialize the GSI client
           google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleCredentialResponse,
-            ux_mode: 'popup'
+            ux_mode: 'popup' 
           });
 
-          // Set up the custom button handler after initialization
-          setupCustomGoogleButton();
+          // 2. Bind custom button to trigger the GSI prompt
+          const customButton = document.getElementById('custom-google-login-btn');
+          
+          if (customButton) {
+              customButton.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  setGoogleButtonState(true);
+                  // This command triggers the GSI UI flow (One Tap or Pop-up based on context)
+                  google.accounts.id.prompt(); 
+                  // Note: The button remains disabled until handleGoogleCredentialResponse resolves.
+              });
+              console.log('Custom Google button handler attached.');
+          }
         }
 
+        // Ensure initialization runs after all scripts are loaded
         window.addEventListener('load', () => {
           initGoogleClient();
           // Fallback check for slow-loading GSI library
@@ -343,3 +361,4 @@
     </script>
 </body>
 </html>
+
