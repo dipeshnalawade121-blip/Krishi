@@ -53,6 +53,12 @@
         /* Google button container styling */
         .google-btn-container {
             margin: 1rem 0;
+
+            #google-login-btn > div {
+  width: 100% !important;
+  max-width: 340px;
+  margin: 0 auto;
+            }
         }
     </style>
 </head>
@@ -279,7 +285,8 @@
             google.accounts.id.renderButton(loginBtnContainer, {
               theme: 'filled_blue',
               size: 'large',
-              type: 'standard',                
+              type: 'standard',
+               width: 320,
             });
           }
         }
