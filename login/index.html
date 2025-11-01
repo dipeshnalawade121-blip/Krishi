@@ -54,8 +54,8 @@
         .google-btn-container {
             margin: 1rem 0;
             /* Flex used to ensure the GSI iframe is centered */
-            display: flex; 
-            justify-content: center;
+            /*display: flex; 
+            justify-content: center;*/
         }
     </style>
 </head>
@@ -120,7 +120,7 @@
         </div>
 
         <!-- Google Sign-in -->
-        <div class="google-btn-container">
+        <div class="google-btn-container w-full">
             <div id="google-login-btn"></div>
         </div>
 
@@ -285,7 +285,7 @@
               theme: 'filled_blue',
               size: 'large',
               type: 'standard',
-              width: 400, // <--- This line ensures the button is wide enough
+              width: 'auto', // <--- This line ensures the button is wide enough
             });
           }
         }
