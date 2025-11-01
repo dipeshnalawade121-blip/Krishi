@@ -68,9 +68,12 @@
             background-color: #334155;
         }
 
-        /* Google button container styling */
+        /* Google button container styling - UPDATED */
         .google-btn-container {
             margin: 1rem 0;
+            /* Added to center the GSI button */
+            display: flex; 
+            justify-content: center;
         }
 
         /* Helper text */
@@ -374,9 +377,22 @@
             }
         }
 
-        // Initialize Google button
+        // Initialize Google button - UPDATED with dynamic width and outline theme
         function initGoogleButton() {
             if (!window.google || !google.accounts || !google.accounts.id) return;
+
+            // --- START: Added Responsive Width Logic ---
+            const referenceElement = document.getElementById('reg-submit-btn'); // Use the submit button as reference
+            let desiredWidth = 400; // Fallback width
+
+            if (referenceElement) {
+                // Calculate the width of the responsive "Create account" button.
+                desiredWidth = referenceElement.offsetWidth;
+                console.log('Calculated responsive width for GSI button:', desiredWidth);
+            } else {
+                console.warn('Could not find the reference button for width calculation. Using default width 400.');
+            }
+            // --- END: Added Responsive Width Logic ---
             
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
@@ -386,10 +402,13 @@
 
             const registerBtnContainer = document.getElementById('google-register-btn');
             if (registerBtnContainer) {
+                // Apply responsive width and 'outline' theme
                 google.accounts.id.renderButton(registerBtnContainer, {
-                    theme: 'filled_blue',
+                    theme: 'outline', // Changed to outline for dark theme
+                    text: 'continue_with', // Added for clarity
                     size: 'large',
                     type: 'standard',
+                    width: desiredWidth, // Set dynamic width
                 });
             }
         }
@@ -403,3 +422,4 @@
     </script>
 </body>
 </html>
+
