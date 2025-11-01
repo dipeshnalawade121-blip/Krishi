@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functional Google Sign In</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font setup (Inter is a good default) */
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Responsive container for centering */
+        .center-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7f9fb;
+        }
+
+        /* Ensure the GSI button is centered within its container */
+        #google-login-btn {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="center-container">
+        <div class="w-11/12 max-w-sm bg-white p-8 md:p-10 shadow-2xl rounded-xl border border-gray-100">
+            <!-- Header -->
+            <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Sign In</h1>
+            <p class="text-center text-gray-500 mb-8">Click below to continue with Google.</p>
+
+            <!-- 1. Google Sign-In Button Container -->
+            <div id="google-login-btn"></div>
+
+            <!-- Separator or Footer text -->
+            <div class="mt-8 text-center text-sm text-gray-400">
+                This page uses the Google Identity Services library.
+            </div>
+        </div>
+    </div>
+    
+    <!-- 2. GSI Client Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- 3. GSI Initialization Script -->
+    <script>
+        // Your provided Google Client ID
+        const GOOGLE_CLIENT_ID = "660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com";
+
+        /**
+         * The callback function that receives the credential response (ID token) 
+         * after a successful sign-in.
+         */
+        function handleGoogleCredentialResponse(response) {
+            console.log("Google Sign-In Successful. ID Token received.");
+            const id_token = response.credential;
+            
+            // Log the token and initiate the backend call to your endpoint
+            console.log("ID Token:", id_token.substring(0, 30) + "..."); 
+            
+            // This is your custom backend call to verify the token and authenticate the user
+            fetch("https://api.krishi.site/auth/google", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({ id_token }),
+            })
+            .then(res => {
+                if (res.ok) {
+                    console.log("Backend verification successful!");
+                } else {
+                    console.error("Backend verification failed.");
+                }
+                // You would typically redirect the user or update the UI here
+            })
+            .catch(error => {
+                console.error("Network error during backend auth:", error);
+            });
+        }
+
+        window.onload = () => {
+            if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+                console.error("Google Identity Services (GSI) library not loaded correctly.");
+                return;
+            }
+
+            // Initialize GSI client with your Client ID
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleCredentialResponse,
+                ux_mode: "popup" 
+            });
+            
+            // Render the button into the defined div
+            google.accounts.id.renderButton(
+                document.getElementById("google-login-btn"),
+                // Button configuration
+                { 
+                    theme: "filled_blue", 
+                    size: "large", 
+                    width: 320 
+                }
+            );
+        };
+    </script>
+</body>
+</html>
+
