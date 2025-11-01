@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
+    <title>Sign in to Krishi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap"></noscript>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <style>
+        /* Custom font import for better Devanagari rendering */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+            background-color: #0f172a; /* Dark blue-gray background */
+            color: #e2e8f0; /* Light text color */
+            overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+        }
+
+        /* Input field styling for dark theme */
+        .input-field {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            height: 56px; /* Match GitHub height */
+        }
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        /* Custom button styling for the Sign in button gradient */
+        .login-button {
+            background: linear-gradient(90deg, #059669, #10b981);
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+            transition: all 0.3s ease;
+            height: 56px; /* Match input height */
+        }
+        .login-button:hover {
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+        }
+
+        /* Google button container styling */
+        .google-btn-container {
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Main Login Container -->
+    <div class="w-full max-w-md">
+        <!-- Logo/Icon -->
+        <div class="flex justify-center mb-6">
+            <div class="text-4xl font-bold text-green-400 flex items-center">
+                <i data-lucide="leaf" class="w-8 h-8 mr-2 text-green-400"></i>
+                krishi
+            </div>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-2xl font-bold text-center mb-6 text-white">Sign in to Krishi</h1>
+
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-4">
+            <!-- Mobile Number -->
+            <input 
+                type="tel" 
+                id="login-mobile" 
+                placeholder="मोबाईल नंबर (Mobile Number)" 
+                class="input-field w-full p-4 rounded-md text-base" 
+                maxlength="10"
+                required
+            >
+            
+            <!-- Password Row -->
+            <div class="relative">
+                <input 
+                    type="password" 
+                    id="login-password" 
+                    placeholder="पासवर्ड (Password)" 
+                    class="input-field w-full p-4 rounded-md text-base pr-32" 
+                    required
+                >
+                <a 
+                    href="https://www.krishi.site/forgot-password" 
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-400 hover:underline"
+                >
+                    Forgot password?
+                </a>
+            </div>
+            
+            <!-- Sign In Button -->
+            <button 
+                type="submit" 
+                class="w-full py-3 text-white font-bold rounded-md login-button text-base"
+            >
+                Sign in
+            </button>
+        </form>
+
+        <!-- Or Divider -->
+        <div class="flex items-center my-6">
+            <div class="flex-grow border-t border-slate-600"></div>
+            <span class="px-4 text-sm text-slate-400">or</span>
+            <div class="flex-grow border-t border-slate-600"></div>
+        </div>
+
+        <!-- Google Sign-in -->
+        <div class="google-btn-container">
+            <div id="google-login-btn"></div>
+        </div>
+
+        <!-- New to Krishi? Link -->
+        <p class="text-center text-sm text-slate-400 mt-6">
+            New to Krishi? <a href="https://www.krishi.site/register" class="text-blue-400 hover:underline">Create an account</a>
+        </p>
+
+        <!-- Sign in with Passkey (OTP Alternative) -->
+        <p class="text-center text-sm text-blue-400 mt-2 hover:underline cursor-pointer" onclick="window.location.href='https://www.krishi.site/otp-login';">
+            Sign in with OTP
+        </p>
+
+        <!-- Footer Links -->
+        <div class="flex justify-center space-x-4 mt-8 text-xs text-slate-500">
+            <a href="#" class="hover:text-blue-400">Terms</a>
+            <a href="#" class="hover:text-blue-400">Privacy</a>
+        </div>
+    </div>
+
+    <!-- Initialize Lucide Icons and Login Logic -->
+    <script>
+        lucide.createIcons();
+        
+        const BACKEND_URL = 'https://api.krishi.site';
+        
+        // Login Form Submit (Updated with profile check via API)
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const mobile = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
+          const pw = document.getElementById('login-password').value;
+          if (mobile.length === 10 && pw.length >= 6) {
+            try {
+              const response = await fetch(`${BACKEND_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile: mobile, password: pw })
+              });
+              const data = await response.json();
+              if (response.ok && data.success) {
+                const userId = data.user.id; // Assuming backend returns { user: { id: uuid, mobile: ... } }
+                alert('Logged in successfully!');
+
+                  // Store mobile for dashboard auto-fill
+                  localStorage.setItem('userMobile', mobile);
+                  
+                // Reset form
+                document.getElementById('login-form').reset();
+                
+                // Fetch user profile via backend API to check completion
+                try {
+                  const profileResponse = await fetch(`${BACKEND_URL}/get-user-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mobile: mobile })
+                  });
+                  const profileData = await profileResponse.json();
+                  
+                  if (profileResponse.ok && profileData.success) {
+                    const userProfile = profileData.user;
+                    // Check if required profile fields are complete (non-null and non-empty)
+                    const isProfileComplete = userProfile.user_name && userProfile.user_name.trim() !== '' &&
+                                             userProfile.shop_name && userProfile.shop_name.trim() !== '' &&
+                                             userProfile.shop_address && userProfile.shop_address.trim() !== '';
+                    
+                    if (isProfileComplete) {
+                      // Redirect to dashboard/hardware
+                      window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
+                    } else {
+                      // Redirect to profile creation
+                      window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+                    }
+                  } else {
+                    // On profile fetch error or incomplete data, fallback to creation
+                    console.error('Profile fetch error:', profileData.message || 'Unknown error');
+                    window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+                  }
+                } catch (profileError) {
+                  console.error('Profile check error:', profileError);
+                  // Fallback redirect on any profile fetch failure
+                  window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+                }
+              } else { 
+                throw new Error(data.message || 'Login failed');
+              }
+            } catch (error) {
+              console.error(error);
+              alert('Error during login: ' + error.message);
+            }
+          } else {
+            alert('Please enter valid mobile number and password (at least 6 characters).');
+          }
+        });
+
+        // ---------- Google Sign In Integration ----------
+        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
+
+        // Callback that receives the Google ID token (credential)
+        async function handleGoogleCredentialResponse(response) {
+          const id_token = response.credential;
+          console.log('Received Google token (partial):', id_token ? id_token.substring(0, 50) + '...' : 'No token');
+          if (!id_token) {
+            alert('Google login failed: no token received');
+            return;
+          }
+
+          try {
+            const res = await fetch(`${BACKEND_URL}/auth/google`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id_token }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+              console.error('Backend /auth/google error', data);
+              alert('Google login failed: ' + (data.error || 'Server error'));
+              return;
+            }
+
+            if (data.success) {
+              const user = data.user;
+              if (user.email) localStorage.setItem('userEmail', user.email);
+              if (user.google_id) localStorage.setItem('userGoogleId', user.google_id);
+
+              const userId = user.id;
+              const isProfileComplete = user.user_name && user.shop_name && user.shop_address
+                                        && user.user_name.trim() !== '' && user.shop_name.trim() !== '' && user.shop_address.trim() !== '';
+
+              if (isProfileComplete) {
+                window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
+              } else {
+                window.location.href = `https://www.krishi.site/profile-creation?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
+              }
+            } else {
+              alert('Google login failed: ' + (data.error || 'Unknown'));
+            }
+          } catch (err) {
+            console.error('Google login exception', err);
+            alert('Google login error: ' + (err.message || err));
+          }
+        }
+
+        // Initialize Google button when client library loads
+        function initGoogleButton() {
+          if (!window.google || !google.accounts || !google.accounts.id) {
+            console.warn('Google identity library not loaded yet');
+            return;
+          }
+
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'popup'
+          });
+
+          const loginBtnContainer = document.getElementById('google-login-btn');
+          if (loginBtnContainer) {
+            google.accounts.id.renderButton(loginBtnContainer, {
+              theme: 'filled_blue',
+              size: 'large',
+              type: 'standard',                
+            });
+          }
+        }
+
+        window.addEventListener('load', () => {
+          initGoogleButton();
+          if (!window.google || !google.accounts || !google.accounts.id) {
+            setTimeout(initGoogleButton, 800);
+          }
+        });
+    </script>
+</body>
+</html>
