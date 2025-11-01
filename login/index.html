@@ -52,10 +52,10 @@
 
         /* Google button container styling */
         .google-btn-container {
-            margin: 1rem 0;
+            /*margin: 1rem 0;*/
             /* Flex used to ensure the GSI iframe is centered */
-            /*display: flex; 
-            justify-content: center;*/
+            display: flex; 
+            justify-content: center;
         }
     </style>
 </head>
@@ -110,6 +110,11 @@
             >
                 Sign in
             </button>
+
+            <div class="google-btn-container w-full">
+            <div id="google-login-btn"></div>
+            </div>
+            
         </form>
 
         <!-- Or Divider -->
@@ -284,8 +289,8 @@
             google.accounts.id.renderButton(loginBtnContainer, {
               theme: 'filled_blue',
               size: 'large',
-              type: 'standard',
-              width: 400, // <--- This line ensures the button is wide enough
+              //type: 'standard',
+              width: 320 // <--- This line ensures the button is wide enough
             });
           }
         }
