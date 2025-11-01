@@ -60,6 +60,13 @@
   max-width: 340px;
   margin: 0 auto;
         }
+
+        @media (max-width: 420px) {
+  #google-login-btn > div {
+    max-width: 100% !important;
+  }
+        }
+        
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -290,13 +297,6 @@
             });
           }
         }
-
-        @media (max-width: 420px) {
-  #google-login-btn > div {
-    max-width: 100% !important;
-  }
-        }
-
         
         window.addEventListener('load', () => {
           initGoogleButton();
