@@ -53,31 +53,12 @@
         /* Google button container styling */
         
         
-  .google-btn-container {
-    margin: 1rem 0;
-    display: flex;
-    justify-content: center; /* centers horizontally */
-  }
+/* ensure container aligns with your form width */
+.google-btn-container { display:flex; justify-content:center; width:100%; }
+#google-login-btn { width:100%; max-width:100%; }
 
-  /* Force Google's rendered button to match your form width */
-  #google-login-btn {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Target inner div that Google injects */
-  #google-login-btn > div {
-    width: 100% !important;
-    max-width: 100% !important;
-    display: block;
-  }
-
-  @media (max-width: 420px) {
-    #google-login-btn > div {
-      width: 100% !important;
-    }
-  }
-
+/* best-effort override for injected element (if selectors match) */
+#google-login-btn > div { width:100% !important; max-width:100% !important; display:flex !important; justify-content:center !important; align-items:center !important; box-sizing:border-box !important; }
         
     </style>
 </head>
@@ -309,6 +290,86 @@
             });
           }
         }
+
+        
+  // call this after renderButton()
+  function normalizeGoogleButton() {
+    const container = document.getElementById('google-login-btn');
+    if (!container) return;
+
+    // Try to find the inner element Google injects (usually a div or button-like div)
+    const inner = container.querySelector('div');
+    if (!inner) return;
+
+    // Make outer container behave like your other inputs/buttons
+    container.style.width = '100%';
+    container.style.maxWidth = '100%';
+    container.style.display = 'flex';
+    container.style.justifyContent = 'center';
+    container.style.boxSizing = 'border-box';
+
+    // Style the injected element to behave like a normal button
+    inner.style.width = '100%';               // fill parent
+    inner.style.maxWidth = '100%';
+    inner.style.display = 'flex';             // control layout
+    inner.style.alignItems = 'center';
+    inner.style.justifyContent = 'center';
+    inner.style.boxSizing = 'border-box';
+    inner.style.height = '56px';              // match your sign-in button height
+    inner.style.borderRadius = '0.5rem';      // tailwind rounded-md
+    inner.style.overflow = 'hidden';
+    inner.style.paddingLeft = '0';            // remove Google's extra left padding if present
+    inner.style.paddingRight = '0';
+    inner.style.margin = '0';
+
+    // If there is further nested div/label, force it to stretch
+    const nested = inner.querySelector('div, span');
+    if (nested) {
+      nested.style.width = '100%';
+      nested.style.display = 'flex';
+      nested.style.alignItems = 'center';
+      nested.style.justifyContent = 'center';
+      nested.style.height = '100%';
+      nested.style.boxSizing = 'border-box';
+      // reduce left icon spacing if needed
+      nested.style.paddingLeft = '0.8rem';
+      nested.style.paddingRight = '0.8rem';
+    }
+
+    // Optional: match visual look with the green button (uncomment if desired)
+    // inner.style.border = 'none';
+    // inner.style.background = 'linear-gradient(90deg, #059669, #10b981)'; // if you want same green
+  }
+
+  // Call once after rendering
+  initGoogleButton = (function(origInit) {
+    return function() {
+      if (typeof origInit === 'function') origInit();
+      // short delay to let Google inject markup
+      setTimeout(normalizeGoogleButton, 120);
+      // also try a second time for slow loads
+      setTimeout(normalizeGoogleButton, 600);
+    };
+  })(initGoogleButton || (function(){})); // wrap existing init if present
+
+  // If initGoogleButton already ran, call normalize now
+  setTimeout(normalizeGoogleButton, 300);
+
+  // Watch for re-renders and re-apply styles automatically
+  (function observeGoogleBtn() {
+    const container = document.getElementById('google-login-btn');
+    if (!container) return;
+
+    const obs = new MutationObserver(() => {
+      // small debounce
+      clearTimeout(window.__normalizeGoogleBtnTimer);
+      window.__normalizeGoogleBtnTimer = setTimeout(normalizeGoogleButton, 80);
+    });
+
+    obs.observe(container, { childList: true, subtree: true, attributes: true });
+    // keep reference if you want to disconnect later: window.googleBtnObserver = obs;
+  })();
+    
         
         window.addEventListener('load', () => {
           initGoogleButton();
