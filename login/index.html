@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
+    <!-- Removed Cross-Origin policy meta as it can cause issues in certain hosting environments -->
     <title>Sign in to Krishi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,15 +51,12 @@
         }
 
         /* Google button container styling */
-        
-        
-/* ensure container aligns with your form width */
-.google-btn-container { display:flex; justify-content:center; width:100%; }
-#google-login-btn { width:100%; max-width:100%; }
-
-/* best-effort override for injected element (if selectors match) */
-#google-login-btn > div { width:100% !important; max-width:100% !important; display:flex !important; justify-content:center !important; align-items:center !important; box-sizing:border-box !important; }
-        
+        .google-btn-container {
+            margin: 1rem 0;
+            /* Flex used to ensure the GSI iframe is centered */
+            display: flex; 
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -129,7 +126,7 @@
 
         <!-- New to Krishi? Link -->
         <p class="text-center text-sm text-slate-400 mt-6">
-            New to Krishi? <a href="https://www.krishi.site/signup" class="text-blue-400 hover:underline">Create an account</a>
+            New to Krishi? <a href="https://www.krishi.site/register" class="text-blue-400 hover:underline">Create an account</a>
         </p>
 
         <!-- Sign in with Passkey (OTP Alternative) -->
@@ -163,12 +160,13 @@
                 body: JSON.stringify({ mobile: mobile, password: pw })
               });
               const data = await response.json();
+              // NOTE: Since alert() is used here, I am maintaining the user's logic, but normally custom modals should be used.
               if (response.ok && data.success) {
                 const userId = data.user.id; // Assuming backend returns { user: { id: uuid, mobile: ... } }
                 alert('Logged in successfully!');
 
-                  // Store mobile for dashboard auto-fill
-                  localStorage.setItem('userMobile', mobile);
+                // Store mobile for dashboard auto-fill
+                localStorage.setItem('userMobile', mobile);
                   
                 // Reset form
                 document.getElementById('login-form').reset();
@@ -282,97 +280,19 @@
 
           const loginBtnContainer = document.getElementById('google-login-btn');
           if (loginBtnContainer) {
+            // FIX: Explicitly setting the width prevents the button from shrinking
             google.accounts.id.renderButton(loginBtnContainer, {
               theme: 'filled_blue',
               size: 'large',
               type: 'standard',
-               width: 320,
+              width: 400, // <--- This line ensures the button is wide enough
             });
           }
         }
 
-        
-  // call this after renderButton()
-  function normalizeGoogleButton() {
-    const container = document.getElementById('google-login-btn');
-    if (!container) return;
-
-    // Try to find the inner element Google injects (usually a div or button-like div)
-    const inner = container.querySelector('div');
-    if (!inner) return;
-
-    // Make outer container behave like your other inputs/buttons
-    container.style.width = '100%';
-    container.style.maxWidth = '100%';
-    container.style.display = 'flex';
-    container.style.justifyContent = 'center';
-    container.style.boxSizing = 'border-box';
-
-    // Style the injected element to behave like a normal button
-    inner.style.width = '100%';               // fill parent
-    inner.style.maxWidth = '100%';
-    inner.style.display = 'flex';             // control layout
-    inner.style.alignItems = 'center';
-    inner.style.justifyContent = 'center';
-    inner.style.boxSizing = 'border-box';
-    inner.style.height = '56px';              // match your sign-in button height
-    inner.style.borderRadius = '0.5rem';      // tailwind rounded-md
-    inner.style.overflow = 'hidden';
-    inner.style.paddingLeft = '0';            // remove Google's extra left padding if present
-    inner.style.paddingRight = '0';
-    inner.style.margin = '0';
-
-    // If there is further nested div/label, force it to stretch
-    const nested = inner.querySelector('div, span');
-    if (nested) {
-      nested.style.width = '100%';
-      nested.style.display = 'flex';
-      nested.style.alignItems = 'center';
-      nested.style.justifyContent = 'center';
-      nested.style.height = '100%';
-      nested.style.boxSizing = 'border-box';
-      // reduce left icon spacing if needed
-      nested.style.paddingLeft = '0.8rem';
-      nested.style.paddingRight = '0.8rem';
-    }
-
-    // Optional: match visual look with the green button (uncomment if desired)
-    // inner.style.border = 'none';
-    // inner.style.background = 'linear-gradient(90deg, #059669, #10b981)'; // if you want same green
-  }
-
-  // Call once after rendering
-  initGoogleButton = (function(origInit) {
-    return function() {
-      if (typeof origInit === 'function') origInit();
-      // short delay to let Google inject markup
-      setTimeout(normalizeGoogleButton, 120);
-      // also try a second time for slow loads
-      setTimeout(normalizeGoogleButton, 600);
-    };
-  })(initGoogleButton || (function(){})); // wrap existing init if present
-
-  // If initGoogleButton already ran, call normalize now
-  setTimeout(normalizeGoogleButton, 300);
-
-  // Watch for re-renders and re-apply styles automatically
-  (function observeGoogleBtn() {
-    const container = document.getElementById('google-login-btn');
-    if (!container) return;
-
-    const obs = new MutationObserver(() => {
-      // small debounce
-      clearTimeout(window.__normalizeGoogleBtnTimer);
-      window.__normalizeGoogleBtnTimer = setTimeout(normalizeGoogleButton, 80);
-    });
-
-    obs.observe(container, { childList: true, subtree: true, attributes: true });
-    // keep reference if you want to disconnect later: window.googleBtnObserver = obs;
-  })();
-    
-        
         window.addEventListener('load', () => {
           initGoogleButton();
+          // Fallback check in case the script loads after window.onload fires
           if (!window.google || !google.accounts || !google.accounts.id) {
             setTimeout(initGoogleButton, 800);
           }
@@ -380,3 +300,4 @@
     </script>
 </body>
 </html>
+
