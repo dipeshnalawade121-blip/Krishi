@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Removed Cross-Origin policy meta as it can cause issues in certain hosting environments -->
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
     <title>Sign in to Krishi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,10 +32,11 @@
             background-color: #1e293b;
             border: 1px solid #334155;
             color: #e2e8f0;
-            height: 56px; /* Match GitHub height */
+            height: 56px; /* Match input height */
         }
         .input-field:focus {
             border-color: #10b981;
+            outline: none;
             box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
         }
         
@@ -48,14 +49,6 @@
         }
         .login-button:hover {
             box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
-        }
-
-        /* Google button container styling */
-        .google-btn-container {
-            /*margin: 1rem 0;*/
-            /* Flex used to ensure the GSI iframe is centered */
-            display: flex; 
-            justify-content: center;
         }
     </style>
 </head>
@@ -73,6 +66,9 @@
 
         <!-- Title -->
         <h1 class="text-2xl font-bold text-center mb-6 text-white">Sign in to Krishi</h1>
+
+        <!-- Message Area (for displaying login status/errors) -->
+        <div id="message-area" class="mb-4 rounded-lg p-3 text-center transition-opacity duration-300 opacity-0 h-0 overflow-hidden"></div>
 
         <!-- Login Form -->
         <form id="login-form" class="space-y-4">
@@ -97,7 +93,7 @@
                 >
                 <a 
                     href="https://www.krishi.site/forgot-password" 
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-400 hover:underline"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-400 hover:underline whitespace-nowrap"
                 >
                     Forgot password?
                 </a>
@@ -110,9 +106,6 @@
             >
                 Sign in
             </button>
-
-          
-            
         </form>
 
         <!-- Or Divider -->
@@ -122,10 +115,22 @@
             <div class="flex-grow border-t border-slate-600"></div>
         </div>
 
-        <!-- Google Sign-in -->
-        <div class="google-btn-container w-full">
-            <div id="google-login-btn"></div>
-        </div>
+        <!-- Custom Google Sign-in Button (Replaces GSI rendered button) -->
+        <button 
+            id="custom-google-login-btn"
+            class="w-full py-3 mt-4 text-white font-bold rounded-md text-base flex items-center justify-center space-x-3 transition duration-150"
+            style="background-color: #4285F4; box-shadow: 0 4px 10px rgba(66, 133, 244, 0.4); height: 56px;"
+        >
+            <!-- Google Icon SVG (For aesthetic custom button) -->
+            <svg class="w-6 h-6" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M44.5 24.16c0-1.72-.15-3.37-.44-4.93H24v9.33h11.95c-.5 2.57-2.03 4.75-4.48 6.22l.02.16 7.63 5.92c4.54-4.22 7.15-10.45 7.15-17.7Z" fill="#fff"/>
+                <path d="M24 44c6.3 0 11.58-2.08 15.44-5.65l-7.63-5.92c-2.12 1.4-4.8 2.22-7.8 2.22-5.9 0-10.92-3.98-12.75-9.33H3.63l-7.77 6.03C5.6 39.92 14.15 44 24 44Z" fill="#fff"/>
+                <path d="M11.25 28.5c-.47-1.4-.73-2.9-.73-4.5s.26-3.1.73-4.5V13.47L3.48 7.45C1.94 10.5 1 14.14 1 18s.94 7.5 2.48 10.5l7.77 6.03V28.5Z" fill="#fff"/>
+                <path d="M24 16.2c3.27 0 5.75 1.34 7.05 2.56L38.48 13c-2.28-2.18-5.26-3.48-8.5-3.48-9.85 0-18.4 4.08-22.12 11.27l7.77 6.03c1.83-5.35 6.85-9.33 12.75-9.33Z" fill="#fff"/>
+            </svg>
+            <span>Sign in with Google</span>
+        </button>
+
 
         <!-- New to Krishi? Link -->
         <p class="text-center text-sm text-slate-400 mt-6">
@@ -149,13 +154,33 @@
         lucide.createIcons();
         
         const BACKEND_URL = 'https://api.krishi.site';
-        
+        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
+
+        // Custom function to display messages (replaces alert())
+        function showMessage(message, isError = false) {
+            const messageArea = document.getElementById('message-area');
+            if (!messageArea) return;
+            
+            messageArea.textContent = message;
+            // Clear previous styles and set new ones for visibility
+            messageArea.classList.remove('bg-green-600', 'bg-red-600', 'text-white', 'opacity-0', 'h-0');
+            messageArea.classList.add(isError ? 'bg-red-600' : 'bg-green-600', 'text-white', 'opacity-100', 'h-auto', 'py-3');
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                messageArea.classList.remove('opacity-100', 'py-3');
+                messageArea.classList.add('opacity-0', 'h-0');
+            }, 5000);
+        }
+
         // Login Form Submit (Updated with profile check via API)
         document.getElementById('login-form').addEventListener('submit', async (e) => {
           e.preventDefault();
           const mobile = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
           const pw = document.getElementById('login-password').value;
+          
           if (mobile.length === 10 && pw.length >= 6) {
+            showMessage('Logging in...', false);
             try {
               const response = await fetch(`${BACKEND_URL}/login`, {
                 method: 'POST',
@@ -163,17 +188,14 @@
                 body: JSON.stringify({ mobile: mobile, password: pw })
               });
               const data = await response.json();
-              // NOTE: Since alert() is used here, I am maintaining the user's logic, but normally custom modals should be used.
+              
               if (response.ok && data.success) {
                 const userId = data.user.id; // Assuming backend returns { user: { id: uuid, mobile: ... } }
-                alert('Logged in successfully!');
+                showMessage('Logged in successfully!', false);
 
                 // Store mobile for dashboard auto-fill
                 localStorage.setItem('userMobile', mobile);
                   
-                // Reset form
-                document.getElementById('login-form').reset();
-                
                 // Fetch user profile via backend API to check completion
                 try {
                   const profileResponse = await fetch(`${BACKEND_URL}/get-user-profile`, {
@@ -211,25 +233,26 @@
                 throw new Error(data.message || 'Login failed');
               }
             } catch (error) {
-              console.error(error);
-              alert('Error during login: ' + error.message);
+              console.error('Error during login:', error);
+              showMessage('Error: ' + error.message, true);
             }
           } else {
-            alert('Please enter valid mobile number and password (at least 6 characters).');
+            showMessage('Please enter valid mobile number (10 digits) and password (at least 6 characters).', true);
           }
         });
 
-        // ---------- Google Sign In Integration ----------
-        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
-
+        // ---------- Google Sign In Integration (Modified for Custom Button) ----------
+        
         // Callback that receives the Google ID token (credential)
         async function handleGoogleCredentialResponse(response) {
           const id_token = response.credential;
           console.log('Received Google token (partial):', id_token ? id_token.substring(0, 50) + '...' : 'No token');
           if (!id_token) {
-            alert('Google login failed: no token received');
+            showMessage('Google login failed: no token received', true);
             return;
           }
+
+          showMessage('Signing in with Google...', false);
 
           try {
             const res = await fetch(`${BACKEND_URL}/auth/google`, {
@@ -241,12 +264,13 @@
             const data = await res.json();
             if (!res.ok) {
               console.error('Backend /auth/google error', data);
-              alert('Google login failed: ' + (data.error || 'Server error'));
-              return;
+              throw new Error(data.error || 'Server error during Google login');
             }
 
             if (data.success) {
               const user = data.user;
+              showMessage('Google login successful!', false);
+              
               if (user.email) localStorage.setItem('userEmail', user.email);
               if (user.google_id) localStorage.setItem('userGoogleId', user.google_id);
 
@@ -260,47 +284,62 @@
                 window.location.href = `https://www.krishi.site/profile-creation?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
               }
             } else {
-              alert('Google login failed: ' + (data.error || 'Unknown'));
+              throw new Error(data.error || 'Unknown Google login failure');
             }
           } catch (err) {
             console.error('Google login exception', err);
-            alert('Google login error: ' + (err.message || err));
+            showMessage('Google login error: ' + (err.message || err), true);
           }
         }
 
-        // Initialize Google button when client library loads
-        function initGoogleButton() {
+        // Function to bind the custom button to the GSI prompt
+        function setupCustomGoogleButton() {
+            if (!window.google || !google.accounts || !google.accounts.id) {
+                console.warn('Google identity library not loaded yet for custom button setup');
+                return;
+            }
+
+            const customButton = document.getElementById('custom-google-login-btn');
+            
+            if (customButton) {
+                // Attach a click listener to your custom button
+                customButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Trigger the Google sign-in prompt/popup
+                    google.accounts.id.prompt(); 
+                });
+                console.log('Custom Google button handler attached.');
+            } else {
+                console.error('Custom Google button not found.');
+            }
+        }
+
+
+        // Initialize Google client (this needs to run once)
+        function initGoogleClient() {
           if (!window.google || !google.accounts || !google.accounts.id) {
             console.warn('Google identity library not loaded yet');
             return;
           }
 
+          // Initialize the GSI client
           google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleCredentialResponse,
             ux_mode: 'popup'
           });
 
-          const loginBtnContainer = document.getElementById('google-login-btn');
-          if (loginBtnContainer) {
-            // FIX: Explicitly setting the width prevents the button from shrinking
-            google.accounts.id.renderButton(loginBtnContainer, {
-              theme: 'filled_blue',
-              size: 'large',
-              //type: 'standard',
-              width: 380 // <--- This line ensures the button is wide enough
-            });
-          }
+          // Set up the custom button handler after initialization
+          setupCustomGoogleButton();
         }
 
         window.addEventListener('load', () => {
-          initGoogleButton();
-          // Fallback check in case the script loads after window.onload fires
+          initGoogleClient();
+          // Fallback check for slow-loading GSI library
           if (!window.google || !google.accounts || !google.accounts.id) {
-            setTimeout(initGoogleButton, 800);
+            setTimeout(initGoogleClient, 800);
           }
         });
     </script>
 </body>
 </html>
-
