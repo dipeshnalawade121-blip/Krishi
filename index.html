@@ -13,105 +13,80 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons for potential use -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Add this new line -->
+    <script>window.addEventListener('load', () => lucide.createIcons());</script>
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
-        /* Custom font import for better Devanagari rendering, though Inter is the default */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
-        
-        body {
-            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
-            background-color: #0f172a; /* Dark blue-gray background */
-            color: #e2e8f0; /* Light text color */
-            overflow-x: hidden; /* Prevent horizontal scroll on mobile */
-        }
-        
-        /* Custom gradient for the top section - dark theme */
-        .top-gradient {
-            background: radial-gradient(circle at 50% 0%, rgba(30, 64, 30, 0.8) 0%, rgba(15, 23, 42, 0) 70%);
-            height: 300px;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 0;
-        }
+    /* Custom font import for better Devanagari rendering */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
+    
+    body {
+        font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+        background-color: #0f172a; /* Dark blue-gray background */
+        color: #e2e8f0; /* Light text color */
+        overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+    }
+    
+    /* Custom gradient for the top section - dark theme */
+    .top-gradient {
+        background: radial-gradient(circle at 50% 0%, rgba(30, 64, 30, 0.8) 0%, rgba(15, 23, 42, 0) 70%);
+        height: 300px;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 0;
+    }
 
-        /* Custom button styling for the Login button gradient */
-        .login-button {
-            background: linear-gradient(90deg, #059669, #10b981);
-            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
-            transition: all 0.3s ease;
-        }
-        .login-button:hover {
-            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
-        }
-        
-        /* Custom button styling for the Register button */
-        .register-button {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            color: #cbd5e1;
-        }
-        .register-button:hover {
-            background-color: #334155;
-        }
+    /* Placeholder style for the instruction box - dark theme */
+    .instruction-box {
+        background-color: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(51, 65, 85, 0.8);
+        backdrop-filter: blur(4px);
+    }
 
-        /* Placeholder style for the instruction box - dark theme */
-        .instruction-box {
-            background-color: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(51, 65, 85, 0.8);
-            backdrop-filter: blur(4px);
-        }
+    /* Card styling for steps section */
+    .steps-card {
+        background: linear-gradient(145deg, #1e293b, #0f172a);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid #334155;
+    }
+    
+    /* Step connector styling */
+    .step-connector {
+        background: linear-gradient(to bottom, #10b981, #059669);
+    }
+    
+    /* Success step styling */
+    .success-step {
+        background: linear-gradient(145deg, #059669, #047857);
+        box-shadow: 0 0 15px rgba(5, 150, 105, 0.4);
+    }
 
-        /* Card styling for steps section */
-        .steps-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid #334155;
-        }
-
-        /* Modal specific styling for animation */
-        .modal-enter-active, .modal-leave-active {
-            transition: opacity 0.3s ease;
-        }
-        .modal-enter-from, .modal-leave-to {
-            opacity: 0;
-        }
-        .modal-content-enter-active, .modal-content-leave-active {
-            transition: transform 0.3s ease;
-        }
-        
-        /* Input field styling for dark theme */
-        .input-field {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            color: #e2e8f0;
-        }
-        .input-field:focus {
-            border-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-        }
-        
-        /* Step connector styling */
-        .step-connector {
-            background: linear-gradient(to bottom, #10b981, #059669);
-        }
-        
-        /* Success step styling */
-        .success-step {
-            background: linear-gradient(145deg, #059669, #047857);
-            box-shadow: 0 0 15px rgba(5, 150, 105, 0.4);
-        }
-
-        /* Google button container styling */
-        .google-btn-container {
-            margin-bottom: 1rem;
-        }
-    </style>
+    /* Keep button styles for landing page buttons (Register/Login) */
+    .login-button {
+        background: linear-gradient(90deg, #059669, #10b981);
+        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        transition: all 0.3s ease;
+    }
+    .login-button:hover {
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+    }
+    
+    .register-button {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        color: #cbd5e1;
+    }
+    .register-button:hover {
+        background-color: #334155;
+    }
+</style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
 
@@ -156,20 +131,20 @@
             <div class="flex items-center justify-between mb-4">
                 <p class="text-sm font-semibold text-slate-300 mr-4">New user:</p>
                 <button 
-                    class="register-button flex-grow py-3 px-6 font-bold rounded-full"
-                    onclick="openModal('registration-modal')">
-                    Register
-                </button>
+    class="register-button flex-grow py-3 px-6 font-bold rounded-full"
+    onclick="window.location.href='https://www.krishi.site/register';">
+    Register
+</button>
             </div>
 
             <!-- Existing User Login -->
             <div class="flex items-center justify-between">
                 <p class="text-sm font-semibold text-slate-300 mr-4">Existing user:</p>
-                <button 
-                    class="login-button flex-grow py-3 px-6 text-white font-bold rounded-full"
-                    onclick="openModal('login-modal')">
-                    Login
-                </button>
+<button 
+    class="login-button flex-grow py-3 px-6 text-white font-bold rounded-full"
+    onclick="window.location.href='https://www.krishi.site/login';">
+    Login
+</button>
             </div>
         </div>
 
@@ -228,623 +203,7 @@
                 </div>
             </div>
         </div>
-        <!-- --- END USER FLOW STEPS --- -->
-        
+        <!-- --- END USER FLOW STEPS --- -->        
     </div>
-
-    <!-- ======================================================= -->
-    <!-- Registration Modal (Hidden by default) -->
-    <!-- ======================================================= -->
-    <div id="registration-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50" onclick="closeModal('registration-modal')">
-        <div class="w-full max-w-md bg-slate-800 rounded-t-3xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-green-400">New User Registration</h2>
-                <button class="text-slate-400 hover:text-red-400" onclick="closeModal('registration-modal')">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <!-- Google Sign-in (Register) -->
-            <div class="google-btn-container">
-                <div id="google-register-btn" ></div>
-            </div>
-
-            <form id="registration-form" class="space-y-4">
-                <!-- Mobile Number & OTP -->
-                <div class="flex space-x-2">
-                    <input type="tel" id="reg-mobile" placeholder="Mobile Number" class="input-field w-3/5 p-3 rounded-xl" maxlength="10">
-                    <button type="button" id="reg-send-otp" class="w-2/5 bg-slate-700 text-green-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600">Get OTP</button>
-                </div>
-                
-                <!-- OTP Input & Status -->
-                <div class="flex space-x-2">
-                    <input type="number" id="reg-otp" placeholder="Paste OTP" class="input-field w-3/5 p-3 rounded-xl" maxlength="6">
-                    <button id="reg-verify-btn" type="button" class="w-2/5 bg-slate-700 text-blue-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600" disabled>Verify OTP</button>
-                </div>
-
-                <!-- Password Fields -->
-                <input type="password" id="reg-password" placeholder="Create Password" class="input-field w-full p-3 rounded-xl">
-                <input type="password" id="reg-password-confirm" placeholder="Confirm Password" class="input-field w-full p-3 rounded-xl">
-                
-                <!-- Submit Button -->
-                <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button">
-                    Create Account
-                </button>
-            </form>
-
-        </div>
-    </div>
-    
-    <!-- ======================================================= -->
-    <!-- Login Modal (Hidden by default) -->
-    <!-- ======================================================= -->
-    <div id="login-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50" onclick="closeModal('login-modal')">
-        <div class="w-full max-w-md bg-slate-800 rounded-t-3xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-green-400">Existing User Login</h2>
-                <button class="text-slate-400 hover:text-red-400" onclick="closeModal('login-modal')">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <!-- Google Sign-in (Login) -->
-            <div class="google-btn-container">
-                <div id="google-login-btn"></div>
-            </div>
-
-            <form id="login-form" class="space-y-4">
-                <!-- Registered Mobile Number -->
-                <input type="tel" id="login-mobile" placeholder="Registered Mo. No." class="input-field w-full p-3 rounded-xl" maxlength="10">
-                
-                <!-- Password Option -->
-                <input type="password" id="login-password" placeholder="Password" class="input-field w-full p-3 rounded-xl">
-                
-                <!-- Forgot Password Link -->
-                <p class="text-xs text-right text-blue-400 cursor-pointer hover:underline" onclick="openForgotPassword()">Forgot Password?</p>
-                
-                <!-- Submit Button -->
-                <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button">
-                    Login
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ======================================================= -->
-    <!-- Forgot Password Modal (Hidden by default) -->
-    <!-- ======================================================= -->
-    <div id="forgot-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50" onclick="closeModal('forgot-modal')">
-        <div class="w-full max-w-md bg-slate-800 rounded-t-3xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-green-400">Forgot Password</h2>
-                <button class="text-slate-400 hover:text-red-400" onclick="closeModal('forgot-modal')">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <form id="forgot-form" class="space-y-4">
-                <!-- Mobile Number & OTP -->
-                <div class="flex space-x-2">
-                    <input type="tel" id="forgot-mobile" placeholder="Registered Mobile Number" class="input-field w-3/5 p-3 rounded-xl" maxlength="10">
-                    <button type="button" id="forgot-send-otp" class="w-2/5 bg-slate-700 text-green-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600">Get OTP</button>
-                </div>
-                
-                <!-- OTP Input & Status -->
-                <div class="flex space-x-2">
-                    <input type="number" id="forgot-otp" placeholder="Enter OTP" class="input-field w-3/5 p-3 rounded-xl" maxlength="6">
-                    <button id="forgot-verify-btn" type="button" class="w-2/5 bg-slate-700 text-blue-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600" disabled>Verify OTP</button>
-                </div>
-
-                <!-- New Password Fields -->
-                <input type="password" id="forgot-password" placeholder="New Password" class="input-field w-full p-3 rounded-xl">
-                <input type="password" id="forgot-password-confirm" placeholder="Confirm New Password" class="input-field w-full p-3 rounded-xl">
-                
-                <!-- Submit Button -->
-                <button type="submit" class="w-full py-3 mt-4 text-white font-bold rounded-xl login-button">
-                    Reset Password
-                </button>
-            </form>
-
-        </div>
-    </div>
-
-
-    <!-- Initialize Lucide Icons and Modal Logic -->
-    <script>
-        lucide.createIcons();
-        
-        const BACKEND_URL = 'https://api.krishi.site';
-        
-        // Function to open the specified modal
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling the background
-        }
-        
-        // Function to open forgot password modal
-        function openForgotPassword() {
-            closeModal('login-modal');
-            openModal('forgot-modal');
-        }
-
-        // Function to close the specified modal
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.add('hidden');
-            document.body.style.overflow = ''; // Restore scrolling
-            if (modalId === 'registration-modal') {
-                resetRegistration();
-            } else if (modalId === 'login-modal') {
-                resetLogin();
-            } else if (modalId === 'forgot-modal') {
-                resetForgot();
-            }
-        }
-
-        // Handle ESC key to close modals
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal('registration-modal');
-                closeModal('login-modal');
-                closeModal('forgot-modal');
-            }
-        });
-
-        function resetRegistration() {
-            document.getElementById('registration-form').reset();
-            const sendBtn = document.getElementById('reg-send-otp');
-            sendBtn.textContent = 'Get OTP';
-            sendBtn.className = 'w-2/5 bg-slate-700 text-green-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600';
-            sendBtn.disabled = false;
-            const verifyBtn = document.getElementById('reg-verify-btn');
-            verifyBtn.innerHTML = 'Verify OTP';
-            verifyBtn.className = 'w-2/5 bg-slate-700 text-blue-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600';
-            verifyBtn.disabled = true;
-            document.getElementById('reg-otp').disabled = false;
-            if (window.regInterval) {
-                clearInterval(window.regInterval);
-                delete window.regInterval;
-            }
-            window.regVerified = false;
-        }
-
-        function resetLogin() {
-            document.getElementById('login-form').reset();
-        }
-
-        function resetForgot() {
-            document.getElementById('forgot-form').reset();
-            const sendBtn = document.getElementById('forgot-send-otp');
-            sendBtn.textContent = 'Get OTP';
-            sendBtn.className = 'w-2/5 bg-slate-700 text-green-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600';
-            sendBtn.disabled = false;
-            const verifyBtn = document.getElementById('forgot-verify-btn');
-            verifyBtn.innerHTML = 'Verify OTP';
-            verifyBtn.className = 'w-2/5 bg-slate-700 text-blue-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600';
-            verifyBtn.disabled = true;
-            document.getElementById('forgot-otp').disabled = false;
-            if (window.forgotInterval) {
-                clearInterval(window.forgotInterval);
-                delete window.forgotInterval;
-            }
-            window.forgotVerified = false;
-        }
-
-        function formatTime(seconds) {
-          const mins = Math.floor(seconds / 60);
-          const secs = seconds % 60;
-          return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function startCountdown(btn, seconds, originalText, originalClass, intervalKey) {
-          if (window[intervalKey]) {
-            clearInterval(window[intervalKey]);
-          }
-          btn.disabled = true;
-          const timerSpan = document.createElement('span');
-          timerSpan.id = 'timer-span';
-          timerSpan.className = 'ml-1 font-medium';
-          btn.innerHTML = 'OTP sent successfully! ';
-          btn.appendChild(timerSpan);
-          timerSpan.innerHTML = formatTime(seconds);
-          btn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-blue-900 text-blue-300 text-sm font-medium border border-blue-700 p-1';
-          let timeLeft = seconds;
-          window[intervalKey] = setInterval(() => {
-            timeLeft--;
-            timerSpan.innerHTML = formatTime(timeLeft);
-            if (timeLeft < 0) {
-              clearInterval(window[intervalKey]);
-              delete window[intervalKey];
-              btn.innerHTML = originalText;
-              btn.className = originalClass;
-              btn.disabled = false;
-            }
-          }, 1000);
-        }
-
-        const regOriginalClass = 'w-2/5 bg-slate-700 text-green-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600';
-        const forgotOriginalClass = 'w-2/5 bg-slate-700 text-green-400 font-semibold rounded-xl hover:bg-slate-600 transition border border-slate-600';
-
-        // Registration Send OTP
-        document.getElementById('reg-send-otp').addEventListener('click', async () => {
-          const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
-          if (phoneInput.length !== 10) {
-            alert('Please enter a valid 10-digit mobile number.');
-            return;
-          }
-          const sendBtn = document.getElementById('reg-send-otp');
-          try {
-            const response = await fetch(`${BACKEND_URL}/send-otp`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: phoneInput })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              startCountdown(sendBtn, 119, 'Get OTP', regOriginalClass, 'regInterval');
-              alert('OTP sent to your mobile!');
-            } else {
-              throw new Error(data.message || 'Failed to send OTP');
-            }
-          } catch (error) {
-            console.error(error);
-            alert('Error sending OTP: ' + error.message);
-          }
-        });
-
-        // Registration OTP Input Listener
-        document.getElementById('reg-otp').addEventListener('input', (e) => {
-          const value = e.target.value;
-          const verifyBtn = document.getElementById('reg-verify-btn');
-          if (value.length === 6 && /^\d{6}$/.test(value)) {
-            verifyBtn.disabled = false;
-          } else {
-            verifyBtn.disabled = true;
-          }
-        });
-
-        // Registration Verify OTP
-        document.getElementById('reg-verify-btn').addEventListener('click', async () => {
-          const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
-          const otp = document.getElementById('reg-otp').value;
-          if (phoneInput.length !== 10 || otp.length !== 6) {
-            alert('Please enter valid phone and OTP.');
-            return;
-          }
-          const verifyBtn = document.getElementById('reg-verify-btn');
-          try {
-            const response = await fetch(`${BACKEND_URL}/verify-otp`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: phoneInput, otp: otp })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              verifyBtn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
-              verifyBtn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-green-900 text-green-300 text-sm font-medium border border-green-700';
-              verifyBtn.disabled = true;
-              document.getElementById('reg-otp').disabled = true;
-              document.getElementById('reg-otp').value = '';
-              lucide.createIcons();
-              alert('Phone number verified successfully!');
-              window.regVerified = true;
-            } else {
-              throw new Error(data.message || 'Invalid OTP');
-            }
-          } catch (error) {
-            console.error(error);
-            alert('Error verifying OTP: ' + error.message);
-            document.getElementById('reg-otp').value = '';
-            document.getElementById('reg-verify-btn').disabled = true;
-          }
-        });
-
-        // Registration Form Submit
-        document.getElementById('registration-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!window.regVerified) {
-            alert('Please verify your phone number first.');
-            return;
-          }
-          const mobile = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
-          const pw1 = document.getElementById('reg-password').value;
-          const pw2 = document.getElementById('reg-password-confirm').value;
-          if (pw1.length < 6 || pw1 !== pw2) {
-            alert('Passwords must match and be at least 6 characters.');
-            return;
-          }
-          try {
-            const response = await fetch(`${BACKEND_URL}/register`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ mobile: mobile, password: pw1 })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              alert('Account created successfully! Welcome to Krishi.');
-              resetRegistration();
-              closeModal('registration-modal');
-            } else {
-              throw new Error(data.message || 'Registration failed');
-            }
-          } catch (error) {
-            console.error(error);
-            alert('Error during registration: ' + error.message);
-          }
-        });
-
-        // Login Form Submit (Updated with profile check via API)
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const mobile = document.getElementById('login-mobile').value.replace(/[^0-9]/g, '');
-          const pw = document.getElementById('login-password').value;
-          if (mobile.length === 10 && pw.length >= 6) {
-            try {
-              const response = await fetch(`${BACKEND_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mobile: mobile, password: pw })
-              });
-              const data = await response.json();
-              if (response.ok && data.success) {
-                const userId = data.user.id; // Assuming backend returns { user: { id: uuid, mobile: ... } }
-                alert('Logged in successfully!');
-
-                  // Store mobile for dashboard auto-fill
-                  localStorage.setItem('userMobile', mobile);
-                  
-                // Reset and close modal before redirect
-                resetLogin();
-                closeModal('login-modal');
-                
-                // Fetch user profile via backend API to check completion
-                try {
-                  const profileResponse = await fetch(`${BACKEND_URL}/get-user-profile`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mobile: mobile })
-                  });
-                  const profileData = await profileResponse.json();
-                  
-                  if (profileResponse.ok && profileData.success) {
-                    const userProfile = profileData.user;
-                    // Check if required profile fields are complete (non-null and non-empty)
-                    const isProfileComplete = userProfile.user_name && userProfile.user_name.trim() !== '' &&
-                                             userProfile.shop_name && userProfile.shop_name.trim() !== '' &&
-                                             userProfile.shop_address && userProfile.shop_address.trim() !== '';
-                    
-                    if (isProfileComplete) {
-                      // Redirect to dashboard/hardware
-                      window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
-                    } else {
-                      // Redirect to profile creation
-                      window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
-                    }
-                  } else {
-                    // On profile fetch error or incomplete data, fallback to creation
-                    console.error('Profile fetch error:', profileData.message || 'Unknown error');
-                    window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
-                  }
-                } catch (profileError) {
-                  console.error('Profile check error:', profileError);
-                  // Fallback redirect on any profile fetch failure
-                  window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
-                }
-              } else { 
-                throw new Error(data.message || 'Login failed');
-              }
-            } catch (error) {
-              console.error(error);
-              alert('Error during login: ' + error.message);
-            }
-          } else {
-            alert('Please enter valid mobile number and password (at least 6 characters).');
-          }
-        });
-
-        // Forgot Password Send OTP
-        document.getElementById('forgot-send-otp').addEventListener('click', async () => {
-          const phoneInput = document.getElementById('forgot-mobile').value.replace(/[^0-9]/g, '');
-          if (phoneInput.length !== 10) {
-            alert('Please enter a valid 10-digit mobile number.');
-            return;
-          }
-          const sendBtn = document.getElementById('forgot-send-otp');
-          try {
-            const response = await fetch(`${BACKEND_URL}/forgot-otp`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: phoneInput })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              startCountdown(sendBtn, 119, 'Get OTP', forgotOriginalClass, 'forgotInterval');
-              alert('OTP sent to your mobile!');
-            } else {
-              throw new Error(data.message || 'Failed to send OTP');
-            }
-          } catch (error) {
-            console.error(error);
-            alert('Error sending OTP: ' + error.message);
-          }
-        });
-
-        // Forgot Password OTP Input Listener
-        document.getElementById('forgot-otp').addEventListener('input', (e) => {
-          const value = e.target.value;
-          const verifyBtn = document.getElementById('forgot-verify-btn');
-          if (value.length === 6 && /^\d{6}$/.test(value)) {
-            verifyBtn.disabled = false;
-          } else {
-            verifyBtn.disabled = true;
-          }
-        });
-
-        // Forgot Password Verify OTP
-        document.getElementById('forgot-verify-btn').addEventListener('click', async () => {
-          const phoneInput = document.getElementById('forgot-mobile').value.replace(/[^0-9]/g, '');
-          const otp = document.getElementById('forgot-otp').value;
-          if (phoneInput.length !== 10 || otp.length !== 6) {
-            alert('Please enter valid phone and OTP.');
-            return;
-          }
-          const verifyBtn = document.getElementById('forgot-verify-btn');
-          try {
-            const response = await fetch(`${BACKEND_URL}/verify-otp`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: phoneInput, otp: otp })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              verifyBtn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
-              verifyBtn.className = 'w-2/5 flex items-center justify-center rounded-xl bg-green-900 text-green-300 text-sm font-medium border border-green-700';
-              verifyBtn.disabled = true;
-              document.getElementById('forgot-otp').disabled = true;
-              document.getElementById('forgot-otp').value = '';
-              lucide.createIcons();
-              alert('Phone number verified successfully!');
-              window.forgotVerified = true;
-            } else {
-              throw new Error(data.message || 'Invalid OTP');
-            }
-          } catch (error) {
-            console.error(error);
-            alert('Error verifying OTP: ' + error.message);
-            document.getElementById('forgot-otp').value = '';
-            document.getElementById('forgot-verify-btn').disabled = true;
-          }
-        });
-
-        // Forgot Password Form Submit
-        document.getElementById('forgot-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!window.forgotVerified) {
-            alert('Please verify your phone number first.');
-            return;
-          }
-          const mobile = document.getElementById('forgot-mobile').value.replace(/[^0-9]/g, '');
-          const pw1 = document.getElementById('forgot-password').value;
-          const pw2 = document.getElementById('forgot-password-confirm').value;
-          if (pw1.length < 6 || pw1 !== pw2) {
-            alert('Passwords must match and be at least 6 characters.');
-            return;
-          }
-          try {
-            const response = await fetch(`${BACKEND_URL}/reset-password`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ mobile: mobile, password: pw1 })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              alert('Password reset successfully!');
-              resetForgot();
-              closeModal('forgot-modal');
-            } else {
-              throw new Error(data.message || 'Password reset failed');
-            }
-          } catch (error) {
-            console.error(error);
-            alert('Error during password reset: ' + error.message);
-          }
-        });
-
-        // ---------- Google Sign In Integration ----------
-        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
-
-        // Callback that receives the Google ID token (credential)
-        async function handleGoogleCredentialResponse(response) {
-          const id_token = response.credential;
-          console.log('Received Google token (partial):', id_token ? id_token.substring(0, 50) + '...' : 'No token');
-          if (!id_token) {
-            alert('Google login failed: no token received');
-            return;
-          }
-
-          try {
-            const res = await fetch(`${BACKEND_URL}/auth/google`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id_token }),
-            });
-
-            const data = await res.json();
-            if (!res.ok) {
-              console.error('Backend /auth/google error', data);
-              alert('Google login failed: ' + (data.error || 'Server error'));
-              return;
-            }
-
-            if (data.success) {
-              const user = data.user;
-              if (user.email) localStorage.setItem('userEmail', user.email);
-              if (user.google_id) localStorage.setItem('userGoogleId', user.google_id);
-
-              const userId = user.id;
-              const isProfileComplete = user.user_name && user.shop_name && user.shop_address
-                                        && user.user_name.trim() !== '' && user.shop_name.trim() !== '' && user.shop_address.trim() !== '';
-
-              closeModal('login-modal');
-              closeModal('registration-modal');
-
-              if (isProfileComplete) {
-                window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
-              } else {
-                window.location.href = `https://www.krishi.site/profile-creation?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
-              }
-            } else {
-              alert('Google login failed: ' + (data.error || 'Unknown'));
-            }
-          } catch (err) {
-            console.error('Google login exception', err);
-            alert('Google login error: ' + (err.message || err));
-          }
-        }
-
-        // Initialize Google button(s) when client library loads
-        function initGoogleButtons() {
-          if (!window.google || !google.accounts || !google.accounts.id) {
-            console.warn('Google identity library not loaded yet');
-            return;
-          }
-
-          google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            ux_mode: 'popup'
-          });
-
-          const loginBtnContainer = document.getElementById('google-login-btn');
-          if (loginBtnContainer) {
-            google.accounts.id.renderButton(loginBtnContainer, {
-              theme: 'filled_blue',
-              size: 'large',
-              type: 'standard',                
-            });
-          }
-
-          const registerBtnContainer = document.getElementById('google-register-btn');
-          if (registerBtnContainer) {
-            google.accounts.id.renderButton(registerBtnContainer, {
-              theme: 'filled_blue',
-              size: 'large',
-              type: 'standard',
-            });
-          }
-        }
-
-        window.addEventListener('load', () => {
-          initGoogleButtons();
-          if (!window.google || !google.accounts || !google.accounts.id) {
-            setTimeout(initGoogleButtons, 800);
-          }
-        });
-
-    </script>
 </body>
 </html>
