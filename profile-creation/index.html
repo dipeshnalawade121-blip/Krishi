@@ -66,6 +66,9 @@
         /* Styles for OTP Section (Hidden by default) */
         .otp-section {
             display: none;
+            /* Changed to flex-col and space-y-3 for block arrangement */
+            flex-direction: column;
+            gap: 12px; 
         }
         .otp-section.active {
             display: flex;
@@ -124,32 +127,35 @@
 
             <hr class="my-6 border-slate-700" />
             
-            <!-- User Mobile Number & OTP Send -->
+            <!-- User Mobile Number & OTP Send (Adjusted Layout) -->
             <div class="mb-4">
                 <label for="mobileNumber" class="block text-sm font-medium text-slate-400 mb-1">User Mobile Number <span id="mobile-status-text" class="text-xs font-normal text-red-500">(Unverified)</span></label>
-                <div class="flex space-x-2">
-                    <div class="flex">
-                        <span class="inline-flex items-center px-3 text-sm text-slate-200 bg-slate-700 border border-r-0 border-slate-600 rounded-l-lg">
-                            +91
-                        </span>
-                        <input type="tel" id="mobileNumber" required minlength="10" maxlength="10"
-                               class="flex-1 p-3 rounded-r-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                               placeholder="10 digit number">
-                    </div>
-                    <button type="button" id="send-otp-btn"
-                            class="px-4 font-semibold rounded-lg text-sm text-white bg-blue-600 hover:bg-blue-500 transition duration-150 disabled:bg-gray-700">
-                        Send OTP
-                    </button>
+                
+                <!-- Mobile Input Box (Full Width) -->
+                <div class="flex mb-3">
+                    <span class="inline-flex items-center px-3 text-sm text-slate-200 bg-slate-700 border border-r-0 border-slate-600 rounded-l-lg">
+                        +91
+                    </span>
+                    <input type="tel" id="mobileNumber" required minlength="10" maxlength="10"
+                           class="flex-1 p-3 rounded-r-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                           placeholder="10 digit number">
                 </div>
+
+                <!-- Send OTP Button (Now full width, underneath the input) -->
+                <button type="button" id="send-otp-btn"
+                        class="w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-blue-600 hover:bg-blue-500 transition duration-150 disabled:bg-gray-700">
+                    Send OTP
+                </button>
             </div>
 
-            <!-- OTP Input & Verify -->
-            <div id="otp-section" class="otp-section mb-4 space-x-2">
+            <!-- OTP Input & Verify (Adjusted Layout: Stacked Block underneath) -->
+            <!-- The 'otp-section' CSS was updated to use flex-col for stacking -->
+            <div id="otp-section" class="otp-section mb-4">
                 <input type="number" id="otp-input" placeholder="Enter 6-digit OTP" maxlength="6"
-                       class="flex-grow p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                       class="p-3 w-full rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
                        disabled>
                 <button type="button" id="verify-otp-btn"
-                        class="px-4 font-semibold rounded-lg text-sm text-white bg-emerald-600 hover:bg-emerald-500 transition duration-150 disabled:bg-gray-700"
+                        class="w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-emerald-600 hover:bg-emerald-500 transition duration-150 disabled:bg-gray-700"
                         disabled>
                     Verify
                 </button>
@@ -163,11 +169,11 @@
                        placeholder="Enter a secure password">
             </div>
 
-            <!-- Save Button -->
+            <!-- Save Button (Text changed) -->
             <button type="submit" id="save-button"
                     class="w-full p-3 text-lg font-bold text-white bg-emerald-600 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 disabled:bg-gray-700"
                     disabled>
-                Update Profile
+                Save Profile
             </button>
         </form>
 
@@ -260,7 +266,7 @@
             btn.innerHTML = 'OTP sent! ';
             btn.appendChild(timerSpan);
             timerSpan.innerHTML = formatTime(seconds);
-            btn.className = 'px-4 font-semibold rounded-lg text-sm text-white bg-blue-900 transition duration-150 disabled:bg-gray-700';
+            btn.className = 'w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-blue-900 transition duration-150 disabled:bg-gray-700';
             let timeLeft = seconds;
             otpInterval = setInterval(() => {
                 timeLeft--;
@@ -268,7 +274,7 @@
                 if (timeLeft < 0) {
                     clearInterval(otpInterval);
                     btn.innerHTML = originalText;
-                    btn.className = 'px-4 font-semibold rounded-lg text-sm text-white bg-blue-600 hover:bg-blue-500 transition duration-150 disabled:bg-gray-700';
+                    btn.className = 'w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-blue-600 hover:bg-blue-500 transition duration-150 disabled:bg-gray-700';
                     btn.disabled = false;
                 }
             }, 1000);
@@ -514,7 +520,7 @@
                 displayStatus('Error updating profile.', 'error');
             } finally {
                 saveButton.disabled = false;
-                saveButton.textContent = 'Update Profile';
+                saveButton.textContent = 'Save Profile';
             }
         }
 
