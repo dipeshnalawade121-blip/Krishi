@@ -516,32 +516,32 @@
         }
 
         // --- Save Function (Updated to use intelligent identifier) ---
-async function saveProfile(event) {
-    event.preventDefault();
-    const errors = validateForm();
-    if (errors.length > 0) {
-        showModal(errors);
-        return;
-    }
+        async function saveProfile(event) {
+            event.preventDefault();
+            const errors = validateForm();
+            if (errors.length > 0) {
+                showModal(errors);
+                return;
+            }
 
-    saveButton.disabled = true;
-    saveButton.textContent = 'Updating...';
+            saveButton.disabled = true;
+            saveButton.textContent = 'Updating...';
 
-    // Construct the payload: ALWAYS include id if available, mobile optional
-    const payload = {
-        id: userId,  // Always send id (from URL) - backend requires it
-        user_name: inputUserName.value.trim(),
-        email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), 
-    };
+            // Construct the payload: ALWAYS include id if available, mobile optional
+            const payload = {
+                id: userId,  // Always send id (from URL) - backend requires it
+                user_name: inputUserName.value.trim(),
+                email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), 
+            };
 
-    if (currentMobile) {
-        payload.mobile = currentMobile;  // Optional: Save mobile if set/verified
-    } else {
-        displayStatus('Cannot save: No user ID available.', 'error');
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save Profile';
-        return;
-    }
+            if (currentMobile) {
+                payload.mobile = currentMobile;  // Optional: Save mobile if set/verified
+            } else {
+                displayStatus('Cannot save: No user ID available.', 'error');
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Profile';
+                return;
+            }
 
             try {
                 // Call the refactored /save-profile API
@@ -566,93 +566,92 @@ async function saveProfile(event) {
             }
         }
 
-        // --- Load Profile (Updated to use intelligent identifier) ---
         // --- Load Profile (Updated to ALWAYS use id for lookup) ---
-async function loadProfile() {
-    // Always use userId (from URL) - backend requires it for lookup
-    if (!userId) {
-        displayStatus('No user ID found for profile lookup.', 'error');
-        return;
-    }
+        async function loadProfile() {
+            // Always use userId (from URL) - backend requires it for lookup
+            if (!userId) {
+                displayStatus('No user ID found for profile lookup.', 'error');
+                return;
+            }
 
-    const payload = {
-        id: userId  // Always send id
-    };
+            const payload = {
+                id: userId  // Always send id
+            };
 
-    try {
-        // Fetching profile from the backend API, not direct Supabase
-        const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        
-        if (!res.ok || !data.success || !data.user) throw new Error(data.error || 'User profile not full');
-        
-        const user = data.user;
-        
-        // Populate User Inputs
-        inputUserName.value = user.user_name || '';
-        inputEmail.value = user.email || '';
-        inputMobileNumber.value = user.mobile || '';
-        currentMobile = user.mobile;
+            try {
+                // Fetching profile from the backend API, not direct Supabase
+                const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                
+                if (!res.ok || !data.success || !data.user) throw new Error(data.error || 'User profile not found');
+                
+                const user = data.user;
+                
+                // Populate User Inputs
+                inputUserName.value = user.user_name || '';
+                inputEmail.value = user.email || '';
+                inputMobileNumber.value = user.mobile || '';
+                currentMobile = user.mobile;
 
-        // NOTE: We rely on the presence of mobile to determine verification status for UI locking
-        mobileVerified = !!user.mobile; 
-        
-        if (mobileVerified) {
-            mobileStatusText.innerHTML = '(Verified)';
-            mobileStatusText.classList.remove('text-red-500');
-            mobileStatusText.classList.add('text-green-500');
+                // NOTE: We rely on the presence of mobile to determine verification status for UI locking
+                mobileVerified = !!user.mobile; 
+                
+                if (mobileVerified) {
+                    mobileStatusText.innerHTML = '(Verified)';
+                    mobileStatusText.classList.remove('text-red-500');
+                    mobileStatusText.classList.add('text-green-500');
+                }
+                
+                // --- LOCKING LOGIC IMPLEMENTATION ---
+                const nameEmailExists = !!user.user_name && !!user.email;
+                
+                // 1. Lock Name/Email if data exists (Google Sign-up flow)
+                if (nameEmailExists) {
+                    lockElement(inputUserName, true);
+                    lockElement(inputEmail, true);
+                    googleLinkContainer.style.display = 'none';
+                } else {
+                    googleLinkContainer.style.display = 'block';
+                    lockElement(inputUserName, false);
+                    lockElement(inputEmail, false);
+                }
+
+                // 2. Lock Mobile and Password if profile is "full" 
+                const profileIsFull = nameEmailExists && mobileVerified;
+                
+                if (profileIsFull) {
+                    // Lock Mobile input and disable OTP button
+                    lockElement(inputMobileNumber, true);
+                    sendOtpBtn.disabled = true;
+
+                    // Lock Password input 
+                    lockElement(inputPassword, true);
+                    
+                    googleLinkContainer.style.display = 'none'; 
+                } else if (mobileVerified) {
+                    // Mobile is verified, but name/email might be missing
+                    lockElement(inputMobileNumber, true); 
+                    sendOtpBtn.disabled = true;
+                    lockElement(inputPassword, false);
+                } else {
+                    // If nothing is full/verified, keep mobile/password open
+                    lockElement(inputMobileNumber, false); 
+                    sendOtpBtn.disabled = false;
+                    lockElement(inputPassword, false);
+                }
+                // --- END LOCKING LOGIC ---
+
+                checkFormValidity();
+                
+            } catch (error) {
+                console.error("Error loading profile:", error);
+                displayStatus('Failed to load profile data.', 'error');
+            }
         }
-        
-        // --- LOCKING LOGIC IMPLEMENTATION ---
-        const nameEmailExists = !!user.user_name && !!user.email;
-        
-        // 1. Lock Name/Email if data exists (Google Sign-up flow)
-        if (nameEmailExists) {
-            lockElement(inputUserName, true);
-            lockElement(inputEmail, true);
-            googleLinkContainer.style.display = 'none';
-        } else {
-            googleLinkContainer.style.display = 'block';
-            lockElement(inputUserName, false);
-            lockElement(inputEmail, false);
-        }
-
-        // 2. Lock Mobile and Password if profile is "full" 
-        const profileIsFull = nameEmailExists && mobileVerified;
-        
-        if (profileIsFull) {
-            // Lock Mobile input and disable OTP button
-            lockElement(inputMobileNumber, true);
-            sendOtpBtn.disabled = true;
-
-            // Lock Password input 
-            lockElement(inputPassword, true);
-            
-            googleLinkContainer.style.display = 'none'; 
-        } else if (mobileVerified) {
-            // Mobile is verified, but name/email might be missing
-            lockElement(inputMobileNumber, true); 
-            sendOtpBtn.disabled = true;
-            lockElement(inputPassword, false);
-        } else {
-            // If nothing is full/verified, keep mobile/password open
-            lockElement(inputMobileNumber, false); 
-            sendOtpBtn.disabled = false;
-            lockElement(inputPassword, false);
-        }
-        // --- END LOCKING LOGIC ---
-
-        checkFormValidity();
-        
-    } catch (error) {
-        console.error("Error loading profile:", error);
-        displayStatus('Failed to load profile data.', 'error');
-    }
-}
         
         // --- Event Listeners for Validation Check ---
         inputUserName.addEventListener('input', checkFormValidity);
