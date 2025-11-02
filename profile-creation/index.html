@@ -516,32 +516,37 @@
         }
 
         // --- Save Function (Updated to use intelligent identifier) ---
-async function saveProfile(event) {
-    event.preventDefault();
-    const errors = validateForm();
-    if (errors.length > 0) {
-        showModal(errors);
-        return;
-    }
+        async function saveProfile(event) {
+            event.preventDefault();
+            const errors = validateForm();
+            if (errors.length > 0) {
+                showModal(errors);
+                return;
+            }
 
-    saveButton.disabled = true;
-    saveButton.textContent = 'Updating...';
+            saveButton.disabled = true;
+            saveButton.textContent = 'Updating...';
 
-    // Construct the payload: ALWAYS include id if available, mobile optional
-    const payload = {
-        id: userId,  // Always send id (from URL) - backend requires it
-        user_name: inputUserName.value.trim(),
-        email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), 
-    };
+            // Construct the payload based on the available identifier (mobile or user ID)
+            const payload = {
+                user_name: inputUserName.value.trim(),
+                email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), 
+                // Password is not sent on every save, as it's typically a separate update. 
+                // However, if the user input a new password and the field is not locked, you'd handle it here.
+            };
 
-    if (currentMobile) {
-        payload.mobile = currentMobile;  // Optional: Save mobile if set/verified
-    } else {
-        displayStatus('Cannot save: No user ID available.', 'error');
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save Profile';
-        return;
-    }
+            if (currentMobile) {
+                // If we have a mobile number, use it as the primary identifier
+                payload.mobile = currentMobile; 
+            } else if (userId) {
+                // If we don't have a mobile number (Google signup), use the user ID from the URL
+                payload.id = userId; 
+            } else {
+                displayStatus('Cannot save: No mobile or user ID available.', 'error');
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Profile';
+                return;
+            }
 
             try {
                 // Call the refactored /save-profile API
