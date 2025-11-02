@@ -39,6 +39,7 @@
         .input-field-dark:focus {
             border-color: var(--primary-green);
             box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.4);
+            outline: none;
         }
 
         /* Locked input styles (read-only) */
@@ -66,7 +67,6 @@
         /* Styles for OTP Section (Hidden by default) */
         .otp-section {
             display: none;
-            /* Changed to flex-col and space-y-3 for block arrangement */
             flex-direction: column;
             gap: 12px; 
         }
@@ -78,6 +78,16 @@
         .google-btn-container {
             display: flex; 
             justify-content: center;
+        }
+
+        /* Hide number input arrows */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
         }
     </style>
 </head>
@@ -149,9 +159,8 @@
             </div>
 
             <!-- OTP Input & Verify (Adjusted Layout: Stacked Block underneath) -->
-            <!-- The 'otp-section' CSS was updated to use flex-col for stacking -->
             <div id="otp-section" class="otp-section mb-4">
-                <input type="number" id="otp-input" placeholder="Enter 6-digit OTP" maxlength="6"
+                <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" maxlength="6"
                        class="p-3 w-full rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
                        disabled>
                 <button type="button" id="verify-otp-btn"
@@ -210,15 +219,14 @@
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Mock Backend URL for API calls
-        // NOTE: This URL must be correct for the app to function.
         const BACKEND_URL = 'https://api.krishi.site'; 
-        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com'; // Replace with your actual GSI Client ID
+        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
 
         // Detect signup method from URL params or session
         const urlParams = new URLSearchParams(window.location.search);
         const mobile = urlParams.get('mobile');
         const userId = urlParams.get('id');
-        const signupMethod = urlParams.get('method') || 'mobile'; // 'mobile' or 'google'
+        const signupMethod = urlParams.get('method') || 'mobile';
 
         document.getElementById('user-id').textContent = userId || 'N/A';
 
@@ -226,7 +234,7 @@
         let currentUser = null;
         let mobileVerified = false;
         let otpInterval;
-        let currentMobile = mobile; // Holds the mobile number used for initial login/lookup
+        let currentMobile = mobile;
 
         const form = document.getElementById('profile-form');
         const saveButton = document.getElementById('save-button');
@@ -248,7 +256,6 @@
         const verifyOtpBtn = document.getElementById('verify-otp-btn');
         const mobileStatusText = document.getElementById('mobile-status-text');
         const googleLinkContainer = document.getElementById('google-link-container');
-
 
         // --- Helper Functions ---
         function lockElement(element, shouldLock) {
@@ -282,7 +289,7 @@
             otpInterval = setInterval(() => {
                 timeLeft--;
                 timerSpan.innerHTML = formatTime(timeLeft);
-                if (timeLeft < 0) {
+                if (timeLeft <= 0) {
                     clearInterval(otpInterval);
                     btn.innerHTML = originalText;
                     btn.className = 'w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-blue-600 hover:bg-blue-500 transition duration-150 disabled:bg-gray-700';
@@ -298,7 +305,6 @@
          */
         function displayStatus(message, type) {
             statusMessage.textContent = message;
-            // Updated class names for dark theme visibility
             statusMessage.className = `p-3 mb-6 rounded-lg text-sm transition-all duration-300 ${type === 'success' ? 'bg-green-900 text-green-300' : type === 'error' ? 'bg-red-900 text-red-300' : 'bg-blue-900 text-blue-300'}`;
             statusMessage.classList.remove('hidden');
 
@@ -308,10 +314,7 @@
         }
 
         function checkFormValidity() {
-            // Check if name, email, mobile (verified), and password are valid
             const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim() && inputPassword.value.length >= 8;
-            // Only allow saving if base fields are valid AND mobile is verified
-            // OR if name/email are locked (from Google signup)
             const canSave = isBaseValid && (mobileVerified || inputUserName.readOnly);
             saveButton.disabled = !canSave;
         }
@@ -336,7 +339,6 @@
             displayStatus('Linking Google account...', 'info');
 
             try {
-                // NOTE: Using the /auth/google endpoint which both logs in and links
                 const res = await fetch(`${BACKEND_URL}/auth/google`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -345,11 +347,9 @@
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    // Update UI with linked data
-                    inputUserName.value = data.user.user_name || inputUserName.value; // Keep existing if null
+                    inputUserName.value = data.user.user_name || inputUserName.value;
                     inputEmail.value = data.user.email || inputEmail.value;
                     
-                    // Lock Name/Email and hide Google button after successful link
                     lockElement(inputUserName, true);
                     lockElement(inputEmail, true);
                     googleLinkContainer.style.display = 'none';
@@ -368,7 +368,7 @@
         // Initialize Google button
         function initGoogleButton() {
             if (!window.google || !google.accounts || !google.accounts.id) {
-                return setTimeout(initGoogleButton, 500); // Retry if GSI client not loaded
+                return setTimeout(initGoogleButton, 500);
             }
 
             const referenceElement = document.getElementById('save-button');
@@ -386,7 +386,6 @@
 
             const linkBtnContainer = document.getElementById('google-link-btn');
             if (linkBtnContainer) {
-                // Use 'outline' theme for better visibility on dark mode
                 google.accounts.id.renderButton(linkBtnContainer, {
                     theme: 'outline', 
                     text: 'continue_with', 
@@ -397,11 +396,13 @@
             }
         }
 
-
         // --- Mobile OTP Logic ---
-        inputMobileNumber.addEventListener('input', () => {
+        inputMobileNumber.addEventListener('input', (e) => {
+            // Only allow numbers
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            
             // Reset verification status if mobile changes
-            if (inputMobileNumber.value !== currentMobile) {
+            if (e.target.value !== currentMobile) {
                 mobileVerified = false;
                 mobileStatusText.innerHTML = '(Unverified)';
                 mobileStatusText.classList.remove('text-green-500');
@@ -422,7 +423,6 @@
             currentMobile = phoneInput;
 
             try {
-                // 1. Call backend to send OTP
                 const response = await fetch(`${BACKEND_URL}/send-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -445,8 +445,10 @@
         });
 
         otpInput.addEventListener('input', (e) => {
+            // Only allow numbers and limit to 6 digits
+            e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
             const value = e.target.value;
-            verifyOtpBtn.disabled = !(value.length === 6 && /^\d{6}$/.test(value));
+            verifyOtpBtn.disabled = !(value.length === 6);
         });
 
         verifyOtpBtn.addEventListener('click', async () => {
@@ -456,7 +458,6 @@
             }
 
             try {
-                // 2. Call backend to verify OTP
                 const response = await fetch(`${BACKEND_URL}/verify-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -477,7 +478,6 @@
                     mobileStatusText.classList.remove('text-red-500');
                     mobileStatusText.classList.add('text-green-500');
                     
-                    // Since verification is successful, lock mobile number input
                     lockElement(inputMobileNumber, true);
                     sendOtpBtn.disabled = true;
 
@@ -497,11 +497,18 @@
         // --- Validation Functions ---
         function validateForm() {
             const errors = [];
-            // Only validate if not locked
             if (!inputUserName.readOnly && !inputUserName.value.trim()) errors.push("User Name is required.");
             if (!inputEmail.readOnly && !inputEmail.value.trim()) errors.push("User Email is required.");
             
-            // Mobile validation check
+            // Email format validation
+            if (!inputEmail.readOnly && inputEmail.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(inputEmail.value.trim())) {
+                    errors.push("Please enter a valid email address.");
+                }
+            }
+            
+            // Mobile validation
             if (!inputMobileNumber.readOnly) {
                 if (!inputMobileNumber.value.trim() || inputMobileNumber.value.length !== 10) {
                     errors.push("Valid 10-digit mobile number is required.");
@@ -511,40 +518,40 @@
                 }
             }
             
-            if (!inputPassword.readOnly && (!inputPassword.value || inputPassword.value.length < 8)) errors.push("Password must be at least 8 characters.");
+            if (!inputPassword.readOnly && (!inputPassword.value || inputPassword.value.length < 8)) {
+                errors.push("Password must be at least 8 characters.");
+            }
             return errors;
         }
 
-        // --- Save Function (Updated to use intelligent identifier) ---
-async function saveProfile(event) {
-    event.preventDefault();
-    const errors = validateForm();
-    if (errors.length > 0) {
-        showModal(errors);
-        return;
-    }
+        // --- Save Function ---
+        async function saveProfile(event) {
+            event.preventDefault();
+            const errors = validateForm();
+            if (errors.length > 0) {
+                showModal(errors);
+                return;
+            }
 
-    saveButton.disabled = true;
-    saveButton.textContent = 'Updating...';
+            saveButton.disabled = true;
+            saveButton.textContent = 'Updating...';
 
-    // Construct the payload: ALWAYS include id if available, mobile optional
-    const payload = {
-        id: userId,  // Always send id (from URL) - backend requires it
-        user_name: inputUserName.value.trim(),
-        email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), 
-    };
+            // Construct the payload
+            const payload = {
+                id: userId,
+                user_name: inputUserName.value.trim(),
+                email: inputEmail.readOnly ? undefined : inputEmail.value.trim(),
+            };
 
-    if (currentMobile) {
-        payload.mobile = currentMobile;  // Optional: Save mobile if set/verified
-    } else {
-        displayStatus('Cannot save: No user ID available.', 'error');
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save Profile';
-        return;
-    }
+            if (currentMobile) {
+                payload.mobile = currentMobile;
+            }
+
+            if (!inputPassword.readOnly && inputPassword.value) {
+                payload.password = inputPassword.value;
+            }
 
             try {
-                // Call the refactored /save-profile API
                 const res = await fetch(`${BACKEND_URL}/save-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -555,8 +562,7 @@ async function saveProfile(event) {
                 if (!res.ok) throw new Error(data.error || 'Failed to save profile');
 
                 displayStatus('Profile saved successfully!', 'success');
-                // Reload profile data to apply the new lock state
-                await loadProfile(); 
+                await loadProfile();
             } catch (error) {
                 console.error("Error updating profile:", error);
                 displayStatus('Error updating profile: ' + error.message, 'error');
@@ -566,93 +572,80 @@ async function saveProfile(event) {
             }
         }
 
-        // --- Load Profile (Updated to use intelligent identifier) ---
-        // --- Load Profile (Updated to ALWAYS use id for lookup) ---
-async function loadProfile() {
-    // Always use userId (from URL) - backend requires it for lookup
-    if (!userId) {
-        displayStatus('No user ID found for profile lookup.', 'error');
-        return;
-    }
+        // --- Load Profile ---
+        async function loadProfile() {
+            if (!userId) {
+                displayStatus('No user ID found for profile lookup.', 'error');
+                return;
+            }
 
-    const payload = {
-        id: userId  // Always send id
-    };
+            const payload = {
+                id: userId
+            };
 
-    try {
-        // Fetching profile from the backend API, not direct Supabase
-        const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        
-        if (!res.ok || !data.success || !data.user) throw new Error(data.error || 'User profile not full');
-        
-        const user = data.user;
-        
-        // Populate User Inputs
-        inputUserName.value = user.user_name || '';
-        inputEmail.value = user.email || '';
-        inputMobileNumber.value = user.mobile || '';
-        currentMobile = user.mobile;
+            try {
+                const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                
+                if (!res.ok || !data.success || !data.user) {
+                    throw new Error(data.error || 'User profile not found');
+                }
+                
+                const user = data.user;
+                
+                inputUserName.value = user.user_name || '';
+                inputEmail.value = user.email || '';
+                inputMobileNumber.value = user.mobile || '';
+                currentMobile = user.mobile;
 
-        // NOTE: We rely on the presence of mobile to determine verification status for UI locking
-        mobileVerified = !!user.mobile; 
-        
-        if (mobileVerified) {
-            mobileStatusText.innerHTML = '(Verified)';
-            mobileStatusText.classList.remove('text-red-500');
-            mobileStatusText.classList.add('text-green-500');
+                mobileVerified = !!user.mobile;
+                
+                if (mobileVerified) {
+                    mobileStatusText.innerHTML = '(Verified)';
+                    mobileStatusText.classList.remove('text-red-500');
+                    mobileStatusText.classList.add('text-green-500');
+                }
+                
+                const nameEmailExists = !!user.user_name && !!user.email;
+                
+                if (nameEmailExists) {
+                    lockElement(inputUserName, true);
+                    lockElement(inputEmail, true);
+                    googleLinkContainer.style.display = 'none';
+                } else {
+                    googleLinkContainer.style.display = 'block';
+                    lockElement(inputUserName, false);
+                    lockElement(inputEmail, false);
+                }
+
+                const profileIsFull = nameEmailExists && mobileVerified;
+                
+                if (profileIsFull) {
+                    lockElement(inputMobileNumber, true);
+                    sendOtpBtn.disabled = true;
+                    lockElement(inputPassword, true);
+                    googleLinkContainer.style.display = 'none';
+                } else if (mobileVerified) {
+                    lockElement(inputMobileNumber, true);
+                    sendOtpBtn.disabled = true;
+                    lockElement(inputPassword, false);
+                } else {
+                    lockElement(inputMobileNumber, false);
+                    sendOtpBtn.disabled = false;
+                    lockElement(inputPassword, false);
+                }
+
+                checkFormValidity();
+                
+            } catch (error) {
+                console.error("Error loading profile:", error);
+                displayStatus('Failed to load profile data.', 'error');
+            }
         }
-        
-        // --- LOCKING LOGIC IMPLEMENTATION ---
-        const nameEmailExists = !!user.user_name && !!user.email;
-        
-        // 1. Lock Name/Email if data exists (Google Sign-up flow)
-        if (nameEmailExists) {
-            lockElement(inputUserName, true);
-            lockElement(inputEmail, true);
-            googleLinkContainer.style.display = 'none';
-        } else {
-            googleLinkContainer.style.display = 'block';
-            lockElement(inputUserName, false);
-            lockElement(inputEmail, false);
-        }
-
-        // 2. Lock Mobile and Password if profile is "full" 
-        const profileIsFull = nameEmailExists && mobileVerified;
-        
-        if (profileIsFull) {
-            // Lock Mobile input and disable OTP button
-            lockElement(inputMobileNumber, true);
-            sendOtpBtn.disabled = true;
-
-            // Lock Password input 
-            lockElement(inputPassword, true);
-            
-            googleLinkContainer.style.display = 'none'; 
-        } else if (mobileVerified) {
-            // Mobile is verified, but name/email might be missing
-            lockElement(inputMobileNumber, true); 
-            sendOtpBtn.disabled = true;
-            lockElement(inputPassword, false);
-        } else {
-            // If nothing is full/verified, keep mobile/password open
-            lockElement(inputMobileNumber, false); 
-            sendOtpBtn.disabled = false;
-            lockElement(inputPassword, false);
-        }
-        // --- END LOCKING LOGIC ---
-
-        checkFormValidity();
-        
-    } catch (error) {
-        console.error("Error loading profile:", error);
-        displayStatus('Failed to load profile data.', 'error');
-    }
-}
         
         // --- Event Listeners for Validation Check ---
         inputUserName.addEventListener('input', checkFormValidity);
@@ -661,24 +654,20 @@ async function loadProfile() {
 
         // --- Initialization ---
         async function initApp() {
-            // No direct Supabase connection check needed if we rely on the backend
             dbReady = true;
 
-            // Load current session for Google
             const { data: { session } } = await supabase.auth.getSession();
             if (session) currentUser = session.user;
             
-            // Initialize GSI button
             initGoogleButton();
 
             await loadProfile();
             
-            // Final check on UI state
             form.addEventListener('submit', saveProfile);
             displayStatus('Profile ready!', 'success');
         }
 
-        window.onload = initApp;
+        window.addEventListener('load', initApp);
 
         // Listen for auth changes (for Google redirect)
         supabase.auth.onAuthStateChange((event, session) => {
@@ -687,7 +676,7 @@ async function loadProfile() {
             }
         });
         
-        lucide.createIcons(); // Initialize icons for the mobile verification section
+        lucide.createIcons();
     </script>
 </body>
 </html>
