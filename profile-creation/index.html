@@ -525,7 +525,7 @@
             return errors;
         }
 
-        // --- Save Function - UPDATED to handle Google users properly ---
+        // --- Save Function - FIXED: Removed google_id from payload ---
         async function saveProfile(event) {
             event.preventDefault();
             const errors = validateForm();
@@ -537,27 +537,24 @@
             saveButton.disabled = true;
             saveButton.textContent = 'Updating...';
 
-            // Construct the payload - FIXED: Include google_id when available
+            // Construct the payload - ONLY include fields that backend expects
             const payload = {
                 id: userId,
                 user_name: inputUserName.value.trim(),
-                email: inputEmail.value.trim(), // Always include email
+                email: inputEmail.value.trim(),
             };
 
-            // Include google_id if available in URL parameters
-            if (googleId) {
-                payload.google_id = googleId;
-            }
-
-            if (currentMobile) {
+            // Only include mobile if verified
+            if (currentMobile && mobileVerified) {
                 payload.mobile = currentMobile;
             }
 
+            // Only include password if it's not locked and has a value
             if (!inputPassword.readOnly && inputPassword.value) {
                 payload.password = inputPassword.value;
             }
 
-            console.log('Saving profile with payload:', payload); // Debug log
+            console.log('Saving profile with payload:', payload);
 
             try {
                 const res = await fetch(`${BACKEND_URL}/save-profile`, {
@@ -566,23 +563,21 @@
                     body: JSON.stringify(payload),
                 });
                 
-                // Get the response text first to handle both JSON and non-JSON responses
                 const responseText = await res.text();
-                let data;
+                console.log('Raw server response:', responseText);
                 
+                let data;
                 try {
                     data = JSON.parse(responseText);
                 } catch (parseError) {
                     console.error('Failed to parse response as JSON:', responseText);
-                    throw new Error('Server returned invalid response');
+                    throw new Error(`Server returned invalid response: ${responseText.substring(0, 100)}`);
                 }
                 
-                console.log('Save profile response:', data); // Debug log
+                console.log('Save profile response:', data);
                 
                 if (!res.ok) {
-                    // Provide more detailed error information
-                    const errorMessage = data.error || data.message || `HTTP ${res.status}: ${res.statusText}`;
-                    throw new Error(errorMessage);
+                    throw new Error(data.error || `HTTP ${res.status}: ${res.statusText}`);
                 }
 
                 if (data.success) {
@@ -594,34 +589,23 @@
             } catch (error) {
                 console.error("Error updating profile:", error);
                 displayStatus('Error updating profile: ' + error.message, 'error');
-                
-                // Show more detailed error in console for debugging
-                console.error('Full error details:', {
-                    url: `${BACKEND_URL}/save-profile`,
-                    payload: payload,
-                    error: error.message
-                });
             } finally {
                 saveButton.disabled = false;
                 saveButton.textContent = 'Save Profile';
             }
         }
 
-        // --- Load Profile - UPDATED to handle Google users ---
+        // --- Load Profile - FIXED: Only sends id to backend ---
         async function loadProfile() {
             if (!userId) {
                 displayStatus('No user ID found for profile lookup.', 'error');
                 return;
             }
 
+            // Backend only expects 'id' for get-user-profile
             const payload = {
                 id: userId
             };
-
-            // Include google_id for lookup if available
-            if (googleId) {
-                payload.google_id = googleId;
-            }
 
             try {
                 const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
