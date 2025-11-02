@@ -170,15 +170,7 @@
                 </button>
             </div>
 
-            <!-- User Password -->
-            <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-slate-400 mb-1">User Password</label>
-                <input type="password" id="password" required minlength="8"
-                       class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                       placeholder="Enter a secure password">
-            </div>
-
-            <!-- Save Button (Text changed) -->
+            <!-- Save Button -->
             <button type="submit" id="save-button"
                     class="w-full p-3 text-lg font-bold text-white bg-emerald-600 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 disabled:bg-gray-700"
                     disabled>
@@ -248,7 +240,6 @@
         const inputUserName = document.getElementById('userName');
         const inputEmail = document.getElementById('email');
         const inputMobileNumber = document.getElementById('mobileNumber');
-        const inputPassword = document.getElementById('password');
         
         // OTP Elements
         const sendOtpBtn = document.getElementById('send-otp-btn');
@@ -315,7 +306,7 @@
         }
 
         function checkFormValidity() {
-            const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim() && inputPassword.value.length >= 8;
+            const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim();
             const canSave = isBaseValid && (mobileVerified || inputUserName.readOnly);
             saveButton.disabled = !canSave;
         }
@@ -519,13 +510,10 @@
                 }
             }
             
-            if (!inputPassword.readOnly && (!inputPassword.value || inputPassword.value.length < 8)) {
-                errors.push("Password must be at least 8 characters.");
-            }
             return errors;
         }
 
-        // --- Save Function - FIXED: Removed google_id from payload ---
+        // --- Save Function - FIXED: Removed password from payload ---
         async function saveProfile(event) {
             event.preventDefault();
             const errors = validateForm();
@@ -547,11 +535,6 @@
             // Only include mobile if verified
             if (currentMobile && mobileVerified) {
                 payload.mobile = currentMobile;
-            }
-
-            // Only include password if it's not locked and has a value
-            if (!inputPassword.readOnly && inputPassword.value) {
-                payload.password = inputPassword.value;
             }
 
             console.log('Saving profile with payload:', payload);
@@ -595,14 +578,13 @@
             }
         }
 
-        // --- Load Profile - FIXED: Only sends id to backend ---
+        // --- Load Profile ---
         async function loadProfile() {
             if (!userId) {
                 displayStatus('No user ID found for profile lookup.', 'error');
                 return;
             }
 
-            // Backend only expects 'id' for get-user-profile
             const payload = {
                 id: userId
             };
@@ -661,16 +643,13 @@
                 if (profileIsFull) {
                     lockElement(inputMobileNumber, true);
                     sendOtpBtn.disabled = true;
-                    lockElement(inputPassword, true);
                     googleLinkContainer.style.display = 'none';
                 } else if (mobileVerified) {
                     lockElement(inputMobileNumber, true);
                     sendOtpBtn.disabled = true;
-                    lockElement(inputPassword, false);
                 } else {
                     lockElement(inputMobileNumber, false);
                     sendOtpBtn.disabled = false;
-                    lockElement(inputPassword, false);
                 }
 
                 checkFormValidity();
@@ -684,7 +663,6 @@
         // --- Event Listeners for Validation Check ---
         inputUserName.addEventListener('input', checkFormValidity);
         inputEmail.addEventListener('input', checkFormValidity);
-        inputPassword.addEventListener('input', checkFormValidity);
 
         // --- Initialization ---
         async function initApp() {
