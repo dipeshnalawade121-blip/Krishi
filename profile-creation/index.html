@@ -203,13 +203,14 @@
 
     <!-- Supabase and Logic -->
     <script type="module">
-        // Supabase client
+        // Supabase client (only used for auth session)
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
         const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Mock Backend URL for API calls
+        // NOTE: This URL must be correct for the app to function.
         const BACKEND_URL = 'https://api.krishi.site'; 
         const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com'; // Replace with your actual GSI Client ID
 
@@ -309,6 +310,7 @@
         function checkFormValidity() {
             // Check if name, email, mobile (verified), and password are valid
             const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim() && inputPassword.value.length >= 8;
+            // Only allow saving if base fields are valid AND mobile is verified
             saveButton.disabled = !(isBaseValid && mobileVerified);
         }
 
@@ -332,18 +334,18 @@
             displayStatus('Linking Google account...', 'info');
 
             try {
-                // MOCKING: Assuming your backend returns user data after successful link
-                const res = await fetch(`${BACKEND_URL}/auth/google/link`, {
+                // NOTE: Using the /auth/google endpoint which both logs in and links
+                const res = await fetch(`${BACKEND_URL}/auth/google`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id_token, user_id: userId }),
+                    body: JSON.stringify({ id_token }),
                 });
                 const data = await res.json();
 
                 if (res.ok && data.success) {
                     // Update UI with linked data
-                    inputUserName.value = data.user.user_name;
-                    inputEmail.value = data.user.email;
+                    inputUserName.value = data.user.user_name || inputUserName.value; // Keep existing if null
+                    inputEmail.value = data.user.email || inputEmail.value;
                     
                     // Lock Name/Email and hide Google button after successful link
                     lockElement(inputUserName, true);
@@ -432,7 +434,7 @@
                     otpInput.disabled = false;
                     displayStatus('OTP sent to your mobile!', 'success');
                 } else {
-                    throw new Error(data.message || 'Failed to send OTP');
+                    throw new Error(data.error || 'Failed to send OTP');
                 }
             } catch (error) {
                 console.error(error);
@@ -480,7 +482,7 @@
                     displayStatus('Phone number verified successfully!', 'success');
                     checkFormValidity();
                 } else {
-                    throw new Error(data.message || 'Invalid OTP');
+                    throw new Error(data.error || 'Invalid OTP');
                 }
             } catch (error) {
                 console.error(error);
@@ -502,7 +504,7 @@
             return errors;
         }
 
-        // --- Save Function ---
+        // --- Save Function (Updated to use backend API) ---
         async function saveProfile(event) {
             event.preventDefault();
             const errors = validateForm();
@@ -515,117 +517,114 @@
             saveButton.textContent = 'Updating...';
 
             try {
-                // 3. Update or insert in Supabase (Data Profile Update)
-                const { data, error } = await supabase
-                    .from('users')
-                    .upsert({
-                        id: userId,
-                        // Only update fields if they are not locked
-                        mobile: inputMobileNumber.readOnly ? undefined : currentMobile,
-                        user_name: inputUserName.readOnly ? undefined : inputUserName.value.trim(),
-                        email: inputEmail.readOnly ? undefined : inputEmail.value.trim(),
-                        mobile_verified: mobileVerified,
-                        // Password update is mock only
-                        updated_at: new Date().toISOString()
-                    }, { onConflict: 'id' });
-
-                if (error) throw error;
+                // 3. Call the refactored /save-profile API (User fields only)
+                const res = await fetch(`${BACKEND_URL}/save-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mobile: inputMobileNumber.value, // Used for identification
+                        user_name: inputUserName.value.trim(),
+                        email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), // Only send if not locked/read-only
+                    }),
+                });
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error || 'Failed to save profile');
 
                 displayStatus('Profile saved successfully!', 'success');
                 // Reload profile data to apply the new lock state
                 await loadProfile(); 
             } catch (error) {
                 console.error("Error updating profile:", error);
-                displayStatus('Error updating profile.', 'error');
+                displayStatus('Error updating profile: ' + error.message, 'error');
             } finally {
                 saveButton.disabled = false;
                 saveButton.textContent = 'Save Profile';
             }
         }
 
-        // --- Load Profile ---
+        // --- Load Profile (Updated to use backend API) ---
         async function loadProfile() {
-            if (!dbReady) return;
+            // Using currentMobile for identification, which is populated by URL or session
+            const identifier = currentMobile || userId;
+            if (!identifier) {
+                displayStatus('No mobile or user ID found for profile lookup.', 'error');
+                return;
+            }
+
             try {
-                const identifier = mobile || userId || currentMobile;
-                if (!identifier) return;
+                // Fetching profile from the backend API, not direct Supabase
+                const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mobile: identifier }),
+                });
+                const data = await res.json();
+                
+                if (!res.ok || !data.success || !data.user) throw new Error(data.error || 'User profile not found');
+                
+                const user = data.user;
+                
+                // Populate User Inputs
+                inputUserName.value = user.user_name || '';
+                inputEmail.value = user.email || '';
+                inputMobileNumber.value = user.mobile || '';
+                currentMobile = user.mobile;
 
-                const { data: user, error } = await supabase
-                    .from('users')
-                    .select('user_name, email, mobile, mobile_verified') 
-                    .or(`mobile.eq.${identifier},id.eq.${identifier}`)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') throw error;
-
-                if (user) {
-                    inputUserName.value = user.user_name || '';
-                    inputEmail.value = user.email || '';
-                    inputMobileNumber.value = user.mobile || '';
-                    mobileVerified = user.mobile_verified || false;
-                    
-                    if (mobileVerified) {
-                        mobileStatusText.innerHTML = '(Verified)';
-                        mobileStatusText.classList.remove('text-red-500');
-                        mobileStatusText.classList.add('text-green-500');
-                    }
-                    
-                    // For Google signups, load auth user data if not in DB
-                    if (!user.user_name && signupMethod === 'google') {
-                        const { data: { user: authUser } } = await supabase.auth.getUser();
-                        if (authUser) {
-                             inputUserName.value = authUser.user_metadata?.full_name || authUser.email.split('@')[0];
-                             inputEmail.value = authUser.email;
-                        }
-                    }
-                    
-                    // --- NEW LOCKING LOGIC IMPLEMENTATION ---
-                    const nameEmailExists = !!user.user_name && !!user.email;
-                    
-                    // 1. Lock Name/Email if data exists 
-                    if (nameEmailExists) {
-                        lockElement(inputUserName, true);
-                        lockElement(inputEmail, true);
-                        // Hide Google link button if Name/Email exists
-                        googleLinkContainer.style.display = 'none';
-                    } else {
-                        // Ensure Google link button is visible if Name/Email are missing
-                        googleLinkContainer.style.display = 'block';
-                        lockElement(inputUserName, false);
-                        lockElement(inputEmail, false);
-                    }
-
-                    // 2. Lock Mobile and Password if profile is "full" (Name/Email exist AND Mobile is Verified)
-                    // Note: Since we can't check for password existence, we use mobileVerified as the proxy for full setup.
-                    const profileIsFull = nameEmailExists && mobileVerified;
-                    
-                    if (profileIsFull) {
-                        // Lock Mobile input and disable OTP button
-                        lockElement(inputMobileNumber, true);
-                        sendOtpBtn.disabled = true;
-
-                        // Lock Password input as per request for a full profile
-                        lockElement(inputPassword, true);
-                        
-                        // Ensure Google button is hidden if profile is full
-                        googleLinkContainer.style.display = 'none'; 
-                    } else if (mobileVerified) {
-                        // If only mobile is verified, lock mobile/disable OTP button, but keep password open if name/email is still missing
-                        lockElement(inputMobileNumber, true); 
-                        sendOtpBtn.disabled = true;
-                        lockElement(inputPassword, false);
-                    } else {
-                        // If nothing is full/verified, keep mobile/password open
-                        lockElement(inputMobileNumber, false); 
-                        sendOtpBtn.disabled = false;
-                        lockElement(inputPassword, false);
-                    }
-                    // --- END NEW LOCKING LOGIC ---
-
-                    checkFormValidity();
+                // NOTE: We don't have mobile_verified from the backend API, 
+                // but we will treat mobile as verified if it exists and is locked.
+                mobileVerified = !!user.mobile; 
+                
+                if (mobileVerified) {
+                    mobileStatusText.innerHTML = '(Verified)';
+                    mobileStatusText.classList.remove('text-red-500');
+                    mobileStatusText.classList.add('text-green-500');
                 }
+                
+                // --- LOCKING LOGIC IMPLEMENTATION ---
+                const nameEmailExists = !!user.user_name && !!user.email;
+                
+                // 1. Lock Name/Email if data exists (Google Sign-up flow)
+                if (nameEmailExists) {
+                    lockElement(inputUserName, true);
+                    lockElement(inputEmail, true);
+                    googleLinkContainer.style.display = 'none';
+                } else {
+                    googleLinkContainer.style.display = 'block';
+                    lockElement(inputUserName, false);
+                    lockElement(inputEmail, false);
+                }
+
+                // 2. Lock Mobile and Password if profile is "full" 
+                const profileIsFull = nameEmailExists && mobileVerified;
+                
+                if (profileIsFull) {
+                    // Lock Mobile input and disable OTP button
+                    lockElement(inputMobileNumber, true);
+                    sendOtpBtn.disabled = true;
+
+                    // Lock Password input 
+                    lockElement(inputPassword, true);
+                    
+                    googleLinkContainer.style.display = 'none'; 
+                } else if (mobileVerified) {
+                    // Mobile is verified, but name/email might be missing
+                    lockElement(inputMobileNumber, true); 
+                    sendOtpBtn.disabled = true;
+                    lockElement(inputPassword, false);
+                } else {
+                    // If nothing is full/verified, keep mobile/password open
+                    lockElement(inputMobileNumber, false); 
+                    sendOtpBtn.disabled = false;
+                    lockElement(inputPassword, false);
+                }
+                // --- END LOCKING LOGIC ---
+
+                checkFormValidity();
+                
             } catch (error) {
                 console.error("Error loading profile:", error);
+                displayStatus('Failed to load profile data.', 'error');
             }
         }
         
@@ -636,26 +635,21 @@
 
         // --- Initialization ---
         async function initApp() {
-            try {
-                const { data: test } = await supabase.from('users').select('count').limit(1);
-                dbReady = true;
+            // No direct Supabase connection check needed if we rely on the backend
+            dbReady = true;
 
-                // Load current session for Google
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session) currentUser = session.user;
-                
-                // Initialize GSI button (Must be done before loadProfile uses locking logic on the container)
-                initGoogleButton();
+            // Load current session for Google
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) currentUser = session.user;
+            
+            // Initialize GSI button
+            initGoogleButton();
 
-                await loadProfile();
-                
-                // Final check on UI state
-                form.addEventListener('submit', saveProfile);
-                displayStatus('Profile ready!', 'success');
-            } catch (error) {
-                console.error("Init Error:", error);
-                displayStatus('Initialization failed.', 'error');
-            }
+            await loadProfile();
+            
+            // Final check on UI state
+            form.addEventListener('submit', saveProfile);
+            displayStatus('Profile ready!', 'success');
         }
 
         window.onload = initApp;
@@ -663,7 +657,6 @@
         // Listen for auth changes (for Google redirect)
         supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN') {
-                // Successful login/link, reload page to load new profile data
                 location.reload();
             }
         });
