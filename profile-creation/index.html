@@ -226,7 +226,7 @@
         let currentUser = null;
         let mobileVerified = false;
         let otpInterval;
-        let currentMobile = mobile;
+        let currentMobile = mobile; // Holds the mobile number used for initial login/lookup
 
         const form = document.getElementById('profile-form');
         const saveButton = document.getElementById('save-button');
@@ -311,7 +311,9 @@
             // Check if name, email, mobile (verified), and password are valid
             const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim() && inputPassword.value.length >= 8;
             // Only allow saving if base fields are valid AND mobile is verified
-            saveButton.disabled = !(isBaseValid && mobileVerified);
+            // OR if name/email are locked (from Google signup)
+            const canSave = isBaseValid && (mobileVerified || inputUserName.readOnly);
+            saveButton.disabled = !canSave;
         }
 
         // --- Modal Functions ---
@@ -498,13 +500,22 @@
             // Only validate if not locked
             if (!inputUserName.readOnly && !inputUserName.value.trim()) errors.push("User Name is required.");
             if (!inputEmail.readOnly && !inputEmail.value.trim()) errors.push("User Email is required.");
-            if (!inputMobileNumber.readOnly && (!inputMobileNumber.value.trim() || inputMobileNumber.value.length !== 10)) errors.push("Valid 10-digit mobile number is required.");
-            if (!mobileVerified && !inputMobileNumber.readOnly) errors.push("Mobile number must be verified via OTP.");
+            
+            // Mobile validation check
+            if (!inputMobileNumber.readOnly) {
+                if (!inputMobileNumber.value.trim() || inputMobileNumber.value.length !== 10) {
+                    errors.push("Valid 10-digit mobile number is required.");
+                }
+                if (!mobileVerified) {
+                    errors.push("Mobile number must be verified via OTP.");
+                }
+            }
+            
             if (!inputPassword.readOnly && (!inputPassword.value || inputPassword.value.length < 8)) errors.push("Password must be at least 8 characters.");
             return errors;
         }
 
-        // --- Save Function (Updated to use backend API) ---
+        // --- Save Function (Updated to use intelligent identifier) ---
         async function saveProfile(event) {
             event.preventDefault();
             const errors = validateForm();
@@ -516,16 +527,33 @@
             saveButton.disabled = true;
             saveButton.textContent = 'Updating...';
 
+            // Construct the payload based on the available identifier (mobile or user ID)
+            const payload = {
+                user_name: inputUserName.value.trim(),
+                email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), 
+                // Password is not sent on every save, as it's typically a separate update. 
+                // However, if the user input a new password and the field is not locked, you'd handle it here.
+            };
+
+            if (currentMobile) {
+                // If we have a mobile number, use it as the primary identifier
+                payload.mobile = currentMobile; 
+            } else if (userId) {
+                // If we don't have a mobile number (Google signup), use the user ID from the URL
+                payload.id = userId; 
+            } else {
+                displayStatus('Cannot save: No mobile or user ID available.', 'error');
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Profile';
+                return;
+            }
+
             try {
-                // 3. Call the refactored /save-profile API (User fields only)
+                // Call the refactored /save-profile API
                 const res = await fetch(`${BACKEND_URL}/save-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        mobile: inputMobileNumber.value, // Used for identification
-                        user_name: inputUserName.value.trim(),
-                        email: inputEmail.readOnly ? undefined : inputEmail.value.trim(), // Only send if not locked/read-only
-                    }),
+                    body: JSON.stringify(payload),
                 });
                 const data = await res.json();
                 
@@ -543,11 +571,23 @@
             }
         }
 
-        // --- Load Profile (Updated to use backend API) ---
+        // --- Load Profile (Updated to use intelligent identifier) ---
         async function loadProfile() {
-            // Using currentMobile for identification, which is populated by URL or session
+            // Determine the identifier and the key to use in the payload
             const identifier = currentMobile || userId;
             if (!identifier) {
+                displayStatus('No identifier (mobile or ID) found for profile lookup.', 'error');
+                return;
+            }
+
+            const payload = {};
+            if (currentMobile) {
+                // If currentMobile is set (from URL param 'mobile'), use mobile lookup
+                payload.mobile = currentMobile;
+            } else if (userId) { 
+                // If currentMobile is empty, use userId from URL param 'id'
+                payload.id = userId; 
+            } else {
                 displayStatus('No mobile or user ID found for profile lookup.', 'error');
                 return;
             }
@@ -557,7 +597,7 @@
                 const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mobile: identifier }),
+                    body: JSON.stringify(payload),
                 });
                 const data = await res.json();
                 
@@ -571,8 +611,7 @@
                 inputMobileNumber.value = user.mobile || '';
                 currentMobile = user.mobile;
 
-                // NOTE: We don't have mobile_verified from the backend API, 
-                // but we will treat mobile as verified if it exists and is locked.
+                // NOTE: We rely on the presence of mobile to determine verification status for UI locking
                 mobileVerified = !!user.mobile; 
                 
                 if (mobileVerified) {
@@ -665,4 +704,3 @@
     </script>
 </body>
 </html>
-
