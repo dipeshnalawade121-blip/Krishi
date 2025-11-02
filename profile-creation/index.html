@@ -218,7 +218,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Mock Backend URL for API calls
+        // Backend URL for API calls
         const BACKEND_URL = 'https://api.krishi.site'; 
         const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
 
@@ -226,6 +226,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const mobile = urlParams.get('mobile');
         const userId = urlParams.get('id');
+        const googleId = urlParams.get('google_id');
         const signupMethod = urlParams.get('method') || 'mobile';
 
         document.getElementById('user-id').textContent = userId || 'N/A';
@@ -524,7 +525,7 @@
             return errors;
         }
 
-        // --- Save Function ---
+        // --- Save Function - UPDATED to handle Google users properly ---
         async function saveProfile(event) {
             event.preventDefault();
             const errors = validateForm();
@@ -536,12 +537,17 @@
             saveButton.disabled = true;
             saveButton.textContent = 'Updating...';
 
-            // Construct the payload
+            // Construct the payload - FIXED: Include google_id when available
             const payload = {
                 id: userId,
                 user_name: inputUserName.value.trim(),
-                email: inputEmail.readOnly ? undefined : inputEmail.value.trim(),
+                email: inputEmail.value.trim(), // Always include email
             };
+
+            // Include google_id if available in URL parameters
+            if (googleId) {
+                payload.google_id = googleId;
+            }
 
             if (currentMobile) {
                 payload.mobile = currentMobile;
@@ -551,28 +557,57 @@
                 payload.password = inputPassword.value;
             }
 
+            console.log('Saving profile with payload:', payload); // Debug log
+
             try {
                 const res = await fetch(`${BACKEND_URL}/save-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
-                const data = await res.json();
                 
-                if (!res.ok) throw new Error(data.error || 'Failed to save profile');
+                // Get the response text first to handle both JSON and non-JSON responses
+                const responseText = await res.text();
+                let data;
+                
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse response as JSON:', responseText);
+                    throw new Error('Server returned invalid response');
+                }
+                
+                console.log('Save profile response:', data); // Debug log
+                
+                if (!res.ok) {
+                    // Provide more detailed error information
+                    const errorMessage = data.error || data.message || `HTTP ${res.status}: ${res.statusText}`;
+                    throw new Error(errorMessage);
+                }
 
-                displayStatus('Profile saved successfully!', 'success');
-                await loadProfile();
+                if (data.success) {
+                    displayStatus('Profile saved successfully!', 'success');
+                    await loadProfile();
+                } else {
+                    throw new Error(data.error || 'Profile save failed');
+                }
             } catch (error) {
                 console.error("Error updating profile:", error);
                 displayStatus('Error updating profile: ' + error.message, 'error');
+                
+                // Show more detailed error in console for debugging
+                console.error('Full error details:', {
+                    url: `${BACKEND_URL}/save-profile`,
+                    payload: payload,
+                    error: error.message
+                });
             } finally {
                 saveButton.disabled = false;
                 saveButton.textContent = 'Save Profile';
             }
         }
 
-        // --- Load Profile ---
+        // --- Load Profile - UPDATED to handle Google users ---
         async function loadProfile() {
             if (!userId) {
                 displayStatus('No user ID found for profile lookup.', 'error');
@@ -583,13 +618,27 @@
                 id: userId
             };
 
+            // Include google_id for lookup if available
+            if (googleId) {
+                payload.google_id = googleId;
+            }
+
             try {
                 const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
-                const data = await res.json();
+                
+                const responseText = await res.text();
+                let data;
+                
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse profile response as JSON:', responseText);
+                    throw new Error('Server returned invalid response');
+                }
                 
                 if (!res.ok || !data.success || !data.user) {
                     throw new Error(data.error || 'User profile not found');
@@ -612,7 +661,8 @@
                 
                 const nameEmailExists = !!user.user_name && !!user.email;
                 
-                if (nameEmailExists) {
+                // For Google users, name and email should be locked by default
+                if (googleId || nameEmailExists) {
                     lockElement(inputUserName, true);
                     lockElement(inputEmail, true);
                     googleLinkContainer.style.display = 'none';
@@ -643,7 +693,7 @@
                 
             } catch (error) {
                 console.error("Error loading profile:", error);
-                displayStatus('Failed to load profile data.', 'error');
+                displayStatus('Failed to load profile data: ' + error.message, 'error');
             }
         }
         
