@@ -588,8 +588,8 @@
 
     // Add a slight delay so user sees success message
     setTimeout(() => {
-        const googleParam = googleId ? `&google_id=${googleId}` : '';
-window.location.href = `https://www.krishi.site/shop-profile?id=${redirectId}${googleParam}`;
+        const googleParam = googleId ? `google_id=${googleId}&` : '';
+window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${redirectId}`;
     }, 1200); // 1.2s delay before redirect
 } else {
     throw new Error(data.error || 'Profile save failed');
