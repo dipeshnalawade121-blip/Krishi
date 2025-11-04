@@ -13,6 +13,7 @@
         input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
         button { padding: 10px 20px; background: #007cba; color: white; border: none; cursor: pointer; margin-right: 10px; }
         button:hover { background: #005a87; }
+        #status { margin-bottom: 10px; font-style: italic; color: #666; }
     </style>
 </head>
 <body>
@@ -20,11 +21,12 @@
     
     <div class="address-section">
         <h3>Address [......]</h3>
-        <p>Click "Select on Map" or grant location access to auto-load your position.</p>
+        <p id="status">Loading your location...</p>
+        <p>Grant location permission to auto-zoom and select your precise position.</p>
         
         <!-- Map Container -->
         <div id="map"></div>
-        <button id="geolocateBtn">Select on Map!</button>
+        <button id="geolocateBtn">Refresh Location</button>
         <button id="clearBtn">Clear</button>
         
         <!-- Address Fields -->
@@ -49,17 +51,19 @@
     <script>
         // Initialize map
         document.addEventListener('DOMContentLoaded', function() {
-            const map = L.map('map').setView([51.505, -0.09], 13); // Default: London
+            const map = L.map('map').setView([51.505, -0.09], 13); // Default: London (fallback)
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             
             let selectedMarker;
+            const statusEl = document.getElementById('status');
             
             // Function to reverse geocode and fill fields
             async function reverseGeocode(lat, lng) {
                 try {
+                    statusEl.textContent = 'Fetching address details...';
                     const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
                     const data = await response.json();
                     
@@ -71,16 +75,18 @@
                         
                         document.getElementById('latitude').value = lat;
                         document.getElementById('longitude').value = lng;
+                        
+                        statusEl.textContent = 'Address loaded successfully!';
                     } else {
-                        alert('Could not fetch address details.');
+                        statusEl.textContent = 'Could not fetch address details. Try clicking the map.';
                     }
                 } catch (error) {
                     console.error('Geocoding error:', error);
-                    alert('Error fetching address.');
+                    statusEl.textContent = 'Error fetching address. Check your connection.';
                 }
             }
             
-            // Handle map click for selection
+            // Handle map click for manual selection
             map.on('click', function(e) {
                 const lat = e.latlng.lat;
                 const lng = e.latlng.lng;
@@ -93,18 +99,21 @@
                     .bindPopup('Selected Location').openPopup();
                 
                 reverseGeocode(lat, lng);
+                statusEl.textContent = 'Manually selected location.';
             });
             
-            // Auto-load current location if granted
+            // Auto-load current location if granted (triggers on page load)
             function getCurrentLocation() {
+                statusEl.textContent = 'Requesting location permission...';
+                
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
                             
-                            // Center map on current location
-                            map.setView([lat, lng], 15);
+                            // Center map on current location with high zoom for precision
+                            map.setView([lat, lng], 18); // Zoom 18 for street-level precision
                             
                             // Add marker and geocode
                             if (selectedMarker) {
@@ -117,16 +126,23 @@
                         },
                         function(error) {
                             console.log('Location access denied or error:', error.message);
-                            // Fallback to default view
+                            if (error.code === 1) {
+                                statusEl.textContent = 'Location permission denied. Click "Refresh Location" or select on map.';
+                            } else {
+                                statusEl.textContent = 'Location unavailable. Use manual selection.';
+                            }
                         },
                         { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
                     );
                 } else {
-                    alert('Geolocation not supported by this browser.');
+                    statusEl.textContent = 'Geolocation not supported by this browser. Click the map to select.';
                 }
             }
             
-            // Button: Trigger geolocation (auto-load)
+            // Auto-trigger on page load
+            getCurrentLocation();
+            
+            // Button: Manual refresh (in case permission was denied initially)
             document.getElementById('geolocateBtn').addEventListener('click', getCurrentLocation);
             
             // Button: Clear
@@ -139,6 +155,7 @@
                 document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
                 document.getElementById('latitude').value = '';
                 document.getElementById('longitude').value = '';
+                statusEl.textContent = 'Cleared. Grant permission to auto-load.';
             });
         });
     </script>
