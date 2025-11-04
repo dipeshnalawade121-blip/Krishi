@@ -193,17 +193,17 @@
                       window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
                     } else {
                       // Redirect to profile creation
-                      window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+                      window.location.href = `https://www.krishi.site/user-profile?mobile=${mobile}&id=${userId}`;
                     }
                   } else {
                     // On profile fetch error or incomplete data, fallback to creation
                     console.error('Profile fetch error:', profileData.message || 'Unknown error');
-                    window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+                    window.location.href = `https://www.krishi.site/user-profile?mobile=${mobile}&id=${userId}`;
                   }
                 } catch (profileError) {
                   console.error('Profile check error:', profileError);
                   // Fallback redirect on any profile fetch failure
-                  window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${userId}`;
+                  window.location.href = `https://www.krishi.site/user-profile?mobile=${mobile}&id=${userId}`;
                 }
               } else { 
                 throw new Error(data.message || 'Login failed');
@@ -255,7 +255,7 @@
               if (isProfileComplete) {
                 window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
               } else {
-                window.location.href = `https://www.krishi.site/profile-creation?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
+                window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
               }
             } else {
               alert('Google login failed: ' + (data.error || 'Unknown'));
