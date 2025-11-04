@@ -3,236 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Profile Setup | Krishi</title>
-    
+    <title>Shop Profile</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class', // Enable dark mode using the 'dark' class
-            theme: {
-                extend: {
-                    colors: {
-                        'primary-dark': '#1e293b', // slate-800
-                        'secondary-dark': '#334155', // slate-700
-                        'accent': '#10b981', // emerald-500
-                    },
-                }
-            }
-        }
-    </script>
-
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- Mapbox Geocoding JS (for autocomplete) -->
+    <script src='https://api.mapbox.com/search-js/v1.0.0-beta.4/mapbox-search.umd.js'></script>
+    <link href='https://api.mapbox.com/search-js/v1.0.0-beta.4/mapbox-search.css' rel='stylesheet' />
+   
     <style>
-        /* General dark mode style fallback for body */
-        body {
-            background-color: #0f172a; /* slate-900 */
-            color: #f8fafc; /* slate-50 */
+        /* Custom font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+       
+        :root {
+            --primary-green: #059669; /* emerald-600 */
+            --dark-bg: #0f172a; /* slate-900 */
+            --dark-card: #1e293b; /* slate-800 */
+            --dark-input: #0f172a; /* slate-900 */
+            --dark-border: #334155; /* slate-700 */
+            --light-text: #e2e8f0; /* slate-200 */
         }
-        /* Custom style for input fields in dark mode */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg); /* Dark background */
+            color: var(--light-text);
+        }
+        /* General dark input styles */
         .input-field-dark {
-            background-color: #334155; /* slate-700 */
-            border: 1px solid #475569; /* slate-600 */
-            color: #f8fafc; /* slate-50 */
+            background-color: var(--dark-input);
+            border: 1px solid var(--dark-border);
+            color: var(--light-text);
         }
         .input-field-dark:focus {
-            border-color: #10b981; /* accent */
-            box-shadow: 0 0 0 1px #10b981;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.4);
+            outline: none;
+        }
+        /* Locked input styles (read-only) */
+        .locked-input {
+            background-color: #0f172a; /* Slightly darker than card for contrast */
+            color: #94a3b8; /* Slate 400 */
+            cursor: not-allowed;
+            border-color: #334155;
+        }
+        /* Modal backdrop for darkening background */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        /* Hide number input arrows */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        /* Map container styles */
+        #map {
+            height: 300px;
+            border-radius: 0.5rem;
+            border: 1px solid var(--dark-border);
+            background-color: var(--dark-input);
+        }
+        .mapbox-search-container {
+            --mapbox-search-control-height: 40px;
         }
     </style>
 </head>
-
-<body class="min-h-screen flex items-center justify-center p-4">
-    
+<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
+    <!-- Main Profile Container (Dark Card) -->
     <div id="app" class="w-full max-w-lg bg-slate-800 shadow-2xl rounded-xl p-6 sm:p-8">
-        
-        <div class="flex items-center space-x-3 mb-8">
+       
+        <!-- Header Section -->
+        <div class="flex items-center space-x-2 mb-8">
             <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 12h-15m15 0a3 3 0 11-6 0 3 3 0 016 0zm-7.5 0a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
-            <h1 class="text-3xl font-extrabold text-slate-100">Shop Profile Setup</h1>
+            <h1 class="text-2xl font-bold text-slate-100">Shop Profile</h1>
         </div>
-
-        <p class="text-sm text-slate-500 mb-4 hidden">User ID: <span id="user-id">Loading...</span></p>
-
-        <div id="status-message" class="text-center p-3 rounded-lg hidden transition duration-300 mb-6" role="alert"></div>
-
+        <!-- Notification/Status Message Area -->
+        <div id="status-message" class="hidden p-3 mb-6 rounded-lg text-sm" role="alert"></div>
+        <!-- Profile Form -->
         <form id="profile-form">
-            
+           
+            <!-- Shop Name -->
             <div class="mb-4">
-                <label for="shopName" class="block text-sm font-medium text-slate-400 mb-1">Shop Name <span class="text-red-500">*</span></label>
+                <label for="shopName" class="block text-sm font-medium text-slate-400 mb-1">Shop Name</label>
                 <input type="text" id="shopName" required maxlength="100"
-                        class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                        placeholder="e.g., Krishi Seeds & Fertilisers">
+                       class="w-full p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 input-field-dark"
+                       placeholder="Your Shop Name">
             </div>
-
+            <!-- Shop Number -->
             <div class="mb-4">
-                <label for="shopNumber" class="block text-sm font-medium text-slate-400 mb-1">Shop Contact Number <span class="text-red-500">*</span></label>
-                <input type="tel" id="shopNumber" required pattern="[0-9]{10}" minlength="10" maxlength="10"
-                        class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                        placeholder="10 digit number">
+                <label for="shopNumber" class="block text-sm font-medium text-slate-400 mb-1">Shop Contact Number</label>
+                <div class="flex">
+                    <span class="inline-flex items-center px-3 text-sm text-slate-200 bg-slate-700 border border-r-0 border-slate-600 rounded-l-lg">
+                        +91
+                    </span>
+                    <input type="tel" id="shopNumber" required minlength="10" maxlength="10"
+                           class="flex-1 p-3 rounded-r-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                           placeholder="10 digit number">
+                </div>
             </div>
-
-            <div class="mb-6">
-                <label for="shopAddress" class="block text-sm font-medium text-slate-400 mb-1">Shop Address <span class="text-red-500">*</span></label>
-                <textarea id="shopAddress" rows="3" required
-                          class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                          placeholder="Detailed shop address"></textarea>
+            <!-- Shop Address -->
+            <div class="mb-4">
+                <label for="shopAddress" class="block text-sm font-medium text-slate-400 mb-1">Shop Address</label>
+                <textarea id="shopAddress" required rows="3" maxlength="500"
+                          class="w-full p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 input-field-dark resize-vertical"
+                          placeholder="Full shop address (street, city, pincode, etc.)"></textarea>
+                <!-- Address Search Input -->
+                <input type="text" id="address-search" placeholder="Search for shop address or click on map..."
+                       class="w-full p-3 mt-2 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150">
+                <!-- Map Container -->
+                <div id="map" class="mt-2"></div>
             </div>
-
-            <button type="submit" id="save-button" disabled
-                    class="w-full py-3 px-4 rounded-lg text-white font-semibold transition duration-300 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 disabled:text-slate-400">
+            <!-- Save Button -->
+            <button type="submit" id="save-button"
+                    class="w-full p-3 text-lg font-bold text-white bg-emerald-600 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 disabled:bg-gray-700"
+                    disabled>
                 Save Shop Profile
             </button>
         </form>
+        <!-- Display User ID for debugging/reference -->
+        <div class="mt-6 text-center text-xs text-slate-500">
+            <p>Your User ID: <span id="user-id">Loading...</span></p>
+        </div>
     </div>
-
-    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50">
-        <div class="bg-slate-700 rounded-lg shadow-xl max-w-sm w-full p-6">
-            <h3 class="text-xl font-bold text-red-400 mb-4">Validation Errors</h3>
-            <ul id="modal-error-list" class="list-disc list-inside text-slate-200 space-y-2 mb-6">
-                </ul>
-            <button id="close-modal-button" class="w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-150">
-                Close
+   
+    <!-- Custom Validation Error Modal Structure (Dark) -->
+    <div id="error-modal" class="modal-backdrop hidden">
+        <div class="bg-slate-800 p-6 rounded-xl shadow-2xl w-11/12 max-w-sm transform transition-all duration-300 scale-100 border border-slate-700">
+            <div class="flex items-center space-x-3 mb-4">
+                <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h3 class="text-xl font-bold text-slate-100">Validation Error</h3>
+            </div>
+            <p class="text-slate-400 mb-4">Please fix the following issues before updating your profile:</p>
+            <ul id="modal-error-list" class="list-disc list-inside text-sm text-red-400 space-y-1 pl-4 mb-6">
+                <!-- Errors will be inserted here -->
+            </ul>
+            <button id="close-modal-button"
+                    class="w-full p-3 text-md font-semibold text-white bg-red-600 rounded-lg hover:bg-red-500 transition duration-150">
+                Got It
             </button>
         </div>
     </div>
-
-    <script>
-        // --- Configuration ---
+    <!-- Logic -->
+    <script type="module">
+        // Backend URL for API calls
         const BACKEND_URL = 'https://api.krishi.site';
-
-        // Get User ID from URL parameter (e.g., ?id=...)
+        // Mapbox Token
+        const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGlwZXNoNjM2NiIsImEiOiJjbWhraTZ1ZGgwYTFxMmlzYzdxcGlibzJnIn0.B62FIHq1WSsXbl_xcag-QA';
+        // Detect user ID from URL params
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
-
-        // --- DOM Elements ---
+        document.getElementById('user-id').textContent = userId || 'N/A';
+        let dbReady = false;
         const form = document.getElementById('profile-form');
         const saveButton = document.getElementById('save-button');
         const statusMessage = document.getElementById('status-message');
         const errorModal = document.getElementById('error-modal');
         const modalErrorList = document.getElementById('modal-error-list');
         const closeModalButton = document.getElementById('close-modal-button');
-        
-        // Input fields (NEW)
+       
+        // Input fields
         const inputShopName = document.getElementById('shopName');
         const inputShopNumber = document.getElementById('shopNumber');
         const inputShopAddress = document.getElementById('shopAddress');
-
-        // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', init);
-        form.addEventListener('submit', saveProfile);
-        closeModalButton.addEventListener('click', () => errorModal.classList.add('hidden'));
-
-        // Listen for input changes to enable/disable the save button
-        inputShopName.addEventListener('input', checkFormValidity);
-        inputShopNumber.addEventListener('input', checkFormValidity);
-        inputShopAddress.addEventListener('input', checkFormValidity);
-
+        const inputAddressSearch = document.getElementById('address-search');
+       
+        // Mapbox globals
+        let map;
+        let marker;
+        let geocoder;
+       
         // --- Helper Functions ---
-
-        /** Initializes the page: validates ID and loads shop profile data. */
-        function init() {
-            if (!userId) {
-                displayStatus('Error: Missing User ID. Cannot load profile.', 'error');
-                return;
-            }
-            document.getElementById('user-id').textContent = userId;
-            loadProfile();
-        }
-
-        /** Checks if all mandatory shop fields are filled. */
-        function checkFormValidity() {
-            const isNameValid = inputShopName.value.trim().length > 0;
-            const isNumberValid = inputShopNumber.value.trim().length === 10;
-            const isAddressValid = inputShopAddress.value.trim().length > 0;
-
-            const canSave = isNameValid && isNumberValid && isAddressValid;
-            saveButton.disabled = !canSave;
-        }
-
-        /** Validates form fields and returns an array of error messages. */
-        function validateForm() {
-            const errors = [];
-            
-            if (!inputShopName.value.trim()) {
-                errors.push("Shop Name is required.");
-            }
-            if (!inputShopNumber.value.trim() || inputShopNumber.value.length !== 10 || !/^\d{10}$/.test(inputShopNumber.value)) {
-                errors.push("Valid 10-digit Shop Contact Number is required.");
-            }
-            if (!inputShopAddress.value.trim()) {
-                errors.push("Shop Address is required.");
-            }
-            
-            return errors;
-        }
-
-        /** Displays the form status message. */
+        /**
+         * Displays a status message to the user.
+         * @param {string} message - The message content.
+         * @param {string} type - 'success', 'error', or 'info'.
+         */
         function displayStatus(message, type) {
             statusMessage.textContent = message;
-            statusMessage.classList.remove('hidden', 'bg-red-900', 'text-red-300', 'bg-green-900', 'text-green-300', 'bg-blue-900', 'text-blue-300');
-            
-            if (type === 'error') {
-                statusMessage.classList.add('bg-red-900', 'text-red-300');
-            } else if (type === 'success') {
-                statusMessage.classList.add('bg-green-900', 'text-green-300');
-            } else { // 'info' or default
-                statusMessage.classList.add('bg-blue-900', 'text-blue-300');
-            }
+            statusMessage.className = `p-3 mb-6 rounded-lg text-sm transition-all duration-300 ${type === 'success' ? 'bg-green-900 text-green-300' : type === 'error' ? 'bg-red-900 text-red-300' : 'bg-blue-900 text-blue-300'}`;
+            statusMessage.classList.remove('hidden');
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, 5000);
         }
-
-        /** Shows the modal with a list of errors. */
-        function showModal(errors) {
-            modalErrorList.innerHTML = '';
-            errors.forEach(error => {
-                const li = document.createElement('li');
-                li.textContent = error;
-                modalErrorList.appendChild(li);
-            });
+        function checkFormValidity() {
+            const isValid = inputShopName.value.trim() && inputShopNumber.value.length === 10 && inputShopAddress.value.trim();
+            saveButton.disabled = !isValid;
+        }
+        // --- Modal Functions ---
+        function showModal(messages) {
+            modalErrorList.innerHTML = messages.map(msg => `<li>${msg}</li>`).join('');
             errorModal.classList.remove('hidden');
         }
-
-        // --- Core Functions ---
-
-        /** Loads existing shop profile data from the backend. */
-        async function loadProfile() {
-            displayStatus('Loading shop profile...', 'info');
-            const payload = { id: userId };
-
-            try {
-                // Use the new GET endpoint
-                const res = await fetch(`${BACKEND_URL}/get-shop-profile`, { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-                
-                const data = await res.json();
-                
-                if (!res.ok || !data.success || !data.shop) {
-                    // If shop data isn't found, keep fields empty but allow saving
-                    displayStatus('No existing shop data found. Please enter details.', 'info');
-                    return;
-                }
-                
-                const shop = data.shop;
-                
-                // Populate the input fields
-                inputShopName.value = shop.shop_name || '';
-                inputShopNumber.value = shop.shop_number || '';
-                inputShopAddress.value = shop.shop_address || '';
-
-                displayStatus('Shop profile loaded successfully.', 'success');
+        function closeModal() {
+            errorModal.classList.add('hidden');
+        }
+        closeModalButton.addEventListener('click', closeModal);
+        // --- Validation Functions ---
+        function validateForm() {
+            const errors = [];
+            if (!inputShopName.value.trim()) errors.push("Shop Name is required.");
+            if (!inputShopNumber.value || inputShopNumber.value.length !== 10) {
+                errors.push("Valid 10-digit shop contact number is required.");
+            }
+            if (!inputShopAddress.value.trim()) errors.push("Shop Address is required.");
+            return errors;
+        }
+        // --- Mapbox Functions ---
+        async function initMap() {
+            mapboxgl.accessToken = MAPBOX_TOKEN;
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v12',
+                center: [78.9629, 20.5937], // Default: India center
+                zoom: 4
+            });
+            map.addControl(new mapboxgl.NavigationControl());
+           
+            // Add click handler for map
+            map.on('click', async (e) => {
+                const coords = e.lngLat;
+                if (marker) marker.remove();
+                marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+                const address = await reverseGeocode(coords.lng, coords.lat);
+                inputShopAddress.value = address;
                 checkFormValidity();
-                
-            } catch (error) {
-                console.error("Error loading shop profile:", error);
-                displayStatus('Failed to load shop profile data. Server error.', 'error');
+                displayStatus('Address set from map click!', 'success');
+            });
+           
+            // Initialize geocoder for search
+            geocoder = new MapboxSearchBox({
+                accessToken: MAPBOX_TOKEN,
+                mapboxgl: mapboxgl,
+                placeholder: 'Search for address...',
+                language: 'en',
+                showResultPhotos: false
+            }, inputAddressSearch);
+           
+            geocoder.on('retrieve', (result) => {
+                const coords = result.item.coordinates;
+                map.flyTo({ center: coords, zoom: 15 });
+                if (marker) marker.remove();
+                marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+                inputShopAddress.value = formatAddress(result.item);
+                checkFormValidity();
+                displayStatus('Address selected!', 'success');
+            });
+        }
+        async function reverseGeocode(lng, lat) {
+            try {
+                const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}&language=en`);
+                const data = await res.json();
+                if (data.features.length > 0) {
+                    return formatAddress(data.features[0]);
+                }
+                return 'Address not found';
+            } catch (err) {
+                console.error('Reverse geocoding failed:', err);
+                return 'Address lookup failed';
             }
         }
-
-
-        /** Saves the shop profile data to the backend. */
+        function formatAddress(item) {
+            // Format as full address string
+            const placeName = item.place_name || item.text || '';
+            const address = item.address || '';
+            const postcode = item.postcode ? ` ${item.postcode}` : '';
+            const context = item.context ? item.context.map(c => c.text).join(', ') : '';
+            return `${placeName}${address ? ', ' + address : ''}${postcode}, ${context}`.trim();
+        }
+        async function geocodeExistingAddress(address) {
+            if (!address) return;
+            try {
+                const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${MAPBOX_TOKEN}&country=IN&language=en&limit=1`);
+                const data = await res.json();
+                if (data.features.length > 0) {
+                    const coords = data.features[0].center;
+                    map.flyTo({ center: coords, zoom: 15 });
+                    if (marker) marker.remove();
+                    marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+                }
+            } catch (err) {
+                console.error('Geocoding existing address failed:', err);
+            }
+        }
+        // --- Save Function ---
         async function saveProfile(event) {
             event.preventDefault();
             const errors = validateForm();
@@ -240,50 +312,104 @@
                 showModal(errors);
                 return;
             }
-
             saveButton.disabled = true;
-            saveButton.textContent = 'Saving Shop...';
-            displayStatus('Saving shop profile...', 'info');
-
+            saveButton.textContent = 'Updating...';
+            // Construct the payload
             const payload = {
                 id: userId,
                 shop_name: inputShopName.value.trim(),
-                shop_number: inputShopNumber.value.trim(),
-                shop_address: inputShopAddress.value.trim(),
+                shop_number: inputShopNumber.value.replace(/[^0-9]/g, ''), // Clean to digits
+                shop_address: inputShopAddress.value.trim()
             };
-
+            console.log('Saving shop profile with payload:', payload);
             try {
-                // Use the new SAVE endpoint
                 const res = await fetch(`${BACKEND_URL}/save-shop-profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                 });
-                
-                const data = await res.json();
-                
+                const responseText = await res.text();
+                console.log('Raw server response:', responseText);
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse response as JSON:', responseText);
+                    throw new Error(`Server returned invalid response: ${responseText.substring(0, 100)}`);
+                }
+                console.log('Save shop profile response:', data);
+                if (!res.ok) {
+                    throw new Error(data.error || `HTTP ${res.status}: ${res.statusText}`);
+                }
                 if (data.success) {
-                    displayStatus('Shop Profile saved successfully! Redirecting...', 'success');
-                    
-                    // Redirect the user to the next logical page (e.g., dashboard)
-                    setTimeout(() => {
-                        window.location.href = `/dashboard.html?id=${userId}`; // Update this URL as needed
-                    }, 1500); 
+                    displayStatus('Shop profile saved successfully!', 'success');
+                    await loadProfile(); // Reload to confirm
                 } else {
-                    throw new Error(data.error || 'Shop profile save failed.');
+                    throw new Error(data.error || 'Shop profile save failed');
                 }
             } catch (error) {
                 console.error("Error updating shop profile:", error);
                 displayStatus('Error updating shop profile: ' + error.message, 'error');
             } finally {
-                // Only re-enable the button if there was no successful redirect
-                if (!statusMessage.textContent.includes('Redirecting')) {
-                    saveButton.disabled = false;
-                    saveButton.textContent = 'Save Shop Profile';
-                }
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Shop Profile';
             }
         }
-
+        // --- Load Profile ---
+        async function loadProfile() {
+            if (!userId) {
+                displayStatus('No user ID found for profile lookup.', 'error');
+                return;
+            }
+            const payload = { id: userId };
+            try {
+                const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const responseText = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse profile response as JSON:', responseText);
+                    throw new Error('Server returned invalid response');
+                }
+                if (!res.ok || !data.success || !data.user) {
+                    throw new Error(data.error || 'Shop profile not found');
+                }
+                const user = data.user;
+                inputShopName.value = user.shop_name || '';
+                inputShopNumber.value = user.shop_number || '';
+                inputShopAddress.value = user.shop_address || '';
+                // Geocode existing address on map after init
+                setTimeout(() => geocodeExistingAddress(user.shop_address), 1000);
+                checkFormValidity();
+            } catch (error) {
+                console.error("Error loading shop profile:", error);
+                displayStatus('Failed to load shop profile: ' + error.message, 'error');
+            }
+        }
+       
+        // --- Event Listeners ---
+        inputShopNumber.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+            checkFormValidity();
+        });
+        inputShopName.addEventListener('input', checkFormValidity);
+        inputShopAddress.addEventListener('input', checkFormValidity);
+        // --- Initialization ---
+        async function initApp() {
+            dbReady = true;
+            await initMap(); // Init map first
+            await loadProfile();
+            form.addEventListener('submit', saveProfile);
+            displayStatus('Shop profile ready with map!', 'success');
+        }
+        window.addEventListener('load', initApp);
+       
+        lucide.createIcons();
     </script>
 </body>
 </html>
