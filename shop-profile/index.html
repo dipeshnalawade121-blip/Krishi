@@ -11,9 +11,7 @@
     <!-- Mapbox GL JS -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
-    <!-- Mapbox Geocoding JS (for autocomplete) -->
-    <script src='https://api.mapbox.com/search-js/v1.0.0-beta.4/mapbox-search.umd.js'></script>
-    <link href='https://api.mapbox.com/search-js/v1.0.0-beta.4/mapbox-search.css' rel='stylesheet' />
+    <!-- Mapbox Geocoding JS (for autocomplete) -->    
    
     <style>
         /* Custom font */
@@ -125,9 +123,7 @@
                 <textarea id="shopAddress" required rows="3" maxlength="500"
                           class="w-full p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 input-field-dark resize-vertical"
                           placeholder="Full shop address (street, city, pincode, etc.)"></textarea>
-                <!-- Address Search Input -->
-                <input type="text" id="address-search" placeholder="Search for shop address or click on map..."
-                       class="w-full p-3 mt-2 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150">
+                
                 <!-- Map Container -->
                 <div id="map" class="mt-2"></div>
             </div>
@@ -183,12 +179,12 @@
         const inputShopName = document.getElementById('shopName');
         const inputShopNumber = document.getElementById('shopNumber');
         const inputShopAddress = document.getElementById('shopAddress');
-        const inputAddressSearch = document.getElementById('address-search');
+        
        
         // Mapbox globals
         let map;
         let marker;
-        let geocoder;
+       
        
         // --- Helper Functions ---
         /**
@@ -248,25 +244,7 @@
                 checkFormValidity();
                 displayStatus('Address set from map click!', 'success');
             });
-           /*
-            // Initialize geocoder for search
-            geocoder = new MapboxSearchBox({
-                accessToken: MAPBOX_TOKEN,
-                mapboxgl: mapboxgl,
-                placeholder: 'Search for address...',
-                language: 'en',
-                showResultPhotos: false
-            }, inputAddressSearch);
            
-            geocoder.on('retrieve', (result) => {
-                const coords = result.item.coordinates;
-                map.flyTo({ center: coords, zoom: 15 });
-                if (marker) marker.remove();
-                marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
-                inputShopAddress.value = formatAddress(result.item);
-                checkFormValidity();
-                displayStatus('Address selected!', 'success');
-            });*/
         }
         async function reverseGeocode(lng, lat) {
             try {
