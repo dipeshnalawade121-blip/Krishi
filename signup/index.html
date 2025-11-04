@@ -333,7 +333,7 @@
             const data = await response.json();
             if (response.ok && data.success) {
               alert('Account created successfully! Welcome to Krishi.');
-              window.location.href = `https://www.krishi.site/profile-creation?mobile=${mobile}&id=${data.user.id}`;
+              window.location.href = `https://www.krishi.site/user-profile?mobile=${mobile}&id=${data.user.id}`;
             } else {
               throw new Error(data.message || 'Registration failed');
             }
@@ -367,7 +367,7 @@
                     if (isProfileComplete) {
                         window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
                     } else {
-                        window.location.href = `https://www.krishi.site/profile-creation?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
+                        window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
                     }
                 } else {
                     alert('Google sign-up failed: ' + (data.error || 'Unknown'));
