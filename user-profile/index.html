@@ -580,10 +580,21 @@
                     throw new Error(data.error || `HTTP ${res.status}: ${res.statusText}`);
                 }
 
-                if (data.success) {
-                    displayStatus('Profile saved successfully!', 'success');
-                    await loadProfile();
-                } else {
+                // ...
+                if (data.success) {
+                    displayStatus('Profile saved successfully! Redirecting to Shop Profile...', 'success');
+                    
+                    // --- ADD REDIRECT HERE ---
+                    const redirectUrl = `shop-profile.html?id=${userId}`; // Construct the URL
+                    
+                    // Delay the redirect slightly for the user to see the success message
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1500); // Redirect after 1.5 seconds
+                    
+                    // Remove await loadProfile() as the page will be redirected
+                    // await loadProfile(); // REMOVE THIS LINE
+                } else { 
                     throw new Error(data.error || 'Profile save failed');
                 }
             } catch (error) {
