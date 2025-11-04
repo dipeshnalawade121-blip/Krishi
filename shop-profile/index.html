@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Profile Setup | Krishi</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enable dark mode using the 'dark' class
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': '#1e293b', // slate-800
+                        'secondary-dark': '#334155', // slate-700
+                        'accent': '#10b981', // emerald-500
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* General dark mode style fallback for body */
+        body {
+            background-color: #0f172a; /* slate-900 */
+            color: #f8fafc; /* slate-50 */
+        }
+        /* Custom style for input fields in dark mode */
+        .input-field-dark {
+            background-color: #334155; /* slate-700 */
+            border: 1px solid #475569; /* slate-600 */
+            color: #f8fafc; /* slate-50 */
+        }
+        .input-field-dark:focus {
+            border-color: #10b981; /* accent */
+            box-shadow: 0 0 0 1px #10b981;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    
+    <div id="app" class="w-full max-w-lg bg-slate-800 shadow-2xl rounded-xl p-6 sm:p-8">
+        
+        <div class="flex items-center space-x-3 mb-8">
+            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+            <h1 class="text-3xl font-extrabold text-slate-100">Shop Profile Setup</h1>
+        </div>
+
+        <p class="text-sm text-slate-500 mb-4 hidden">User ID: <span id="user-id">Loading...</span></p>
+
+        <div id="status-message" class="text-center p-3 rounded-lg hidden transition duration-300 mb-6" role="alert"></div>
+
+        <form id="profile-form">
+            
+            <div class="mb-4">
+                <label for="shopName" class="block text-sm font-medium text-slate-400 mb-1">Shop Name <span class="text-red-500">*</span></label>
+                <input type="text" id="shopName" required maxlength="100"
+                        class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                        placeholder="e.g., Krishi Seeds & Fertilisers">
+            </div>
+
+            <div class="mb-4">
+                <label for="shopNumber" class="block text-sm font-medium text-slate-400 mb-1">Shop Contact Number <span class="text-red-500">*</span></label>
+                <input type="tel" id="shopNumber" required pattern="[0-9]{10}" minlength="10" maxlength="10"
+                        class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                        placeholder="10 digit number">
+            </div>
+
+            <div class="mb-6">
+                <label for="shopAddress" class="block text-sm font-medium text-slate-400 mb-1">Shop Address <span class="text-red-500">*</span></label>
+                <textarea id="shopAddress" rows="3" required
+                          class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                          placeholder="Detailed shop address"></textarea>
+            </div>
+
+            <button type="submit" id="save-button" disabled
+                    class="w-full py-3 px-4 rounded-lg text-white font-semibold transition duration-300 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-600 disabled:text-slate-400">
+                Save Shop Profile
+            </button>
+        </form>
+    </div>
+
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-700 rounded-lg shadow-xl max-w-sm w-full p-6">
+            <h3 class="text-xl font-bold text-red-400 mb-4">Validation Errors</h3>
+            <ul id="modal-error-list" class="list-disc list-inside text-slate-200 space-y-2 mb-6">
+                </ul>
+            <button id="close-modal-button" class="w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-150">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const BACKEND_URL = 'https://api.krishi.site';
+
+        // Get User ID from URL parameter (e.g., ?id=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        // --- DOM Elements ---
+        const form = document.getElementById('profile-form');
+        const saveButton = document.getElementById('save-button');
+        const statusMessage = document.getElementById('status-message');
+        const errorModal = document.getElementById('error-modal');
+        const modalErrorList = document.getElementById('modal-error-list');
+        const closeModalButton = document.getElementById('close-modal-button');
+        
+        // Input fields (NEW)
+        const inputShopName = document.getElementById('shopName');
+        const inputShopNumber = document.getElementById('shopNumber');
+        const inputShopAddress = document.getElementById('shopAddress');
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', init);
+        form.addEventListener('submit', saveProfile);
+        closeModalButton.addEventListener('click', () => errorModal.classList.add('hidden'));
+
+        // Listen for input changes to enable/disable the save button
+        inputShopName.addEventListener('input', checkFormValidity);
+        inputShopNumber.addEventListener('input', checkFormValidity);
+        inputShopAddress.addEventListener('input', checkFormValidity);
+
+        // --- Helper Functions ---
+
+        /** Initializes the page: validates ID and loads shop profile data. */
+        function init() {
+            if (!userId) {
+                displayStatus('Error: Missing User ID. Cannot load profile.', 'error');
+                return;
+            }
+            document.getElementById('user-id').textContent = userId;
+            loadProfile();
+        }
+
+        /** Checks if all mandatory shop fields are filled. */
+        function checkFormValidity() {
+            const isNameValid = inputShopName.value.trim().length > 0;
+            const isNumberValid = inputShopNumber.value.trim().length === 10;
+            const isAddressValid = inputShopAddress.value.trim().length > 0;
+
+            const canSave = isNameValid && isNumberValid && isAddressValid;
+            saveButton.disabled = !canSave;
+        }
+
+        /** Validates form fields and returns an array of error messages. */
+        function validateForm() {
+            const errors = [];
+            
+            if (!inputShopName.value.trim()) {
+                errors.push("Shop Name is required.");
+            }
+            if (!inputShopNumber.value.trim() || inputShopNumber.value.length !== 10 || !/^\d{10}$/.test(inputShopNumber.value)) {
+                errors.push("Valid 10-digit Shop Contact Number is required.");
+            }
+            if (!inputShopAddress.value.trim()) {
+                errors.push("Shop Address is required.");
+            }
+            
+            return errors;
+        }
+
+        /** Displays the form status message. */
+        function displayStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.classList.remove('hidden', 'bg-red-900', 'text-red-300', 'bg-green-900', 'text-green-300', 'bg-blue-900', 'text-blue-300');
+            
+            if (type === 'error') {
+                statusMessage.classList.add('bg-red-900', 'text-red-300');
+            } else if (type === 'success') {
+                statusMessage.classList.add('bg-green-900', 'text-green-300');
+            } else { // 'info' or default
+                statusMessage.classList.add('bg-blue-900', 'text-blue-300');
+            }
+        }
+
+        /** Shows the modal with a list of errors. */
+        function showModal(errors) {
+            modalErrorList.innerHTML = '';
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                modalErrorList.appendChild(li);
+            });
+            errorModal.classList.remove('hidden');
+        }
+
+        // --- Core Functions ---
+
+        /** Loads existing shop profile data from the backend. */
+        async function loadProfile() {
+            displayStatus('Loading shop profile...', 'info');
+            const payload = { id: userId };
+
+            try {
+                // Use the new GET endpoint
+                const res = await fetch(`${BACKEND_URL}/get-shop-profile`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok || !data.success || !data.shop) {
+                    // If shop data isn't found, keep fields empty but allow saving
+                    displayStatus('No existing shop data found. Please enter details.', 'info');
+                    return;
+                }
+                
+                const shop = data.shop;
+                
+                // Populate the input fields
+                inputShopName.value = shop.shop_name || '';
+                inputShopNumber.value = shop.shop_number || '';
+                inputShopAddress.value = shop.shop_address || '';
+
+                displayStatus('Shop profile loaded successfully.', 'success');
+                checkFormValidity();
+                
+            } catch (error) {
+                console.error("Error loading shop profile:", error);
+                displayStatus('Failed to load shop profile data. Server error.', 'error');
+            }
+        }
+
+
+        /** Saves the shop profile data to the backend. */
+        async function saveProfile(event) {
+            event.preventDefault();
+            const errors = validateForm();
+            if (errors.length > 0) {
+                showModal(errors);
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving Shop...';
+            displayStatus('Saving shop profile...', 'info');
+
+            const payload = {
+                id: userId,
+                shop_name: inputShopName.value.trim(),
+                shop_number: inputShopNumber.value.trim(),
+                shop_address: inputShopAddress.value.trim(),
+            };
+
+            try {
+                // Use the new SAVE endpoint
+                const res = await fetch(`${BACKEND_URL}/save-shop-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    displayStatus('Shop Profile saved successfully! Redirecting...', 'success');
+                    
+                    // Redirect the user to the next logical page (e.g., dashboard)
+                    setTimeout(() => {
+                        window.location.href = `/dashboard.html?id=${userId}`; // Update this URL as needed
+                    }, 1500); 
+                } else {
+                    throw new Error(data.error || 'Shop profile save failed.');
+                }
+            } catch (error) {
+                console.error("Error updating shop profile:", error);
+                displayStatus('Error updating shop profile: ' + error.message, 'error');
+            } finally {
+                // Only re-enable the button if there was no successful redirect
+                if (!statusMessage.textContent.includes('Redirecting')) {
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Save Shop Profile';
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
