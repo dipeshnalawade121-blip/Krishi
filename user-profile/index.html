@@ -580,30 +580,20 @@
                     throw new Error(data.error || `HTTP ${res.status}: ${res.statusText}`);
                 }
 
-                // ...
-                // user profile page script - inside async function saveProfile(event)
-// ...
-if (data.success) {
-    displayStatus('Profile saved successfully! Redirecting to Shop Profile...', 'success');
-    
-    // --- UPDATED REDIRECT HERE ---
-    let redirectUrl = `https://www.krishi.site/shop-profile?id=${userId}`;
-    
-    // 👇 ADD THIS CONDITIONAL LOGIC
-    if (googleId) {
-        // Include the google_id if it was present when the user-profile page loaded
-        redirectUrl += `&google_id=${encodeURIComponent(googleId)}`;
-    }
-    // 👆 END ADDITION
+                if (data.success) {
+    displayStatus('Profile saved successfully! Redirecting...', 'success');
 
-    // Delay the redirect slightly for the user to see the success message
+    // Get the user ID from backend response if available
+    const redirectId = data.user?.id || userId;
+
+    // Add a slight delay so user sees success message
     setTimeout(() => {
-        window.location.href = redirectUrl;
-    }, 1500);
+        window.location.href = `https://www.krishi.site/shop-profile?id=${redirectId}`;
+    }, 1200); // 1.2s delay before redirect
+} else {
+    throw new Error(data.error || 'Profile save failed');
+}
 
-                } else { 
-                    throw new Error(data.error || 'Profile save failed');
-                }
             } catch (error) {
                 console.error("Error updating profile:", error);
                 displayStatus('Error updating profile: ' + error.message, 'error');
