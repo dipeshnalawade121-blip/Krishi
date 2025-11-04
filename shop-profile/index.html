@@ -225,27 +225,61 @@
         }
         // --- Mapbox Functions ---
         async function initMap() {
-            mapboxgl.accessToken = MAPBOX_TOKEN;
-            map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/streets-v12',
-                center: [78.9629, 20.5937], // Default: India center
-                zoom: 4
-            });
-            map.addControl(new mapboxgl.NavigationControl());
-           
-            // Add click handler for map
-            map.on('click', async (e) => {
-                const coords = e.lngLat;
-                if (marker) marker.remove();
-                marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
-                const address = await reverseGeocode(coords.lng, coords.lat);
-                inputShopAddress.value = address;
-                checkFormValidity();
-                displayStatus('Address set from map click!', 'success');
-            });
-           
-        }
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+
+    // Default center (India)
+    let defaultCenter = [78.9629, 20.5937];
+    let defaultZoom = 4;
+
+    // Create map (temporary center)
+    map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: defaultCenter,
+        zoom: defaultZoom
+    });
+
+    map.addControl(new mapboxgl.NavigationControl());
+
+    // 🧭 Ask for location access
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLng = position.coords.longitude;
+                const userLat = position.coords.latitude;
+
+                // Center map on user's location
+                map.flyTo({ center: [userLng, userLat], zoom: 14 });
+
+                // Drop marker at user's location
+                marker = new mapboxgl.Marker({ color: "#10B981" })
+                    .setLngLat([userLng, userLat])
+                    .addTo(map);
+
+                displayStatus('Location found! Adjust marker near your shop.', 'success');
+            },
+            (error) => {
+                console.warn('Location access denied or failed:', error.message);
+                displayStatus('Could not access location. Please click on map to set shop.', 'error');
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    } else {
+        displayStatus('Geolocation not supported in this browser.', 'error');
+    }
+
+    // 🖱️ Allow manual map click to select shop
+    map.on('click', async (e) => {
+        const coords = e.lngLat;
+        if (marker) marker.remove();
+        marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+        const address = await reverseGeocode(coords.lng, coords.lat);
+        inputShopAddress.value = address;
+        checkFormValidity();
+        displayStatus('Shop location selected!', 'success');
+    });
+}
+
         async function reverseGeocode(lng, lat) {
             try {
                 const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}&language=en`);
