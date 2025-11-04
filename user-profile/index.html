@@ -581,19 +581,26 @@
                 }
 
                 // ...
-                if (data.success) {
-                    displayStatus('Profile saved successfully! Redirecting to Shop Profile...', 'success');
-                    
-                    // --- ADD REDIRECT HERE ---
-                    const redirectUrl = `https://www.krishi.site/shop-profile?id=${userId}`; // Construct the URL
-                    
-                    // Delay the redirect slightly for the user to see the success message
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1500); // Redirect after 1.5 seconds
-                    
-                    // Remove await loadProfile() as the page will be redirected
-                    // await loadProfile(); // REMOVE THIS LINE
+                // user profile page script - inside async function saveProfile(event)
+// ...
+if (data.success) {
+    displayStatus('Profile saved successfully! Redirecting to Shop Profile...', 'success');
+    
+    // --- UPDATED REDIRECT HERE ---
+    let redirectUrl = `https://www.krishi.site/shop-profile?id=${userId}`;
+    
+    // 👇 ADD THIS CONDITIONAL LOGIC
+    if (googleId) {
+        // Include the google_id if it was present when the user-profile page loaded
+        redirectUrl += `&google_id=${encodeURIComponent(googleId)}`;
+    }
+    // 👆 END ADDITION
+
+    // Delay the redirect slightly for the user to see the success message
+    setTimeout(() => {
+        window.location.href = redirectUrl;
+    }, 1500);
+
                 } else { 
                     throw new Error(data.error || 'Profile save failed');
                 }
