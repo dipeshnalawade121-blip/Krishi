@@ -244,35 +244,42 @@
 
     // Wait until map fully loads before geolocation
     map.on('load', () => {
-        console.log('🗺️ Map fully loaded, now requesting geolocation...');
+        console.log('🗺️ Map fully loaded, requesting location...');
 
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userLng = position.coords.longitude;
-                    const userLat = position.coords.latitude;
+if (navigator.geolocation) {
+  const success = (position) => {
+    const userLng = position.coords.longitude;
+    const userLat = position.coords.latitude;
+    console.log('✅ Got location:', userLat, userLng, 'accuracy ±', position.coords.accuracy, 'm');
 
-                    console.log('📍 User location:', userLat, userLng);
+    map.flyTo({ center: [userLng, userLat], zoom: 14 });
+    marker = new mapboxgl.Marker({ color: "#10B981" })
+      .setLngLat([userLng, userLat])
+      .addTo(map);
 
-                    // Fly to user's location
-                    map.flyTo({ center: [userLng, userLat], zoom: 14 });
+    displayStatus('Location found! Adjust marker near your shop.', 'success');
+  };
 
-                    // Drop marker at current position
-                    marker = new mapboxgl.Marker({ color: "#10B981" })
-                        .setLngLat([userLng, userLat])
-                        .addTo(map);
+  const error = (err) => {
+    console.warn('⚠️ Location error:', err);
+    displayStatus('Could not access location. Please click on map to set shop.', 'error');
+  };
 
-                    displayStatus('Location found! Adjust marker near your shop.', 'success');
-                },
-                (error) => {
-                    console.warn('⚠️ Geolocation error:', error.message);
-                    displayStatus('Could not access location. Please click on the map to set your shop.', 'error');
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        } else {
-            displayStatus('Geolocation not supported on this device.', 'error');
-        }
+  // Try high accuracy first, fallback to low accuracy if it fails
+  navigator.geolocation.getCurrentPosition(
+    success,
+    (err) => {
+      console.warn('High accuracy failed, retrying low accuracy...');
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: false,
+        timeout: 30000
+      });
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+} else {
+  displayStatus('Geolocation not supported on this device.', 'error');
+}
     });
 
     // Handle manual map click to set shop position
