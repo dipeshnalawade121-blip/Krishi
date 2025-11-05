@@ -163,6 +163,20 @@
         }
 
         /* Animated Icon */
+        @keyframes shimmer {
+            0% {
+                transform: rotate(0deg) scale(1);
+                box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.05);
+                box-shadow: 0 0 30px rgba(52, 211, 153, 0.5);
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+                box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+            }
+        }
         
 
         @keyframes pulse {
