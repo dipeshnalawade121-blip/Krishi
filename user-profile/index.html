@@ -588,9 +588,15 @@ function hideLoader() {
                 }
             }
             
-            if (!inputPassword.readOnly && (!inputPassword.value || inputPassword.value.length < 8)) {
-                errors.push("Password must be at least 8 characters.");
-            }
+            // Password validation — only if visible and not read-only
+if (
+  inputPassword.offsetParent !== null &&          // means: visible in layout
+  !inputPassword.readOnly &&                      // not read-only
+  (!inputPassword.value || inputPassword.value.length < 8) // empty or too short
+) {
+  errors.push("Password must be at least 8 characters.");
+}
+
             return errors;
         }
 
