@@ -19,7 +19,7 @@
 
         body {
             font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #000;
+            background-color: #111111;
             color: #fff;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
@@ -163,56 +163,7 @@
         }
 
         /* Animated Icon */
-        @keyframes shimmer {
-            0% {
-                transform: rotate(0deg) scale(1);
-                box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
-            }
-            50% {
-                transform: rotate(180deg) scale(1.05);
-                box-shadow: 0 0 30px rgba(52, 211, 153, 0.5);
-            }
-            100% {
-                transform: rotate(360deg) scale(1);
-                box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
-        }
-
-        .animated-icon-wrapper {
-            display: flex;
-            justify-content: center;
-            margin: 48px 0 24px;
-            position: relative;
-        }
-
-        .animated-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(52, 211, 153, 0.3);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: shimmer 8s linear infinite;
-            position: relative;
-            z-index: 2;
-        }
-
-        .icon-glow {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(52, 211, 153, 0.4) 0%, rgba(16, 185, 129, 0.4) 100%);
-            border-radius: 16px;
-            filter: blur(20px);
-            animation: pulse 2s ease-in-out infinite;
-        }
+       
 
         /* Hero Section */
         .hero {
@@ -621,20 +572,7 @@
                 </div>
                 <span class="logo-text">krishi</span>
             </div>
-        </header>
-
-        <!-- Animated Icon -->
-        <div class="animated-icon-wrapper animate-in delay-100">
-            <div class="icon-glow"></div>
-            <div class="animated-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 20h10"/>
-                    <path d="M10 20c5.5-2.5.8-6.4 3-10"/>
-                    <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/>
-                    <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
-                </svg>
-            </div>
-        </div>
+        </header>    
 
         <!-- Hero Section -->
         <div class="hero animate-in delay-200">
