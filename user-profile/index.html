@@ -89,10 +89,42 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
+
+        /* Fullscreen Loader Overlay */
+#loader-overlay {
+  position: fixed;
+  inset: 0; /* full screen */
+  background-color: rgba(15, 23, 42, 0.9); /* dark translucent background */
+  display: none; /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+
+/* Spinner Style */
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #4ADE80;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
     </style>
 </head>
-<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
-
+<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start" onload="hideLoader()">
+    
+<div id="loader-overlay" style="display:flex;">
+  <span class="loader"></span>
+</div>
     <!-- Main Profile Container (Dark Card) -->
     <div id="app" class="w-full max-w-lg bg-slate-800 shadow-2xl rounded-xl p-6 sm:p-8">
         
@@ -209,6 +241,10 @@
             </button>
         </div>
     </div>
+    <!-- Loader Overlay -->
+<div id="loader-overlay">
+  <span class="loader"></span>
+</div>
 
     <!-- Supabase and Logic -->
     <script type="module">
@@ -222,6 +258,20 @@
         const BACKEND_URL = 'https://api.krishi.site'; 
         const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
 
+        // ---------- Loader Overlay Functions ----------
+function showLoader() {
+  const loader = document.getElementById('loader-overlay');
+  loader.style.display = 'flex';
+  loader.style.opacity = '1';
+}
+
+function hideLoader() {
+  const loader = document.getElementById('loader-overlay');
+  loader.style.opacity = '0';
+  setTimeout(() => loader.style.display = 'none', 300); // matches CSS transition
+}
+
+        
         // Detect signup method from URL params or session
         const urlParams = new URLSearchParams(window.location.search);
         const mobile = urlParams.get('mobile');
@@ -533,6 +583,7 @@
                 showModal(errors);
                 return;
             }
+            showLoader();
 
             saveButton.disabled = true;
             saveButton.textContent = 'Updating...';
@@ -601,13 +652,16 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
             } finally {
                 saveButton.disabled = false;
                 saveButton.textContent = 'Save Profile';
+                setTimeout(() => hideLoader(), 500);
             }
         }
 
         // --- Load Profile - FIXED: Only sends id to backend ---
         async function loadProfile() {
+            showLoader();
             if (!userId) {
                 displayStatus('No user ID found for profile lookup.', 'error');
+                hideLoader();
                 return;
             }
 
@@ -687,7 +741,7 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
             } catch (error) {
                 console.error("Error loading profile:", error);
                 displayStatus('Failed to load profile data: ' + error.message, 'error');
-            }
+            } hideLoader();
         }
         
         // --- Event Listeners for Validation Check ---
