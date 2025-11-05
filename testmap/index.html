@@ -19,7 +19,7 @@
 
         body {
             font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #111111;
+            background-color: #000;
             color: #fff;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
@@ -163,7 +163,43 @@
         }
 
         /* Animated Icon */
-       
+        
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .animated-icon-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 48px 0 24px;
+            position: relative;
+        }
+
+        .animated-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: shimmer 8s linear infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        .icon-glow {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.4) 0%, rgba(16, 185, 129, 0.4) 100%);
+            border-radius: 16px;
+            filter: blur(20px);
+            animation: pulse 2s ease-in-out infinite;
+        }
 
         /* Hero Section */
         .hero {
@@ -572,7 +608,12 @@
                 </div>
                 <span class="logo-text">krishi</span>
             </div>
-        </header>    
+        </header>
+
+        <!-- Animated Glow Only (no rotating square) -->
+<div class="animated-icon-wrapper animate-in delay-100">
+    <div class="icon-glow"></div>
+</div>
 
         <!-- Hero Section -->
         <div class="hero animate-in delay-200">
