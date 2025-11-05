@@ -208,6 +208,12 @@
                 <input type="password" id="password" required minlength="8"
                        class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
                        placeholder="Enter a secure password">
+                <!-- Eye icon -->
+  <button type="button" id="toggle-password"
+          class="absolute right-3 top-9 text-slate-400 hover:text-emerald-400"
+          tabindex="-1">
+    <i data-lucide="eye"></i>
+  </button>
             </div>
 
             <!-- Save Button (Text changed) -->
@@ -720,6 +726,13 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
                 }
 
                 const profileIsFull = nameEmailExists && mobileVerified;
+
+                // If user came via mobile signup (method=mobile) and both mobile + password exist, lock them
+if (signupMethod === 'mobile' && user.mobile && user.password_hash) {
+    lockElement(inputMobileNumber, true);
+    sendOtpBtn.style.display = 'none'; // Hide send OTP button
+    lockElement(inputPassword, true);
+}
                 
                 if (profileIsFull) {
                     lockElement(inputMobileNumber, true);
@@ -774,6 +787,20 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
         });
         
         lucide.createIcons();
+
+        // --- Toggle Password Visibility ---
+const togglePasswordBtn = document.getElementById('toggle-password');
+const passwordInput = document.getElementById('password');
+
+togglePasswordBtn.addEventListener('click', () => {
+  const isHidden = passwordInput.type === 'password';
+  passwordInput.type = isHidden ? 'text' : 'password';
+
+  // Switch icon
+  const iconName = isHidden ? 'eye-off' : 'eye';
+  togglePasswordBtn.innerHTML = `<i data-lucide="${iconName}"></i>`;
+  lucide.createIcons();
+});
     </script>
 </body>
 </html>
