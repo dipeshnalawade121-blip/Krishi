@@ -371,9 +371,22 @@ function hideLoader() {
         }
 
         function checkFormValidity() {
-            const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim() && inputPassword.value.length >= 8;
-            const canSave = isBaseValid && (mobileVerified || inputUserName.readOnly);
-            saveButton.disabled = !canSave;
+    const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim();
+
+    // If password field is hidden or locked, we skip password check
+    const passwordValid = (
+        (!inputPassword || inputPassword.offsetParent === null) ||
+        inputPassword.value.length >= 8
+    );
+
+    // Mobile not required if hidden or locked
+    const mobileValid = (
+        (!inputMobileNumber || inputMobileNumber.offsetParent === null) ||
+        mobileVerified
+    );
+
+    const canSave = isBaseValid && passwordValid && mobileValid;
+    saveButton.disabled = !canSave;
         }
 
         // --- Modal Functions ---
@@ -727,13 +740,27 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
 
                 const profileIsFull = nameEmailExists && mobileVerified;
 
-                // --- Hide Mobile & Password Sections for mobile+password signup ---
+                // --- For mobile+password signup ---
 if (signupMethod === 'mobile') {
-    const mobileSection = inputMobileNumber.closest('.mb-4'); // finds the container div of mobile input
-    const passwordSection = inputPassword.closest('.mb-4');   // finds the container div of password input
-    
+    // Hide mobile + password sections completely
+    const mobileSection = inputMobileNumber.closest('.mb-4');
+    const passwordSection = inputPassword.closest('.mb-4');
     if (mobileSection) mobileSection.style.display = 'none';
     if (passwordSection) passwordSection.style.display = 'none';
+
+    // Lock name & email (prevent manual entry)
+    lockElement(inputUserName, true);
+    lockElement(inputEmail, true);
+    googleLinkContainer.style.display = 'block'; // show Google link button
+
+    // Add helper text if not already added
+    if (!document.getElementById('google-hint')) {
+        const hint = document.createElement('p');
+        hint.id = 'google-hint';
+        hint.className = 'text-xs text-slate-400 mt-1';
+        hint.innerText = 'To add username & email ID, link your Google account!';
+        inputEmail.parentNode.appendChild(hint);
+    }
 }
                 
                 if (profileIsFull) {
