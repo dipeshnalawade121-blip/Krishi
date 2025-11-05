@@ -120,7 +120,7 @@
 }
     </style>
 </head>
-<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start" onload="hideLoader()">
+<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
     
 <div id="loader-overlay" style="display:flex;">
   <span class="loader"></span>
@@ -746,7 +746,11 @@ if (signupMethod === 'mobile') {
     const mobileSection = inputMobileNumber.closest('.mb-4');
     const passwordSection = inputPassword.closest('.mb-4');
     if (mobileSection) mobileSection.style.display = 'block';
-    if (passwordSection) passwordSection.style.display = 'none';
+    if (passwordSection) {
+  passwordSection.style.display = 'none';
+  inputPassword.removeAttribute('required'); // 🩹 fix browser validation block
+}
+
 
     // Lock mobile field and mark as verified
     lockElement(inputMobileNumber, true);
@@ -812,6 +816,7 @@ if (signupMethod === 'mobile') {
             
             form.addEventListener('submit', saveProfile);
             displayStatus('Profile ready!', 'success');
+            hideLoader();
         }
 
         window.addEventListener('load', initApp);
