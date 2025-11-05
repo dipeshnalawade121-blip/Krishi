@@ -732,54 +732,72 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
                 }
                 
                 const nameEmailExists = !!user.user_name && !!user.email;
-                
-                // For Google users, name and email should be locked by default
-                if (googleId || nameEmailExists) {
-                    lockElement(inputUserName, true);
-                    lockElement(inputEmail, true);
-                    googleLinkContainer.style.display = 'none';
-                } else {
-                    googleLinkContainer.style.display = 'block';
-                    lockElement(inputUserName, false);
-                    lockElement(inputEmail, false);
-                }
 
-                const profileIsFull = nameEmailExists && mobileVerified;
+// --- GOOGLE SIGNUP FLOW ---
+if (signupMethod === 'google' || googleId) {
+  // Lock name and email
+  lockElement(inputUserName, true);
+  lockElement(inputEmail, true);
 
-     // --- For mobile+password signup ---
-if (signupMethod === 'mobile') {
-    // Show mobile section, hide password section
-    const mobileSection = inputMobileNumber.closest('.mb-4');
-    const passwordSection = inputPassword.closest('.mb-4');
-    if (mobileSection) mobileSection.style.display = 'block';
-    if (passwordSection) {
-  passwordSection.style.display = 'none';
-  inputPassword.removeAttribute('required'); // 🩹 fix browser validation block
+  // Hide Google link button (already linked)
+  googleLinkContainer.style.display = 'none';
+
+  // Show mobile + password section (for user to fill)
+  const mobileSection = inputMobileNumber.closest('.mb-4');
+  const passwordSection = inputPassword.closest('.mb-4');
+
+  if (mobileSection) {
+    mobileSection.style.display = 'block';
+    lockElement(inputMobileNumber, false);
+    sendOtpBtn.disabled = false;
+    mobileVerified = false; // force verification
+    mobileStatusText.innerHTML = '(Unverified)';
+    mobileStatusText.classList.remove('text-green-500');
+    mobileStatusText.classList.add('text-red-500');
+  }
+
+  if (passwordSection) {
+    passwordSection.style.display = 'block';
+    inputPassword.setAttribute('required', 'true');
+    lockElement(inputPassword, false);
+  }
 }
 
+// --- MOBILE + PASSWORD SIGNUP FLOW ---
+else if (signupMethod === 'mobile') {
+  // Show mobile section, hide password section
+  const mobileSection = inputMobileNumber.closest('.mb-4');
+  const passwordSection = inputPassword.closest('.mb-4');
 
-    // Lock mobile field and mark as verified
+  if (mobileSection) {
+    mobileSection.style.display = 'block';
     lockElement(inputMobileNumber, true);
     sendOtpBtn.disabled = true;
     mobileVerified = true;
     mobileStatusText.innerHTML = '(Verified)';
     mobileStatusText.classList.remove('text-red-500');
     mobileStatusText.classList.add('text-green-500');
+  }
 
-    // Lock name & email (prevent manual entry)
-    lockElement(inputUserName, true);
-    lockElement(inputEmail, true);
-    googleLinkContainer.style.display = 'block'; // show Google link button
+  if (passwordSection) {
+    passwordSection.style.display = 'none';
+    inputPassword.removeAttribute('required');
+  }
 
-    // Add helper text if not already added
-    if (!document.getElementById('google-hint')) {
-        const hint = document.createElement('p');
-        hint.id = 'google-hint';
-        hint.className = 'text-xs text-slate-400 mt-1';
-        hint.innerText = 'To add username & email ID, link your Google account!';
-        inputEmail.parentNode.appendChild(hint);
-    }
+  // Lock name & email, show Google link hint
+  lockElement(inputUserName, true);
+  lockElement(inputEmail, true);
+  googleLinkContainer.style.display = 'block';
+
+  if (!document.getElementById('google-hint')) {
+    const hint = document.createElement('p');
+    hint.id = 'google-hint';
+    hint.className = 'text-xs text-slate-400 mt-1';
+    hint.innerText = 'To add username & email ID, link your Google account!';
+    inputEmail.parentNode.appendChild(hint);
+  }
 }
+
                 
                 if (profileIsFull) {
                     lockElement(inputMobileNumber, true);
