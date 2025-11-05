@@ -773,6 +773,7 @@ else if (signupMethod === 'mobile') {
     mobileSection.style.display = 'block';
     lockElement(inputMobileNumber, true);
     sendOtpBtn.disabled = true;
+    sendOtpBtn.style.display = 'none'; // 👈 hides Send OTP button for mobile signup users
     mobileVerified = true;
     mobileStatusText.innerHTML = '(Verified)';
     mobileStatusText.classList.remove('text-red-500');
