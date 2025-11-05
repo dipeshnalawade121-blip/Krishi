@@ -427,10 +427,10 @@ if (navigator.geolocation) {
             } catch (error) {
                 console.error("Error updating shop profile:", error);
                 displayStatus('Error updating shop profile: ' + error.message, 'error');
+                hideLoader();
             } finally {
                 saveButton.disabled = false;
-                saveButton.textContent = 'Save Shop Profile';
-                setTimeout(() => hideLoader(), 400); // 🔹 Hide loader smoothly after a short delay
+                saveButton.textContent = 'Save Shop Profile';               
             }
         }
         // --- Load Profile ---
