@@ -82,6 +82,34 @@
             color: #9ca3af;
             margin-top: 0.25rem;
         }
+
+        /* Fullscreen loader overlay */
+#loader-overlay {
+  position: fixed;
+  inset: 0; /* top:0; right:0; bottom:0; left:0 */
+  background-color: rgba(15, 23, 42, 0.9); /* same dark bg with opacity */
+  display: none; /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* on top of everything */
+}
+
+/* Loader Spinner */
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #4ADE80;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -191,10 +219,21 @@
             We'll occasionally send you account-related emails.
         </p>
     </div>
+    <!-- Loader Overlay -->
+<div id="loader-overlay">
+  <span class="loader"></span>
+</div>
 
     <!-- Initialize Lucide Icons and Registration Logic -->
     <script>
         lucide.createIcons();
+        // ---------- Loader Overlay Functions ----------
+function showLoader() {
+  document.getElementById('loader-overlay').style.display = 'flex';
+}
+function hideLoader() {
+  document.getElementById('loader-overlay').style.display = 'none';
+}
         
         const BACKEND_URL = 'https://api.krishi.site';
         let regVerified = false;
@@ -325,6 +364,7 @@
             return;
           }
           try {
+              showLoader();
             const response = await fetch(`${BACKEND_URL}/register`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -341,6 +381,7 @@
             console.error(error);
             alert('Error during registration: ' + error.message);
           }
+            hideLoader();
         });
 
         // ---------- Google Sign In Integration (for Registration) ----------
@@ -352,6 +393,7 @@
             if (!id_token) return alert('Google sign-up failed.');
             
             try {
+                showLoader();
                 const res = await fetch(`${BACKEND_URL}/auth/google`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -371,9 +413,11 @@
                     }
                 } else {
                     alert('Google sign-up failed: ' + (data.error || 'Unknown'));
+                    hideLoader();
                 }
             } catch (err) {
                 alert('Error: ' + err.message);
+                hideLoader();
             }
         }
 
