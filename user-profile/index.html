@@ -727,11 +727,13 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
 
                 const profileIsFull = nameEmailExists && mobileVerified;
 
-                // If user came via mobile signup (method=mobile) and both mobile + password exist, lock them
-if (signupMethod === 'mobile' && user.mobile && user.password_hash) {
-    lockElement(inputMobileNumber, true);
-    sendOtpBtn.style.display = 'none'; // Hide send OTP button
-    lockElement(inputPassword, true);
+                // --- Hide Mobile & Password Sections for mobile+password signup ---
+if (signupMethod === 'mobile') {
+    const mobileSection = inputMobileNumber.closest('.mb-4'); // finds the container div of mobile input
+    const passwordSection = inputPassword.closest('.mb-4');   // finds the container div of password input
+    
+    if (mobileSection) mobileSection.style.display = 'none';
+    if (passwordSection) passwordSection.style.display = 'none';
 }
                 
                 if (profileIsFull) {
