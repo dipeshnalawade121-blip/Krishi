@@ -80,6 +80,32 @@
         .mapbox-search-container {
             --mapbox-search-control-height: 40px;
         }
+        #loader-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.9);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #4ADE80;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
     </style>
 </head>
 <body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
@@ -157,10 +183,25 @@
             </button>
         </div>
     </div>
+    <!-- Loader Overlay -->
+<div id="loader-overlay">
+  <span class="loader"></span>
+</div>
     <!-- Logic -->
     <script type="module">
         // Backend URL for API calls
         const BACKEND_URL = 'https://api.krishi.site';
+               // ---------- Loader Overlay Functions ----------
+function showLoader() {
+  const loader = document.getElementById('loader-overlay');
+  loader.style.display = 'flex';
+  loader.style.opacity = '1';
+}
+function hideLoader() {
+  const loader = document.getElementById('loader-overlay');
+  loader.style.opacity = '0';
+  setTimeout(() => loader.style.display = 'none', 300);
+}
         // Mapbox Token
         const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGlwZXNoNjM2NiIsImEiOiJjbWhraTZ1ZGgwYTFxMmlzYzdxcGlibzJnIn0.B62FIHq1WSsXbl_xcag-QA';
         // Detect user ID from URL params
@@ -184,7 +225,7 @@
         // Mapbox globals
         let map;
         let marker;
-       
+
        
         // --- Helper Functions ---
         /**
@@ -340,6 +381,7 @@ if (navigator.geolocation) {
             }
             saveButton.disabled = true;
             saveButton.textContent = 'Updating...';
+            showLoader();
             // Construct the payload
             const payload = {
                 id: userId,
@@ -368,10 +410,19 @@ if (navigator.geolocation) {
                     throw new Error(data.error || `HTTP ${res.status}: ${res.statusText}`);
                 }
                 if (data.success) {
-                    displayStatus('Shop profile saved successfully!', 'success');
-                    await loadProfile(); // Reload to confirm
-                } else {
-                    throw new Error(data.error || 'Shop profile save failed');
+    displayStatus('Shop profile saved successfully! Redirecting...', 'success');
+
+    // Get the user ID from backend response if available
+    const redirectId = data.user?.id || userId;
+    const googleId = urlParams.get('google_id'); // detect from URL if exists
+
+    // Slight delay for better UX
+    setTimeout(() => {
+        const googleParam = googleId ? `google_id=${googleId}&` : '';
+        window.location.href = `https://www.krishi.site/dashboard?${googleParam}id=${redirectId}`;
+    }, 1200); // 1.2 seconds delay before redirect
+} else {
+    throw new Error(data.error || 'Shop profile save failed');
                 }
             } catch (error) {
                 console.error("Error updating shop profile:", error);
@@ -379,6 +430,7 @@ if (navigator.geolocation) {
             } finally {
                 saveButton.disabled = false;
                 saveButton.textContent = 'Save Shop Profile';
+                setTimeout(() => hideLoader(), 400); // 🔹 Hide loader smoothly after a short delay
             }
         }
         // --- Load Profile ---
