@@ -740,13 +740,21 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
 
                 const profileIsFull = nameEmailExists && mobileVerified;
 
-                // --- For mobile+password signup ---
+     // --- For mobile+password signup ---
 if (signupMethod === 'mobile') {
-    // Hide mobile + password sections completely
+    // Show mobile section, hide password section
     const mobileSection = inputMobileNumber.closest('.mb-4');
     const passwordSection = inputPassword.closest('.mb-4');
-    if (mobileSection) mobileSection.style.display = 'none';
+    if (mobileSection) mobileSection.style.display = 'block';
     if (passwordSection) passwordSection.style.display = 'none';
+
+    // Lock mobile field and mark as verified
+    lockElement(inputMobileNumber, true);
+    sendOtpBtn.disabled = true;
+    mobileVerified = true;
+    mobileStatusText.innerHTML = '(Verified)';
+    mobileStatusText.classList.remove('text-red-500');
+    mobileStatusText.classList.add('text-green-500');
 
     // Lock name & email (prevent manual entry)
     lockElement(inputUserName, true);
