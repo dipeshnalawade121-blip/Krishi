@@ -263,30 +263,43 @@
   position: relative;
   display: inline-block;
 
-  /* Gradient Text Fix */
+  /* gradient text */
   background: linear-gradient(135deg, #27C48B 0%, #DDC53B 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-fill-color: transparent; /* for extra safety */
-  color: transparent; /* fallback */
+  text-fill-color: transparent;
 
-  /* Optional glow */
-  text-shadow: 0 0 20px rgba(39, 196, 139, 0.25),
-               0 0 40px rgba(221, 197, 59, 0.2);
-        }
-        
+  /* fix clipping issue */
+  padding-top: 10px; /* give gradient full height range */
+  background-size: 100% 150%; /* taller gradient box */
+  background-repeat: no-repeat;
+  overflow: visible; /* prevent cropping */
+}
 
 .hero-sub {
+  position: absolute;
+  bottom: -6px; /* slightly below कृषी */
+  left: 50%;
+  transform: translateX(-40%);
+  font-size: 0.25em;
+  font-weight: 700;
+  color: #E9E29C; /* soft gold tint to match gradient end */
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+        
+
+/*.hero-sub {
     position: absolute;
-    bottom: -3px;       /* pushes .site below कृषी */
+    bottom: -3px;       /* pushes .site below कृषी 
     left: 50%;
     transform: translateX(-40%);
-    font-size: 0.25em;   /* 25% of कृषी size – scales automatically */
-    color: #fff;      /* soft mint tone to match theme */
+    font-size: 0.25em;   /* 25% of कृषी size – scales automatically 
+    color: #fff;      /* soft mint tone to match theme 
     font-weight: 700;
     letter-spacing: 0.02em;
-}
+} */
         
         .hero-subtitle {
             font-size: 24px;
