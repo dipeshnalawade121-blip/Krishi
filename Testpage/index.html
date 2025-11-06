@@ -255,39 +255,41 @@
         }*/
 
 .hero-title {
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: 'Noto Sans Devanagari','Inter',sans-serif;
-  font-weight: 900;
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
   font-size: 94px;
+  font-weight: 900;
   line-height: 1;
   margin-bottom: 16px;
-  z-index: 10; /* stays above background layers */
+  position: relative;
+  display: inline-block;
+  text-align: center;
 }
 
-/* ---- कृषी gradient text ---- */
+/* gradient applied only to कृषी text */
 .hero-text {
   display: inline-block;
-  background-image: linear-gradient(135deg, #27C48B 0%, #DDC53B 100%);
-  background-size: cover;
-  color: transparent;
+  background: linear-gradient(135deg, #27C48B 0%, #DDC53B 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-fill-color: transparent;
+  padding-top: 12px;      /* ensures top isn’t clipped */
+  background-size: 100% 200%; /* taller gradient area */
+  background-repeat: no-repeat;
 }
 
-/* ---- .site below कृषी ---- */
+/* .site sits below कृषी, visible */
 .hero-sub {
-  margin-top: 4px;
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-40%);
   font-size: 0.25em;
   font-weight: 700;
-  color: #E9E29C;  /* or #fff if you prefer */
+  color: #E9E29C;
   letter-spacing: 0.02em;
-  position: relative;
-  z-index: 10;
+  white-space: nowrap;
+  z-index: 2; /* ensures it renders above mask */
 }
         
 
