@@ -820,7 +820,177 @@
 
         /*haggu next*/
 
+/* Journey Card - Glass Transparent with Glow Effect */
+.journey-card {
+    background: rgba(15, 23, 42, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 64px;
+    position: relative;
+    overflow: hidden;
+}
 
+/* Glass Glow Effect */
+.journey-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(158, 248, 122, 0.1) 0%,
+        rgba(0, 158, 87, 0.05) 50%,
+        transparent 100%
+    );
+    border-radius: 24px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.journey-card::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+        135deg,
+        rgba(158, 248, 122, 0.3) 0%,
+        rgba(0, 158, 87, 0.1) 50%,
+        transparent 100%
+    );
+    border-radius: 26px;
+    z-index: -1;
+    filter: blur(15px);
+    opacity: 0.7;
+    animation: glassGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes glassGlow {
+    0% {
+        opacity: 0.5;
+        filter: blur(12px);
+    }
+    100% {
+        opacity: 0.8;
+        filter: blur(18px);
+    }
+}
+
+/* Ensure content stays above glass effects */
+.journey-badge,
+.journey-title,
+.step {
+    position: relative;
+    z-index: 2;
+}
+
+/* Enhanced step icons with glass effect */
+.step-icon {
+    background: rgba(158, 248, 122, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(158, 248, 122, 0.3);
+    box-shadow: 
+        0 4px 15px rgba(16, 185, 129, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.step:hover .step-icon {
+    background: rgba(158, 248, 122, 0.25);
+    box-shadow: 
+        0 6px 20px rgba(16, 185, 129, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: scale(1.1) translateY(-2px);
+}
+
+/* Success step enhanced glass effect */
+.step-success .step-icon {
+    background: rgba(158, 248, 122, 0.2);
+    border: 1px solid rgba(158, 248, 122, 0.4);
+    box-shadow: 
+        0 4px 15px rgba(52, 211, 153, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.step-success:hover .step-icon {
+    background: rgba(158, 248, 122, 0.3);
+    box-shadow: 
+        0 6px 20px rgba(52, 211, 153, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Compact version adjustments for glass effect */
+/* --- Compact Version of Journey Section --- */
+.journey-card {
+    padding: 20px !important;
+    border-radius: 18px !important;
+}
+
+.journey-title {
+    font-size: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.step {
+    margin-bottom: 10px !important;
+    align-items: flex-start !important;
+}
+
+.step-icon-wrapper {
+    margin-right: 16px !important;
+}
+
+.step-icon {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 12px !important;
+}
+
+.step-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.step-connector {
+    height: 24px !important;
+    margin: 2px 0 !important;
+}
+
+.step-content {
+    padding-top: 2px !important;
+}
+
+.step-title {
+    font-size: 15px !important;
+    margin-bottom: 2px !important;
+}
+
+.step-description {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+}
+
+.journey-badge {
+    padding: 5px 12px !important;
+    margin-bottom: 16px !important;
+}
+
+.badge-text {
+    font-size: 10px !important;
+}
+
+.success-dot {
+    width: 5px !important;
+    height: 5px !important;
+    }
         
     </style>
 </head>
