@@ -253,6 +253,28 @@
             line-height: 1;
         }
 
+        .hero-title {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+    font-size: 84px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1;
+    position: relative;
+    display: inline-block; /* ensures .site stays tied to this */
+}
+
+.hero-sub {
+    position: absolute;
+    bottom: -20px;       /* pushes .site below कृषी */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.25em;   /* 25% of कृषी size – scales automatically */
+    color: #d1fae5;      /* soft mint tone to match theme */
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+        
         .hero-subtitle {
             font-size: 24px;
             font-weight: 700;
@@ -705,7 +727,7 @@
 
         <!-- Hero Section -->
         <div class="hero animate-in delay-200">
-            <h1 class="hero-title">कृषी</h1>
+            <h1 class="hero-title">कृषी<span class="hero-sub">.site</span></h1>
             <p class="hero-subtitle">The fastest path from</p>
             <p class="hero-highlight">farm to <span>digital market</span></p>
             <p class="hero-link">Already have an account? <a href="https://www.krishi.site/login">Sign in</a></p>
