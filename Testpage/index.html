@@ -167,7 +167,7 @@
             box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
         }
 
-        .logo-icon {
+        /*.logo-icon {
             width: 44px;
             height: 44px;
             background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
@@ -177,6 +177,18 @@
             justify-content: center;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
             transition: all 0.3s ease;
+        }*/
+
+        .logo-icon {
+    width: 44px;
+    height: 44px;
+    background: transparent; /* remove box */
+    border-radius: 0;        /* no rounded square */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;        /* remove glow */
+    transition: all 0.3s ease;
         }
 
         .logo-text {
@@ -732,9 +744,21 @@
         <header class="header animate-in">
             <div class="logo">
                 <div class="logo-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <!--<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
                         <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                    </svg>-->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+     viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)"
+     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9ef87a"/>
+      <stop offset="100%" stop-color="#009e57"/>
+    </linearGradient>
+  </defs>
+  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
                     </svg>
                 </div>
                 <span class="logo-text">krishi</span>
