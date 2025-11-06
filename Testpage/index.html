@@ -46,6 +46,32 @@
             background-size: 100px 100px;
             animation: pattern 20s linear infinite;
         }
+
+        .tree-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 400px; /* Adjust how tall you want the tree area */
+    background-image: url('tree.svg'); /* 👈 your SVG file path */
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: contain; /* or 'cover' for full width */
+    opacity: 0.08; /* 👈 faint visibility */
+    filter: brightness(2); /* make it bright gray */
+    z-index: 1; /* place between bg-pattern(0) and sunray(2) */
+    pointer-events: none; /* ensures it doesn’t block clicks */
+        }
+
+        .tree-bg::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, rgba(7,7,7,0) 0%, #070707 100%);
+        }
         
         /* NEW: Sunray/Dark Fade Effect */
         @keyframes sunrayPulse {
@@ -61,7 +87,7 @@
             bottom: 0;
             /* Radial gradient centered at the top, fading to the dark background color */
             background: radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%);
-            z-index: 1; /* Below content, above the pattern */
+            z-index: 2; /* Below content, above the pattern */
             pointer-events: none;
             animation: sunrayPulse 10s ease-in-out infinite alternate;
         }
@@ -737,6 +763,8 @@
 <body>
     <!-- Background Pattern -->
     <div class="bg-pattern"></div>
+    <!-- Tree Background Layer -->
+<div class="tree-bg"></div>
     
     <!-- NEW: Animated Sunray/Dark Fade Effect -->
     <div class="sunray-effect"></div>
