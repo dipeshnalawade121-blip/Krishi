@@ -261,34 +261,40 @@
   align-items: center;
   font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
   font-weight: 900;
-  line-height: 1;
   font-size: 94px;
+  line-height: 1;
   margin-bottom: 16px;
-  color: transparent !important; /* stop inheriting white */
+  color: transparent !important;
+  z-index: 5; /* 🔥 ensures text stays above background layers */
 }
 
-/* 🌈 Gradient for कृषी only */
+/* 🌈 Gradient only on कृषी */
 .hero-text {
   display: inline-block;
+  z-index: 6; /* ✅ visible above all background effects */
+  position: relative;
   background: linear-gradient(135deg, #27C48B 0%, #DDC53B 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-fill-color: transparent;
   background-size: 100% 200%;
-  padding-top: 8px;
+  background-repeat: no-repeat;
+  padding-top: 10px;
+  filter: drop-shadow(0 0 8px rgba(39, 196, 139, 0.2)); /* gentle glow */
 }
 
-/* 🌟 .site restored and visible */
+/* 🌟 .site stays visible below कृषी */
 .hero-sub {
   margin-top: 4px;
   font-size: 0.25em;
   font-weight: 700;
-  color: #E9E29C; /* soft gold or white if you prefer */
+  color: #E9E29C; /* soft gold or white */
   letter-spacing: 0.02em;
-  z-index: 2;
-  position: relative; /* prevents it from being masked */
+  z-index: 6;
+  position: relative;
 }
+        
 
 /*.hero-sub {
     position: absolute;
