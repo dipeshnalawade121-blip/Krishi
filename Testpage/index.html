@@ -282,21 +282,28 @@
   line-height: 1;       /* keeps consistent vertical alignment */
 }
 
-/* .site sits below कृषी, visible */
+        
 .hero-sub {
   position: absolute;
   bottom: -6px;
   left: 50%;
   transform: translateX(-40%);
   font-size: 0.25em;
-  font-weight: 700;
-  color: #E9E29C;
+  font-weight: 800;
   letter-spacing: 0.02em;
   white-space: nowrap;
-  z-index: 2; /* ensures it renders above mask */
-}
-        
+  z-index: 2;
 
+  /* 🌈 Gradient text (same as login button & “digital market”) */
+  background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+
+  /* subtle matching glow (optional but classy) */
+  text-shadow: 0 0 8px rgba(0, 158, 87, 0.25);
+}
 /*.hero-sub {
     position: absolute;
     bottom: -3px;       /* pushes .site below कृषी 
