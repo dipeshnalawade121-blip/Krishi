@@ -234,7 +234,7 @@
             margin-bottom: 32px;
         }
 
-        .hero-title {
+       /* .hero-title {
             font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
             font-size: 84px;
             font-weight: 900;
@@ -251,15 +251,31 @@
     margin-bottom: 16px;
     line-height: 1;
     position: relative;
-    display: inline-block; /* ensures .site stays tied to this */
-}
+    display: inline-block; /* ensures .site stays tied to this 
+        }*/
+
         .hero-title {
-  background: linear-gradient(135deg, #27C48B 0%, #DDC53B 100%) !important;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent; /* fallback */
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  font-size: 94px;
   font-weight: 900;
+  line-height: 1;
+  margin-bottom: 16px;
+  position: relative;
+  display: inline-block;
+
+  /* Gradient Text Fix */
+  background: linear-gradient(135deg, #27C48B 0%, #DDC53B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent; /* for extra safety */
+  color: transparent; /* fallback */
+
+  /* Optional glow */
+  text-shadow: 0 0 20px rgba(39, 196, 139, 0.25),
+               0 0 40px rgba(221, 197, 59, 0.2);
         }
+        
 
 .hero-sub {
     position: absolute;
