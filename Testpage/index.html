@@ -46,6 +46,25 @@
             background-size: 100px 100px;
             animation: pattern 20s linear infinite;
         }
+        
+        /* NEW: Sunray/Dark Fade Effect */
+        @keyframes sunrayPulse {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.85; }
+        }
+
+        .sunray-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* Radial gradient centered at the top, fading to the dark background color */
+            background: radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%);
+            z-index: 1; /* Below content, above the pattern */
+            pointer-events: none;
+            animation: sunrayPulse 10s ease-in-out infinite alternate;
+        }
 
         /* Floating Gradient Orbs */
         @keyframes float {
@@ -65,6 +84,7 @@
             inset: 0;
             overflow: hidden;
             pointer-events: none;
+            z-index: 2; /* Above sunray effect */
         }
 
         .orb-1 {
@@ -92,11 +112,11 @@
             animation-delay: 2s;
         }
 
-        /* Container */
+        /* Container - Reduced max-width for narrower buttons */
         .container {
             position: relative;
             z-index: 10;
-            max-width: 448px;
+            max-width: 380px; /* Reduced from 448px */
             margin: 0 auto;
             padding: 0 24px;
         }
@@ -327,9 +347,9 @@
             justify-content: center;
         }
 
-        /* Custom style to adjust Google button appearance (Optional but helps integration) */
+        /* Custom style to adjust Google button appearance (CRITICAL for curve) */
         .g_id_signin {
-            border-radius: 9999px !important; /* Make sure the container respects the pill shape */
+            border-radius: 9999px !important; /* Ensures the pill shape */
             box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -653,6 +673,9 @@
 <body>
     <!-- Background Pattern -->
     <div class="bg-pattern"></div>
+    
+    <!-- NEW: Animated Sunray/Dark Fade Effect -->
+    <div class="sunray-effect"></div>
 
     <!-- Gradient Orbs -->
     <div class="gradient-orbs">
@@ -883,14 +906,16 @@
             if (!window.google || !google.accounts || !google.accounts.id) return;
 
             const referenceElement = document.getElementById('btn-login-ref'); 
-            let desiredWidth = 400; // Fallback width
+            let desiredWidth = 332; // Fallback width (max-width of container - 2*padding_x)
 
              setTimeout(() => {
                 if (referenceElement) {
+                    // Get the computed width of the login button for reference
                     desiredWidth = referenceElement.offsetWidth;
-                    if (desiredWidth > 400) desiredWidth = 400; 
+                    // Max width is constrained by the container CSS (380px) minus padding
+                    if (desiredWidth > 332) desiredWidth = 332; 
                 } else {
-                    console.warn('Could not find the reference login button for width calculation. Using default width 400.');
+                    console.warn('Could not find the reference login button for width calculation. Using default width 332.');
                 }
                 
                 // Initialize the Google Sign-in client
@@ -904,10 +929,10 @@
                 if (registerBtnContainer) {
                     // Render the Google button with updated theme and type
                     google.accounts.id.renderButton(registerBtnContainer, {
-                        theme: 'filled_white', // Changed to filled_white for the white background
-                        text: 'continue_with', // Displays "Continue with Google"
+                        theme: 'filled_white', 
+                        text: 'continue_with', 
                         size: 'large', 
-                        type: 'standard', // Changed to standard for full button layout
+                        type: 'standard', 
                         width: desiredWidth, 
                     });
                 }
