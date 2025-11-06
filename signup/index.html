@@ -3,391 +3,832 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
     <title>Sign up for Krishi</title>
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap"></noscript>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;700;800;900&display=swap" rel="stylesheet">
+
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-
+    
     <style>
-        /* Custom font import for better Devanagari rendering */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
-            background-color: #0f172a; /* Dark blue-gray background */
-            color: #e2e8f0; /* Light text color */
-            overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+            font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0E0E0E;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        /* Input field styling for dark theme */
-        .input-field {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            color: #e2e8f0;
-            height: 56px; /* Match GitHub height */
-        }
-        .input-field:focus {
-            border-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-        }
-
-        .otp-section {
-            display: none;
-        }
-        .otp-section.active {
-            display: block;
+        /* Background Pattern Animation */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            opacity: 0.5;
+            pointer-events: none;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px);
+            background-size: 100px 100px;
         }
         
-        /* Custom button styling for the Create account button gradient */
-        .register-button {
-            background: linear-gradient(90deg, #059669, #10b981);
-            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
-            transition: all 0.3s ease;
-            height: 56px; /* Match input height */
-        }
-        .register-button:hover {
-            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+        /* Sunray/Dark Fade Effect */
+        @keyframes sunrayPulse {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.85; }
         }
 
-        /* OTP button */
-        .otp-button {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            color: #e2e8f0;
-            height: 56px;
-        }
-        .otp-button:hover {
-            background-color: #334155;
+        .sunray-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%);
+            z-index: 1;
+            pointer-events: none;
+            animation: sunrayPulse 10s ease-in-out infinite alternate;
         }
 
-        /* Google button container styling - UPDATED */
-        .google-btn-container {
-            margin: 1rem 0;
-            /* Added to center the GSI button */
-            display: flex; 
+        /* God Rays Effect */
+        @keyframes godRays {
+            0% {
+                transform: translate(-30%, -30%) rotate(0deg);
+                opacity: 0.4;
+            }
+            25% {
+                transform: translate(-25%, -25%) rotate(5deg);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translate(-30%, -30%) rotate(10deg);
+                opacity: 0.4;
+            }
+            75% {
+                transform: translate(-25%, -25%) rotate(5deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(-30%, -30%) rotate(0deg);
+                opacity: 0.4;
+            }
+        }
+
+        .god-rays {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(
+                    ellipse at 0% 0%,
+                    rgba(158, 248, 122, 0.2) 0%,
+                    rgba(0, 158, 87, 0.1) 30%,
+                    transparent 70%
+                ),
+                linear-gradient(
+                    135deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.05) 45%,
+                    transparent 55%
+                );
+            z-index: 2;
+            pointer-events: none;
+            animation: godRays 15s ease-in-out infinite;
+            mix-blend-mode: overlay;
+        }
+
+        /* Main Signup Container */
+        .signup-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Signup Card - Glass Transparent with Glow Effect */
+        .signup-card {
+            background: rgba(15, 23, 42, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 32px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        /* Glass Glow Effect */
+        .signup-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(158, 248, 122, 0.1) 0%,
+                rgba(0, 158, 87, 0.05) 50%,
+                transparent 100%
+            );
+            border-radius: 24px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .signup-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(
+                135deg,
+                rgba(158, 248, 122, 0.3) 0%,
+                rgba(0, 158, 87, 0.1) 50%,
+                transparent 100%
+            );
+            border-radius: 26px;
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+            animation: glassGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glassGlow {
+            0% {
+                opacity: 0.5;
+                filter: blur(12px);
+            }
+            100% {
+                opacity: 0.8;
+                filter: blur(18px);
+            }
+        }
+
+        /* Ensure content stays above glass effects */
+        .signup-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
 
-        /* Helper text */
-        .helper-text {
-            font-size: 0.875rem;
-            color: #9ca3af;
-            margin-top: 0.25rem;
+        .logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
         }
 
-        /* Fullscreen loader overlay */
-#loader-overlay {
-  position: fixed;
-  inset: 0; /* top:0; right:0; bottom:0; left:0 */
-  background-color: rgba(15, 23, 42, 0.9); /* same dark bg with opacity */
-  display: none; /* hidden by default */
-  align-items: center;
-  justify-content: center;
-  z-index: 9999; /* on top of everything */
-}
+        /* Title */
+        .signup-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
 
-/* Loader Spinner */
-.loader {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: inline-block;
-  border-top: 3px solid #4ADE80;
-  border-right: 3px solid transparent;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
+        .signup-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
 
-@keyframes rotation {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: rgba(158, 248, 122, 0.5);
+            box-shadow: 0 0 0 2px rgba(158, 248, 122, 0.2);
+        }
+
+        .input-field::placeholder {
+            color: #64748b;
+        }
+
+        .input-field:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Mobile & OTP Row */
+        .mobile-otp-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .mobile-input {
+            flex: 1;
+        }
+
+        .otp-button {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .otp-button:hover:not(:disabled) {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(158, 248, 122, 0.3);
+        }
+
+        .otp-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .otp-button.sent {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+            color: #60a5fa;
+        }
+
+        .otp-button.verified {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #4ade80;
+        }
+
+        /* OTP Section */
+        .otp-section {
+            display: none;
+        }
+
+        .otp-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Create Account Button */
+        .create-account-button {
+            width: 100%;
+            background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 158, 87, 0.4);
+            margin-top: 8px;
+        }
+
+        .create-account-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #aefc90 0%, #00b066 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 158, 87, 0.6);
+        }
+
+        .create-account-button:active {
+            transform: translateY(0);
+        }
+
+        .create-account-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 32px 0;
+            gap: 16px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #334155 50%, transparent 100%);
+        }
+
+        .divider-text {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Google Button Container */
+        .google-btn-container {
+            margin: 24px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .g_id_signin {
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .g_id_signin:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Helper Text */
+        .helper-text {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        /* Links */
+        .links {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .link-text {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .link {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-weight: 500;
+        }
+
+        .link:hover {
+            color: #93c5fd;
+        }
+
+        /* Footer Links */
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .footer-link {
+            font-size: 12px;
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        /* Loader Overlay */
+        #loader-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(7, 7, 7, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: inline-block;
+            border-top: 3px solid #34d399;
+            border-right: 3px solid transparent;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 480px) {
+            .signup-card {
+                padding: 32px 24px;
+            }
+            
+            .signup-title {
+                font-size: 24px;
+            }
+            
+            .mobile-otp-row {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<body>
+    <!-- Background Pattern -->
+    <div class="bg-pattern"></div>
+    
+    <!-- Sunray/Dark Fade Effect -->
+    <div class="sunray-effect"></div>
+    
+    <!-- God Rays Effect from Top Left Corner -->
+    <div class="god-rays"></div>
 
-    <!-- Main Registration Container -->
-    <div class="w-full max-w-md">
+    <!-- Main Signup Container -->
+    <div class="signup-container">
         <!-- Top Link -->
-        <div class="text-center mb-6">
-            <a href="https://www.krishi.site/login" class="text-blue-400 hover:underline text-sm">
+        <div class="text-center mb-6 animate-in">
+            <a href="https://www.krishi.site/login" class="link">
                 Already have an account? <span class="font-semibold">Sign in</span> →
             </a>
         </div>
 
-        <!-- Title -->
-        <h1 class="text-xl font-bold text-center mb-2 text-white">Create your free account</h1>
-        <p class="text-sm text-center text-slate-400 mb-4">
-            Explore Krishi's core features for farmers and agri-businesses
-        </p>
-        <p class="text-center text-sm text-blue-400 mb-8 hover:underline">
-            See what's included ↓
-        </p>
+        <div class="signup-card animate-in delay-100">
+            <div class="signup-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <defs>
+                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#9ef87a"/>
+                                <stop offset="100%" stop-color="#009e57"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">krishi</span>
+                </div>
 
-        <!-- Main Title -->
-        <h2 class="text-2xl font-bold text-center mb-6 text-white">Sign up for Krishi</h2>
+                <!-- Title -->
+                <h1 class="signup-title">Create your free account</h1>
+                <p class="signup-subtitle">Explore Krishi's core features for farmers and agri-businesses</p>
 
-        <!-- Google Sign-in -->
-        <div class="google-btn-container">
-            <div id="google-register-btn"></div>
+                <!-- Google Sign-in -->
+                <div class="google-btn-container">
+                    <div id="google-register-btn"></div>
+                </div>
+
+                <!-- Or Divider -->
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">or</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <!-- Registration Form -->
+                <form id="registration-form" class="animate-in delay-200">
+                    <!-- Mobile Number & OTP Send -->
+                    <div class="form-group">
+                        <label class="input-label" for="reg-mobile">Mobile Number</label>
+                        <div class="mobile-otp-row">
+                            <input 
+                                type="tel" 
+                                id="reg-mobile" 
+                                class="input-field mobile-input" 
+                                placeholder="Enter your mobile number" 
+                                maxlength="10"
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                id="reg-send-otp" 
+                                class="otp-button"
+                            >
+                                Get OTP
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- OTP Input & Verify -->
+                    <div id="otp-section" class="otp-section form-group">
+                        <label class="input-label" for="reg-otp">Enter OTP</label>
+                        <div class="mobile-otp-row">
+                            <input 
+                                type="number" 
+                                id="reg-otp" 
+                                class="input-field mobile-input" 
+                                placeholder="Enter 6-digit OTP" 
+                                maxlength="6"
+                                disabled
+                            >
+                            <button 
+                                type="button" 
+                                id="reg-verify-btn" 
+                                class="otp-button"
+                                disabled
+                            >
+                                Verify OTP
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label class="input-label" for="reg-password">Password</label>
+                        <input 
+                            type="password" 
+                            id="reg-password" 
+                            class="input-field" 
+                            placeholder="Create a secure password" 
+                            required
+                        >
+                        <p class="helper-text">Password should be at least 6 characters</p>
+                    </div>
+                    
+                    <!-- Create Account Button -->
+                    <button 
+                        type="submit" 
+                        class="create-account-button"
+                        id="reg-submit-btn"
+                        disabled
+                    >
+                        Create account →
+                    </button>
+                </form>
+
+                <!-- Links -->
+                <div class="links animate-in delay-300">
+                    <p class="link-text">
+                        By creating an account, you agree to our <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>.
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <!-- Or Divider -->
-        <div class="flex items-center my-6">
-            <div class="flex-grow border-t border-slate-600"></div>
-            <span class="px-4 text-sm text-slate-400">or</span>
-            <div class="flex-grow border-t border-slate-600"></div>
+        <!-- Footer Links -->
+        <div class="footer-links animate-in delay-400">
+            <a href="#" class="footer-link">Terms</a>
+            <a href="#" class="footer-link">Privacy</a>
+            <a href="#" class="footer-link">Security</a>
         </div>
-
-        <!-- Registration Form -->
-        <form id="registration-form" class="space-y-4">
-            <!-- Mobile Number & OTP Send -->
-            <div class="flex space-x-2">
-                <input 
-                    type="tel" 
-                    id="reg-mobile" 
-                    placeholder="Mobile Number" 
-                    class="input-field flex-grow p-4 rounded-md text-base" 
-                    maxlength="10"
-                    required
-                >
-                <button 
-                    type="button" 
-                    id="reg-send-otp" 
-                    class="otp-button px-4 font-semibold rounded-md text-base"
-                >
-                    Get OTP
-                </button>
-            </div>
-            
-            <!-- OTP Input & Verify -->
-            <div id="otp-section" class="otp-section flex space-x-2">
-                <input 
-                    type="number" 
-                    id="reg-otp" 
-                    placeholder="Paste OTP" 
-                    class="input-field flex-grow p-4 rounded-md text-base" 
-                    maxlength="6"
-                    disabled
-                >
-                <button 
-                    type="button" 
-                    id="reg-verify-btn" 
-                    class="otp-button px-4 font-semibold rounded-md text-base"
-                    disabled
-                >
-                    Verify OTP
-                </button>
-            </div>
-
-            <!-- Password -->
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Password*</label>
-                <input 
-                    type="password" 
-                    id="reg-password" 
-                    placeholder="Create Password" 
-                    class="input-field w-full p-4 rounded-md text-base" 
-                    required
-                >
-                <p class="helper-text">Password should be at least 6 characters.</p>
-            </div>
-            
-            <!-- Create Account Button -->
-            <button 
-                type="submit" 
-                class="w-full py-3 text-white font-bold rounded-md register-button text-base"
-                id="reg-submit-btn"
-                disabled
-            >
-                Create account →
-            </button>
-        </form>
-
-        <!-- Footer -->
-        <p class="text-xs text-center text-slate-400 mt-6">
-            By creating an account, you agree to the <a href="#" class="text-blue-400 hover:underline">Terms of Service</a>. 
-            For more information about Krishi's privacy practices, see the <a href="#" class="text-blue-400 hover:underline">Krishi Privacy Statement</a>. 
-            We'll occasionally send you account-related emails.
-        </p>
     </div>
-    <!-- Loader Overlay -->
-<div id="loader-overlay">
-  <span class="loader"></span>
-</div>
 
-    <!-- Initialize Lucide Icons and Registration Logic -->
+    <!-- Loader Overlay -->
+    <div id="loader-overlay">
+        <span class="loader"></span>
+    </div>
+
     <script>
-        lucide.createIcons();
-        // ---------- Loader Overlay Functions ----------
-function showLoader() {
-  document.getElementById('loader-overlay').style.display = 'flex';
-}
-function hideLoader() {
-  document.getElementById('loader-overlay').style.display = 'none';
-}
-        
         const BACKEND_URL = 'https://api.krishi.site';
+        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
+        
         let regVerified = false;
         let regInterval;
 
+        // ---------- Loader Overlay Functions ----------
+        function showLoader() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+        }
+        function hideLoader() {
+            document.getElementById('loader-overlay').style.display = 'none';
+        }
+
         function formatTime(seconds) {
-          const mins = Math.floor(seconds / 60);
-          const secs = seconds % 60;
-          return `${mins}:${secs.toString().padStart(2, '0')}`;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
         function startCountdown(btn, seconds, originalText, originalClass, intervalKey) {
-          if (window[intervalKey]) {
-            clearInterval(window[intervalKey]);
-          }
-          btn.disabled = true;
-          const timerSpan = document.createElement('span');
-          timerSpan.id = 'timer-span';
-          timerSpan.className = 'ml-1 font-medium';
-          btn.innerHTML = 'OTP sent successfully! ';
-          btn.appendChild(timerSpan);
-          timerSpan.innerHTML = formatTime(seconds);
-          btn.className = 'otp-button flex items-center justify-center px-4 font-semibold rounded-md text-base bg-blue-900 text-blue-300 border-blue-700';
-          let timeLeft = seconds;
-          window[intervalKey] = setInterval(() => {
-            timeLeft--;
-            timerSpan.innerHTML = formatTime(timeLeft);
-            if (timeLeft < 0) {
-              clearInterval(window[intervalKey]);
-              delete window[intervalKey];
-              btn.innerHTML = originalText;
-              btn.className = 'otp-button px-4 font-semibold rounded-md text-base';
-              btn.disabled = false;
+            if (window[intervalKey]) {
+                clearInterval(window[intervalKey]);
             }
-          }, 1000);
+            btn.disabled = true;
+            btn.classList.add('sent');
+            btn.innerHTML = 'OTP sent! ';
+            const timerSpan = document.createElement('span');
+            timerSpan.id = 'timer-span';
+            btn.appendChild(timerSpan);
+            timerSpan.innerHTML = formatTime(seconds);
+            
+            let timeLeft = seconds;
+            window[intervalKey] = setInterval(() => {
+                timeLeft--;
+                timerSpan.innerHTML = formatTime(timeLeft);
+                if (timeLeft < 0) {
+                    clearInterval(window[intervalKey]);
+                    delete window[intervalKey];
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('sent');
+                    btn.disabled = false;
+                }
+            }, 1000);
         }
-
-        const regOriginalClass = 'otp-button px-4 font-semibold rounded-md text-base';
 
         // Registration Send OTP
         document.getElementById('reg-send-otp').addEventListener('click', async () => {
-          const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
-          if (phoneInput.length !== 10) {
-            alert('Please enter a valid 10-digit mobile number.');
-            return;
-          }
-          const sendBtn = document.getElementById('reg-send-otp');
-          try {
-            const response = await fetch(`${BACKEND_URL}/send-otp`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: phoneInput })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              startCountdown(sendBtn, 119, 'Get OTP', regOriginalClass, 'regInterval');
-              document.getElementById('otp-section').classList.add('active');
-              document.getElementById('reg-otp').disabled = false;
-              alert('OTP sent to your mobile!');
-            } else {
-              throw new Error(data.message || 'Failed to send OTP');
+            const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
+            if (phoneInput.length !== 10) {
+                alert('Please enter a valid 10-digit mobile number.');
+                return;
             }
-          } catch (error) {
-            console.error(error);
-            alert('Error sending OTP: ' + error.message);
-          }
+            const sendBtn = document.getElementById('reg-send-otp');
+            try {
+                showLoader();
+                const response = await fetch(`${BACKEND_URL}/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phoneInput })
+                });
+                const data = await response.json();
+                hideLoader();
+                
+                if (response.ok && data.success) {
+                    startCountdown(sendBtn, 119, 'Get OTP', 'otp-button', 'regInterval');
+                    document.getElementById('otp-section').classList.add('active');
+                    document.getElementById('reg-otp').disabled = false;
+                } else {
+                    throw new Error(data.message || 'Failed to send OTP');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error sending OTP: ' + error.message);
+                hideLoader();
+            }
         });
 
         // Registration OTP Input Listener
         document.getElementById('reg-otp').addEventListener('input', (e) => {
-          const value = e.target.value;
-          const verifyBtn = document.getElementById('reg-verify-btn');
-          if (value.length === 6 && /^\d{6}$/.test(value)) {
-            verifyBtn.disabled = false;
-          } else {
-            verifyBtn.disabled = true;
-          }
+            const value = e.target.value;
+            const verifyBtn = document.getElementById('reg-verify-btn');
+            if (value.length === 6 && /^\d{6}$/.test(value)) {
+                verifyBtn.disabled = false;
+            } else {
+                verifyBtn.disabled = true;
+            }
         });
 
         // Registration Verify OTP
         document.getElementById('reg-verify-btn').addEventListener('click', async () => {
-          const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
-          const otp = document.getElementById('reg-otp').value;
-          if (phoneInput.length !== 10 || otp.length !== 6) {
-            alert('Please enter valid phone and OTP.');
-            return;
-          }
-          const verifyBtn = document.getElementById('reg-verify-btn');
-          try {
-            const response = await fetch(`${BACKEND_URL}/verify-otp`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ phone: phoneInput, otp: otp })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              verifyBtn.innerHTML = 'Verified <i data-lucide="check" class="w-3 h-3 ml-1"></i>';
-              verifyBtn.className = 'otp-button flex items-center justify-center px-4 font-semibold rounded-md text-base bg-green-900 text-green-300 border-green-700';
-              verifyBtn.disabled = true;
-              document.getElementById('reg-otp').disabled = true;
-              document.getElementById('reg-otp').value = '';
-              lucide.createIcons();
-              alert('Phone number verified successfully!');
-              regVerified = true;
-              document.getElementById('reg-submit-btn').disabled = false;
-            } else {
-              throw new Error(data.message || 'Invalid OTP');
+            const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
+            const otp = document.getElementById('reg-otp').value;
+            if (phoneInput.length !== 10 || otp.length !== 6) {
+                alert('Please enter valid phone and OTP.');
+                return;
             }
-          } catch (error) {
-            console.error(error);
-            alert('Error verifying OTP: ' + error.message);
-            document.getElementById('reg-otp').value = '';
-            document.getElementById('reg-verify-btn').disabled = true;
-          }
+            const verifyBtn = document.getElementById('reg-verify-btn');
+            try {
+                showLoader();
+                const response = await fetch(`${BACKEND_URL}/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phoneInput, otp: otp })
+                });
+                const data = await response.json();
+                hideLoader();
+                
+                if (response.ok && data.success) {
+                    verifyBtn.innerHTML = 'Verified ✓';
+                    verifyBtn.classList.remove('sent');
+                    verifyBtn.classList.add('verified');
+                    verifyBtn.disabled = true;
+                    document.getElementById('reg-otp').disabled = true;
+                    regVerified = true;
+                    document.getElementById('reg-submit-btn').disabled = false;
+                } else {
+                    throw new Error(data.message || 'Invalid OTP');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error verifying OTP: ' + error.message);
+                document.getElementById('reg-otp').value = '';
+                document.getElementById('reg-verify-btn').disabled = true;
+                hideLoader();
+            }
         });
 
         // Registration Form Submit
         document.getElementById('registration-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!regVerified) {
-            alert('Please verify your phone number first.');
-            return;
-          }
-          const mobile = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
-          const pw = document.getElementById('reg-password').value;
-          if (pw.length < 6) {
-            alert('Passwords must be at least 6 characters.');
-            return;
-          }
-          try {
-              showLoader();
-            const response = await fetch(`${BACKEND_URL}/register`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ mobile: mobile, password: pw })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-              alert('Account created successfully! Welcome to Krishi.');
-              window.location.href = `https://www.krishi.site/user-profile?mobile=${mobile}&id=${data.user.id}`;
-            } else {
-              throw new Error(data.message || 'Registration failed');
+            e.preventDefault();
+            if (!regVerified) {
+                alert('Please verify your phone number first.');
+                return;
             }
-          } catch (error) {
-            console.error(error);
-            alert('Error during registration: ' + error.message);
-          }
-            hideLoader();
+            const mobile = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
+            const pw = document.getElementById('reg-password').value;
+            if (pw.length < 6) {
+                alert('Passwords must be at least 6 characters.');
+                return;
+            }
+            try {
+                showLoader();
+                const response = await fetch(`${BACKEND_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mobile: mobile, password: pw })
+                });
+                const data = await response.json();
+                hideLoader();
+                
+                if (response.ok && data.success) {
+                    alert('Account created successfully! Welcome to Krishi.');
+                    window.location.href = `https://www.krishi.site/user-profile?mobile=${mobile}&id=${data.user.id}`;
+                } else {
+                    throw new Error(data.message || 'Registration failed');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error during registration: ' + error.message);
+                hideLoader();
+            }
         });
 
         // ---------- Google Sign In Integration (for Registration) ----------
-        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
-
-        // Callback for Google (handles reg/login unified)
         async function handleGoogleCredentialResponse(response) {
             const id_token = response.credential;
             if (!id_token) return alert('Google sign-up failed.');
@@ -400,6 +841,8 @@ function hideLoader() {
                     body: JSON.stringify({ id_token }),
                 });
                 const data = await res.json();
+                hideLoader();
+                
                 if (res.ok && data.success) {
                     const user = data.user;
                     const userId = user.id;
@@ -413,7 +856,6 @@ function hideLoader() {
                     }
                 } else {
                     alert('Google sign-up failed: ' + (data.error || 'Unknown'));
-                    hideLoader();
                 }
             } catch (err) {
                 alert('Error: ' + err.message);
@@ -421,23 +863,17 @@ function hideLoader() {
             }
         }
 
-        // Initialize Google button - UPDATED with dynamic width and outline theme
+        // Initialize Google button
         function initGoogleButton() {
             if (!window.google || !google.accounts || !google.accounts.id) return;
 
-            // --- START: Added Responsive Width Logic ---
-            const referenceElement = document.getElementById('reg-submit-btn'); // Use the submit button as reference
-            let desiredWidth = 400; // Fallback width
+            const referenceElement = document.getElementById('reg-submit-btn');
+            let desiredWidth = 400;
 
             if (referenceElement) {
-                // Calculate the width of the responsive "Create account" button.
                 desiredWidth = referenceElement.offsetWidth;
-                console.log('Calculated responsive width for GSI button:', desiredWidth);
-            } else {
-                console.warn('Could not find the reference button for width calculation. Using default width 400.');
             }
-            // --- END: Added Responsive Width Logic ---
-            
+
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
                 callback: handleGoogleCredentialResponse,
@@ -446,13 +882,12 @@ function hideLoader() {
 
             const registerBtnContainer = document.getElementById('google-register-btn');
             if (registerBtnContainer) {
-                // Apply responsive width and 'outline' theme
                 google.accounts.id.renderButton(registerBtnContainer, {
-                    theme: 'outline', // Changed to outline for dark theme
-                    text: 'continue_with', // Added for clarity
+                    theme: 'outline',
+                    text: 'continue_with',
                     size: 'large',
                     type: 'standard',
-                    width: desiredWidth, // Set dynamic width
+                    width: desiredWidth,
                 });
             }
         }
@@ -466,4 +901,3 @@ function hideLoader() {
     </script>
 </body>
 </html>
-
