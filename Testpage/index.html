@@ -46,76 +46,25 @@
             background-size: 100px 100px;
             animation: pattern 20s linear infinite;
         }
-
-        
         
         /* NEW: Sunray/Dark Fade Effect */
         @keyframes sunrayPulse {
-            0%, 100% { opacity: 0.9; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.85; }
         }
 
-        
         .sunray-effect {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at top center,
-        rgba(255, 255, 255, 0.05) 0%,  /* subtle white center */
-        rgba(20, 20, 20, 0.4) 40%,
-        rgba(7, 7, 7, 1) 90%);
-    z-index: 1;
-    pointer-events: none;
-    animation: sunrayPulse 8s ease-in-out infinite alternate;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* Radial gradient centered at the top, fading to the dark background color */
+            background: radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%);
+            z-index: 1; /* Below content, above the pattern */
+            pointer-events: none;
+            animation: sunrayPulse 10s ease-in-out infinite alternate;
         }
-
-        @keyframes treeGlow {
-    0%, 100% {
-        opacity: 0.25;
-        filter: invert(1) brightness(1.8) contrast(0.9);
-    }
-    50% {
-        opacity: 0.45;
-        filter: invert(1) brightness(2.4) contrast(0.8);
-    }
-        }
-
-        .tree-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 420px;
-    background: 
-        /* Sunray layer BELOW tree (lights it up) */
-        radial-gradient(circle at top center, 
-            rgba(255, 193, 7, 0.15) 0%,  /* Warm yellow sun core – tweak opacity */
-            rgba(255, 165, 0, 0.08) 30%, /* Orange rays fade */
-            rgba(20, 20, 20, 0.6) 60%,   /* Mid-dark transition */
-            #070707 100%                  /* Match body bg */
-        ),
-        /* Tree on top */
-        url('tree.svg');
-    background-repeat: no-repeat;
-    background-position: top center;
-    background-size: contain; /* SVG scales to fit height */
-    opacity: 0.6; /* Bump for visibility */
-    mix-blend-mode: screen; /* Glows tree lines – makes white parts shine */
-    z-index: 2;
-    pointer-events: none;
-    animation: treeGlow 8s ease-in-out infinite alternate; /* Keep pulse */
-    transition: opacity 0.4s ease-out; /* From your old code */
-        }
-
-        
-       .tree-bg::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100px;
-    background: linear-gradient(to bottom, rgba(7,7,7,0) 0%, #070707 100%);
-       }
 
         /* Floating Gradient Orbs */
         @keyframes float {
@@ -783,26 +732,14 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .gradient-orbs,
-.orb-1,
-.orb-2 {
-  display: none !important; /* remove all glow blobs */
-}
-
-.bg-pattern { z-index: 0; }
-.sunray-effect { z-index: 1; }
-.tree-bg { z-index: 2; } /* sits above the light now */
     </style>
 </head>
 <body>
     <!-- Background Pattern -->
     <div class="bg-pattern"></div>
-    <!-- Tree Background Layer -->
-<div class="tree-bg"></div>
     
     <!-- NEW: Animated Sunray/Dark Fade Effect -->
-    
+    <div class="sunray-effect"></div>
 
     <!-- Gradient Orbs -->
     
@@ -1083,16 +1020,6 @@
                 setTimeout(initGoogleButton, 800);
             }
         });
-
-        
-window.addEventListener('scroll', () => {
-  const scrollY = window.scrollY;
-  const tree = document.querySelector('.tree-bg');
-  if (tree) {
-    tree.style.opacity = Math.max(0, 0.3 - scrollY / 400);
-  }
-});
-
     </script>
 </body>
 </html>
