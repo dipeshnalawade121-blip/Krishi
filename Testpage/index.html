@@ -89,8 +89,8 @@
     background-repeat: no-repeat;
     background-position: top center;
     background-size: contain;
-    opacity: 0.25;               /* increased visibility */
-    filter: invert(1) brightness(1.8) contrast(0.9); /* 👈 turns black → light gray */
+    opacity: 0.4;               /* increased visibility */
+    filter: invert(1) brightness(2.8) contrast(0.9); /* 👈 turns black → light gray */
     z-index: 2;
     pointer-events: none;
     animation: treeGlow 8s ease-in-out infinite alternate;
@@ -109,11 +109,7 @@
         .tree-bg {
   transition: opacity 0.4s ease-out;
 }
-window.addEventListener('scroll', () => {
-  const scrollY = window.scrollY;
-  const tree = document.querySelector('.tree-bg');
-  tree.style.opacity = Math.max(0, 0.3 - scrollY / 400);
-});
+
 
         /* Floating Gradient Orbs */
         @keyframes float {
@@ -781,6 +777,16 @@ window.addEventListener('scroll', () => {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .gradient-orbs,
+.orb-1,
+.orb-2 {
+  display: none !important; /* remove all glow blobs */
+}
+
+.bg-pattern { z-index: 0; }
+.sunray-effect { z-index: 1; }
+.tree-bg { z-index: 2; } /* sits above the light now */
     </style>
 </head>
 <body>
@@ -1071,6 +1077,16 @@ window.addEventListener('scroll', () => {
                 setTimeout(initGoogleButton, 800);
             }
         });
+
+        
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const tree = document.querySelector('.tree-bg');
+  if (tree) {
+    tree.style.opacity = Math.max(0, 0.3 - scrollY / 400);
+  }
+});
+
     </script>
 </body>
 </html>
