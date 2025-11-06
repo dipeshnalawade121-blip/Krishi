@@ -746,7 +746,12 @@
 }
 
 .step {
-  margin-bottom: 20px !important;  /* was 32px */
+  margin-bottom: 10px !important;  /* was 32px */
+  align-items: flex-start !important;
+}
+
+.step-icon-wrapper {
+  margin-right: 16px !important;   /* tighter horizontal space */
 }
 
 .step-icon {
@@ -761,17 +766,22 @@
 }
 
 .step-connector {
-  height: 48px !important;  /* shorter line between steps */
+  height: 24px !important;  /* shorter line between steps */
+  margin: 2px 0 !important;
+}
+
+.step-content {
+  padding-top: 2px !important;     /* bring text closer to icon */
 }
 
 .step-title {
-  font-size: 16px !important;  /* was 20px */
-  margin-bottom: 4px !important;
+  font-size: 15px !important;  /* was 20px */
+  margin-bottom: 2px !important;
 }
 
 .step-description {
-  font-size: 12.5px !important;  /* was 14px */
-  line-height: 1.5 !important;
+  font-size: 12px !important;  /* was 14px */
+  line-height: 1.4 !important;
 }
 
 .journey-badge {
