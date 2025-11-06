@@ -797,6 +797,41 @@
   width: 5px !important;
   height: 5px !important;
 }
+
+        /*haggu next*/
+
+
+        /* --- Gradient-styled icons & title --- */
+
+/* Gradient for all step icons */
+.step-icon svg {
+  stroke: url(#journeyGradient) !important;
+}
+
+/* Add reusable gradient definition */
+svg defs#journeyGradient,
+.step-icon svg defs#journeyGradient {
+  display: none; /* Hide if duplicate inside icon */
+}
+
+.journey-card svg {
+  --start: #9ef87a;
+  --end: #009e57;
+}
+
+/* Apply same gradient to stroke using filter fallback */
+.step-icon svg {
+  stroke: #9ef87a;
+  filter: drop-shadow(0 0 6px rgba(0, 158, 87, 0.3));
+}
+
+/* Gradient title */
+.journey-title {
+  background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: 800 !important;
+}
     </style>
 </head>
 <body>
@@ -896,10 +931,7 @@
         <!-- Journey Card -->
         <div class="journey-card animate-in delay-800">
             <!-- Badge -->
-            <div class="journey-badge">
-                <div class="badge-dot"></div>
-                <span class="badge-text">Your Journey</span>
-            </div>
+            
 
             <h2 class="journey-title">Digital Krishi Store<br/>in 4 Steps</h2>
 
