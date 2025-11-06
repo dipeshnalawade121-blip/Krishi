@@ -273,9 +273,13 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-fill-color: transparent;
-  padding-top: 12px;      /* ensures top isn’t clipped */
-  background-size: 100% 400%; /* taller gradient area */
-  background-repeat: no-repeat;
+
+  /* 🧠 Fix gradient cropping for tall glyphs */
+  padding-top: 20px;    /* add space above text */
+  padding-bottom: 20px; /* add space below text */
+  margin-top: -20px;    /* pull text back into correct place */
+  margin-bottom: -20px; /* restore spacing balance */
+  line-height: 1;       /* keeps consistent vertical alignment */
 }
 
 /* .site sits below कृषी, visible */
