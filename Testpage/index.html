@@ -357,17 +357,31 @@
             transform: rotate(12deg);
         }
 
-        .btn-login {
+        /*.btn-login {
             background: #10b981;
             color: #fff;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
+        }*/
 
-        .btn-login:hover {
+        .btn-login {
+    background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 158, 87, 0.4);
+    border-radius: 8px !important; /* from your previous tweak */
+    padding: 10px 24px !important;
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, #aefc90 0%, #00b066 100%);
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 158, 87, 0.6);
+}
+
+        /*.btn-login:hover {
             background: #34d399;
             transform: scale(1.02);
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-        }
+        }*/
 
         /* Google button container styling */
         .google-btn-container {
