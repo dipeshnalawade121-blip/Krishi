@@ -79,38 +79,7 @@
             66% { transform: translate(20px, -20px) scale(0.9); }
         }
 
-        .gradient-orbs {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 2; /* Above sunray effect */
-        }
-
-        .orb-1 {
-            position: absolute;
-            top: 80px;
-            left: 25%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(120px);
-            animation: float 15s ease-in-out infinite;
-        }
-
-        .orb-2 {
-            position: absolute;
-            top: 33%;
-            right: 25%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(5, 150, 105, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(100px);
-            animation: float-delayed 18s ease-in-out infinite;
-            animation-delay: 2s;
-        }
+        
 
         /* Container - Reduced max-width for narrower buttons */
         .container {
@@ -589,7 +558,7 @@
         .step-connector {
             width: 2px;
             height: 32px !important;
-            background: linear-gradient(to bottom, #10b981 0%, #1e293b 100%);
+            background: linear-gradient(to bottom, #9ef87a 0%, #009e57 100%);
             margin: 6px 0 !important;
         }
         /* --- Shorter connector lines for compact journey steps --- */
@@ -630,7 +599,7 @@
         }
 
         .step-success .step-icon {
-            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
             box-shadow: 0 4px 15px rgba(52, 211, 153, 0.5);
             animation: pulse-slow 3s ease-in-out infinite;
         }
