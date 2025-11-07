@@ -466,6 +466,14 @@
   justify-content: center;
   align-items: center;
         }
+
+        #google-login-btn {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+#google-login-btn.ready {
+  opacity: 1;
+}
     </style>
 </head>
 <body>
@@ -726,6 +734,7 @@
                     type: 'standard',
                     width: desiredWidth,
                 });
+                loginBtnContainer.classList.add('ready');
             }
         }
 
