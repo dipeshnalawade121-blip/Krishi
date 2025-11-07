@@ -329,8 +329,6 @@
             margin: 24px 0;
             display: flex;
             justify-content: center;
-            min-height: 48px; /* Reserves space for 'large' button height */
-            align-items: center; /* Vertically centers the button within the reserved space */
         }
 
         .g_id_signin {
@@ -688,29 +686,21 @@
             }
         }
 
-        // Initialize Google button earlier
+        // Initialize Google button
         function initGoogleButton() {
             if (!window.google || !google.accounts || !google.accounts.id) {
                 console.warn('Google identity library not loaded yet');
-                // Poll every 100ms up to 2s
-                const poll = setInterval(() => {
-                    if (window.google && google.accounts && google.accounts.id) {
-                        clearInterval(poll);
-                        renderGoogleButton();
-                    }
-                }, 100);
-                setTimeout(() => clearInterval(poll), 2000); // Safety timeout
                 return;
             }
-            renderGoogleButton();
-        }
 
-        function renderGoogleButton() {
             const referenceElement = document.querySelector('.login-button');
             let desiredWidth = 400;
+
             if (referenceElement) {
                 desiredWidth = referenceElement.offsetWidth;
                 console.log('Calculated responsive width for GSI button:', desiredWidth);
+            } else {
+                console.warn('Could not find the reference button for width calculation. Using default width 400.');
             }
 
             google.accounts.id.initialize({
@@ -731,8 +721,12 @@
             }
         }
 
-        // Trigger on DOM ready, not full load
-        document.addEventListener('DOMContentLoaded', initGoogleButton);
+        window.addEventListener('load', () => {
+            initGoogleButton();
+            if (!window.google || !google.accounts || !google.accounts.id) {
+                setTimeout(initGoogleButton, 800);
+            }
+        });
     </script>
 </body>
 </html>
