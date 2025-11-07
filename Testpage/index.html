@@ -30,9 +30,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        html, body {
-  overscroll-behavior-y: contain;
-        }
+        
 
         /* Background Pattern Animation */
        /* @keyframes pattern {
@@ -896,17 +894,48 @@
           width: 5px !important;
           height: 5px !important;
         }
-        
+        /*gugu*/
+        html, body {
+  height: 100%;
+  min-height: 100%;
+  background-color: #0e0e0e; /* solid base, never shows white */
+  overflow-x: hidden;
+  overscroll-behavior: none; /* stop overscroll flicker on mobile */
+}
+
+/* 🔒 Permanent background wrapper */
+.bg-fixed {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  background-color: #0e0e0e; /* fallback dark tone */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* optional: make sure background layers don’t trigger repaints */
+.bg-pattern,
+.sunray-effect {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateZ(0);
+}
     </style>
 </head>
 <body>
-    <!-- Background Pattern -->
-    <div class="bg-pattern"></div>
-    
-    <!-- NEW: Animated Sunray/Dark Fade Effect -->
-    <div class="sunray-effect"></div>
+    <!-- Background Pattern 
+    <div class="bg-pattern"></div>    
+    <!-- NEW: Animated Sunray/Dark Fade Effect 
+    <div class="sunray-effect"></div> -->
 
-    <!-- Gradient Orbs -->
+    <!-- FIXED BACKGROUND WRAPPER -->
+<div class="bg-fixed">
+  <div class="bg-pattern"></div>
+  <div class="sunray-effect"></div>
+</div>
     
 
     <!-- Main Content -->
