@@ -925,40 +925,48 @@
 }
 
         /* 🔮 Animated Fog Layer */
-.fog-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 2; /* above background, below content */
-  pointer-events: none;
+/* 🌫️ Smooth Distorted Fog Section */
+.fog-section {
+  position: relative;
+  width: 100%;
+  height: 300px; /* Adjust height to your liking */
+  margin-top: 40px; /* spacing after login buttons */
   overflow: hidden;
-  mix-blend-mode: lighten; /* soft light blending */
-  opacity: 0.25; /* adjust visibility */
+  pointer-events: none;
+  z-index: 3; /* below content cards but above background */
 }
 
-/* Each fog band */
-.fog {
+/* base fog layers */
+.fog-canvas {
   position: absolute;
-  inset: -100px; /* allow edges to move offscreen smoothly */
-  background: radial-gradient(
-    circle at 50% 50%,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.05) 25%,
-    transparent 70%
-  );
-  filter: blur(60px);
-  animation: fogMove 60s linear infinite;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  mix-blend-mode: lighten;
+  opacity: 0.3;
+  filter: blur(80px) contrast(110%);
+  animation: fogDrift 90s ease-in-out infinite;
+  transform: translateZ(0);
 }
 
-/* Slightly different size + direction for each fog */
-.fog1 { animation-duration: 80s; animation-delay: 0s; }
-.fog2 { animation-duration: 100s; animation-delay: -20s; }
-.fog3 { animation-duration: 120s; animation-delay: -40s; opacity: 0.15; }
-
-@keyframes fogMove {
-  0%   { transform: translate(-10%, 0) scale(1); }
-  50%  { transform: translate(10%, -5%) scale(1.1); }
-  100% { transform: translate(-10%, 0) scale(1); }
+/* second fog layer, slightly different movement */
+.fog2 {
+  opacity: 0.25;
+  animation: fogDriftAlt 120s ease-in-out infinite;
+  filter: blur(100px) contrast(120%);
 }
+
+@keyframes fogDrift {
+  0%   { transform: translateX(-20%) translateY(0%) scale(1); }
+  50%  { transform: translateX(20%) translateY(-10%) scale(1.1); }
+  100% { transform: translateX(-20%) translateY(0%) scale(1); }
+}
+
+@keyframes fogDriftAlt {
+  0%   { transform: translateX(10%) translateY(-5%) scale(1.05) rotate(0deg); }
+  50%  { transform: translateX(-15%) translateY(10%) scale(1.15) rotate(2deg); }
+  100% { transform: translateX(10%) translateY(-5%) scale(1.05) rotate(0deg); }
+}
+
     </style>
 </head>
 <body>
@@ -974,11 +982,6 @@
 </div>
     
 <!-- Animated Fog Layer -->
-<div class="fog-layer">
-  <div class="fog fog1"></div>
-  <div class="fog fog2"></div>
-  <div class="fog fog3"></div>
-</div>
     
     <!-- Main Content -->
     <div class="container">
@@ -1047,6 +1050,12 @@
                 <span>Create a Account</span>
             </button>
         </div>
+
+        <!-- Fog Effect Section (below buttons) -->
+<div class="fog-section">
+  <div class="fog-canvas fog1"></div>
+  <div class="fog-canvas fog2"></div>
+</div>
 
         <!-- Terms -->
         <p class="terms animate-in delay-600">
