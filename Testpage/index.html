@@ -923,6 +923,42 @@
   pointer-events: none;
   transform: translateZ(0);
 }
+
+        /* 🔮 Animated Fog Layer */
+.fog-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2; /* above background, below content */
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: lighten; /* soft light blending */
+  opacity: 0.25; /* adjust visibility */
+}
+
+/* Each fog band */
+.fog {
+  position: absolute;
+  inset: -100px; /* allow edges to move offscreen smoothly */
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 25%,
+    transparent 70%
+  );
+  filter: blur(60px);
+  animation: fogMove 60s linear infinite;
+}
+
+/* Slightly different size + direction for each fog */
+.fog1 { animation-duration: 80s; animation-delay: 0s; }
+.fog2 { animation-duration: 100s; animation-delay: -20s; }
+.fog3 { animation-duration: 120s; animation-delay: -40s; opacity: 0.15; }
+
+@keyframes fogMove {
+  0%   { transform: translate(-10%, 0) scale(1); }
+  50%  { transform: translate(10%, -5%) scale(1.1); }
+  100% { transform: translate(-10%, 0) scale(1); }
+}
     </style>
 </head>
 <body>
@@ -937,7 +973,13 @@
   <div class="sunray-effect"></div>
 </div>
     
-
+<!-- Animated Fog Layer -->
+<div class="fog-layer">
+  <div class="fog fog1"></div>
+  <div class="fog fog2"></div>
+  <div class="fog fog3"></div>
+</div>
+    
     <!-- Main Content -->
     <div class="container">
         <!-- Header -->
