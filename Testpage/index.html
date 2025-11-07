@@ -924,49 +924,7 @@
   transform: translateZ(0);
 }
 
-        /* 🔮 Animated Fog Layer */
-/* 🌫️ Smooth Distorted Fog Section */
-.fog-section {
-  position: relative;
-  width: 100%;
-  height: 300px; /* Adjust height to your liking */
-  margin-top: 40px; /* spacing after login buttons */
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 3; /* below content cards but above background */
-}
-
-/* base fog layers */
-.fog-canvas {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-  mix-blend-mode: lighten;
-  opacity: 0.3;
-  filter: blur(80px) contrast(110%);
-  animation: fogDrift 90s ease-in-out infinite;
-  transform: translateZ(0);
-}
-
-/* second fog layer, slightly different movement */
-.fog2 {
-  opacity: 0.25;
-  animation: fogDriftAlt 120s ease-in-out infinite;
-  filter: blur(100px) contrast(120%);
-}
-
-@keyframes fogDrift {
-  0%   { transform: translateX(-20%) translateY(0%) scale(1); }
-  50%  { transform: translateX(20%) translateY(-10%) scale(1.1); }
-  100% { transform: translateX(-20%) translateY(0%) scale(1); }
-}
-
-@keyframes fogDriftAlt {
-  0%   { transform: translateX(10%) translateY(-5%) scale(1.05) rotate(0deg); }
-  50%  { transform: translateX(-15%) translateY(10%) scale(1.15) rotate(2deg); }
-  100% { transform: translateX(10%) translateY(-5%) scale(1.05) rotate(0deg); }
-}
-
+        
     </style>
 </head>
 <body>
@@ -1051,13 +1009,7 @@
             </button>
         </div>
 
-        <!-- Fog Effect Section (below buttons) -->
-<div class="fog-section">
-  <div class="fog-canvas fog1"></div>
-  <div class="fog-canvas fog2"></div>
-</div>
-
-        <!-- Terms -->
+                <!-- Terms -->
         <p class="terms animate-in delay-600">
             नए उपयोगकर्ता: Register करें। मौजूदा उपयोगकर्ता: Login करें।<br/>
             यह मंच किसानों और कृषी-केंद्रों के लिए है।
