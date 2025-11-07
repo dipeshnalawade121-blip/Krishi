@@ -331,19 +331,6 @@
             justify-content: center;
         }
 
-        #google-login-btn {
-    width: 100%;
-    min-height: 50px;   /* reserve space before script loads */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.3s ease;
-    opacity: 0;         /* start hidden for smooth fade-in */
-}
-#google-login-btn.ready {
-    opacity: 1;
-}
-
         .g_id_signin {
             border-radius: 12px !important;
             box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
@@ -542,6 +529,11 @@
                     <button type="submit" class="login-button">Sign in</button>
                 </form>
 
+                <!-- Google Sign-in -->
+                <div class="google-btn-container">
+                    <div id="google-login-btn"></div>
+                </div>
+
                 <!-- Or Divider -->
                 <div class="divider animate-in delay-400">
                     <div class="divider-line"></div>
@@ -549,10 +541,7 @@
                     <div class="divider-line"></div>
                 </div>
 
-                <!-- Google Sign-in -->
-                <div class="google-btn-container">
-                    <div id="google-login-btn"></div>
-                </div>
+                
 
                 <!-- Links -->
                 <div class="links">
@@ -729,21 +718,17 @@
                     text: 'continue_with',
                     size: 'large',
                     type: 'standard',
-                    width: desiredWidth,                
+                    width: desiredWidth,
                 });
-                loginBtnContainer.classList.add('ready');
             }
         }
 
         window.addEventListener('load', () => {
-    // Delay Google button initialization until layout is stable
-    setTimeout(() => {
-        initGoogleButton();
-        if (!window.google || !google.accounts || !google.accounts.id) {
-            setTimeout(initGoogleButton, 800);
-        }
-    }, 400); // wait 0.4s for main card to paint
-});
+            initGoogleButton();
+            if (!window.google || !google.accounts || !google.accounts.id) {
+                setTimeout(initGoogleButton, 800);
+            }
+        });
     </script>
 </body>
 </html>
