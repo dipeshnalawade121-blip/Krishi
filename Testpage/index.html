@@ -930,7 +930,14 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        
+
+        /* 💀 Remove that blue focus box on clicks/taps */
+.step, 
+.step * {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none; /* optional: prevent accidental text highlight */
+}
     </style>
 </head>
 <body>
