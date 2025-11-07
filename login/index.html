@@ -325,11 +325,11 @@
         }
 
         /* Google Button Container */
-        .google-btn-container {
+      /*  .google-btn-container {
             margin: 24px 0;
             display: flex;
             justify-content: center;
-        }
+        }*/
 
         .g_id_signin {
             border-radius: 12px !important;
@@ -458,22 +458,13 @@
                 font-size: 24px;
             }
         }
-
-        #google-login-btn {
-  width: 100%;
-  min-height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+        .google-btn-container {
+    margin: 24px 0;
+    display: flex;
+    justify-content: center;
+    min-height: 48px; /* Matches Google's large button height */
+    align-items: center; /* Vertically centers the button */
         }
-
-        #google-login-btn {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-#google-login-btn.ready {
-  opacity: 1;
-}
     </style>
 </head>
 <body>
@@ -544,7 +535,7 @@
                     <!-- Sign In Button -->
                     <button type="submit" class="login-button">Sign in</button>
                 </form>
-              
+
                 <!-- Or Divider -->
                 <div class="divider animate-in delay-400">
                     <div class="divider-line"></div>
@@ -702,42 +693,6 @@
             }
         }
 
-
-        const container = document.querySelector('.login-container');
-
-function initGoogleButton() {
-  if (!window.google || !google.accounts || !google.accounts.id) return;
-
-  // freeze height before Google iframe inserts
-  const h = container.offsetHeight;
-  container.style.minHeight = h + 'px';
-
-  const referenceElement = document.querySelector('.login-button');
-  let desiredWidth = referenceElement ? referenceElement.offsetWidth : 400;
-
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredentialResponse,
-    ux_mode: 'popup'
-  });
-
-  const loginBtnContainer = document.getElementById('google-login-btn');
-  if (loginBtnContainer) {
-    google.accounts.id.renderButton(loginBtnContainer, {
-      theme: 'outline',
-      text: 'continue_with',
-      size: 'large',
-      type: 'standard',
-      width: desiredWidth,
-    });
-    // fade in when ready
-    loginBtnContainer.classList.add('ready');
-  }
-
-  // unfreeze after small delay
-  setTimeout(() => container.style.minHeight = '', 1000);
-}
-        
         // Initialize Google button
         function initGoogleButton() {
             if (!window.google || !google.accounts || !google.accounts.id) {
@@ -770,7 +725,6 @@ function initGoogleButton() {
                     type: 'standard',
                     width: desiredWidth,
                 });
-                loginBtnContainer.classList.add('ready');
             }
         }
 
