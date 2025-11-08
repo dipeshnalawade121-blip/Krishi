@@ -3,54 +3,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Complete Your Profile | Krishi</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;700;800;900&display=swap" rel="stylesheet">
+
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <style>
-        /* Custom font */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        
-        :root {
-            --primary-green: #059669; /* emerald-600 */
-            --dark-bg: #0f172a; /* slate-900 */
-            --dark-card: #1e293b; /* slate-800 */
-            --dark-input: #0f172a; /* slate-900 */
-            --dark-border: #334155; /* slate-700 */
-            --light-text: #e2e8f0; /* slate-200 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--dark-bg); /* Dark background */
-            color: var(--light-text);
+            font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0E0E0E;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        /* General dark input styles */
-        .input-field-dark {
-            background-color: var(--dark-input);
-            border: 1px solid var(--dark-border);
-            color: var(--light-text);
+        /* Background Pattern Animation */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            opacity: 0.5;
+            pointer-events: none;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px);
+            background-size: 100px 100px;
         }
-        .input-field-dark:focus {
-            border-color: var(--primary-green);
-            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.4);
+        
+        /* Sunray/Dark Fade Effect */
+        @keyframes sunrayPulse {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.85; }
+        }
+
+        .sunray-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%);
+            z-index: 1;
+            pointer-events: none;
+            animation: sunrayPulse 10s ease-in-out infinite alternate;
+        }
+
+        /* God Rays Effect */
+        @keyframes godRays {
+            0% {
+                transform: translate(-30%, -30%) rotate(0deg);
+                opacity: 0.4;
+            }
+            25% {
+                transform: translate(-25%, -25%) rotate(5deg);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translate(-30%, -30%) rotate(10deg);
+                opacity: 0.4;
+            }
+            75% {
+                transform: translate(-25%, -25%) rotate(5deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(-30%, -30%) rotate(0deg);
+                opacity: 0.4;
+            }
+        }
+
+        .god-rays {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(
+                    ellipse at 0% 0%,
+                    rgba(158, 248, 122, 0.2) 0%,
+                    rgba(0, 158, 87, 0.1) 30%,
+                    transparent 70%
+                ),
+                linear-gradient(
+                    135deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.05) 45%,
+                    transparent 55%
+                );
+            z-index: 2;
+            pointer-events: none;
+            animation: godRays 15s ease-in-out infinite;
+            mix-blend-mode: overlay;
+        }
+
+        /* Main Profile Container */
+        .profile-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Profile Card - Glass Transparent with Glow Effect */
+        .profile-card {
+            background: rgba(15, 23, 42, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 32px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        /* Glass Glow Effect */
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(158, 248, 122, 0.1) 0%,
+                rgba(0, 158, 87, 0.05) 50%,
+                transparent 100%
+            );
+            border-radius: 24px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .profile-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(
+                135deg,
+                rgba(158, 248, 122, 0.3) 0%,
+                rgba(0, 158, 87, 0.1) 50%,
+                transparent 100%
+            );
+            border-radius: 26px;
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+            animation: glassGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glassGlow {
+            0% {
+                opacity: 0.5;
+                filter: blur(12px);
+            }
+            100% {
+                opacity: 0.8;
+                filter: blur(18px);
+            }
+        }
+
+        /* Ensure content stays above glass effects */
+        .profile-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header Section */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .profile-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .profile-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
             outline: none;
+            border-color: rgba(158, 248, 122, 0.5);
+            box-shadow: 0 0 0 2px rgba(158, 248, 122, 0.2);
         }
 
-        /* Locked input styles (read-only) */
-        .locked-input {
-            background-color: #0f172a; /* Slightly darker than card for contrast */
-            color: #94a3b8; /* Slate 400 */
+        .input-field::placeholder {
+            color: #64748b;
+        }
+
+        .input-field:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            border-color: #334155;
         }
 
-        /* Modal backdrop for darkening background */
+        .input-field.locked {
+            background: rgba(15, 23, 42, 0.4);
+            color: #94a3b8;
+        }
+
+        /* Mobile & OTP Row */
+        .mobile-otp-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .mobile-input {
+            flex: 1;
+        }
+
+        .otp-button {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .otp-button:hover:not(:disabled) {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(158, 248, 122, 0.3);
+        }
+
+        .otp-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .otp-button.sent {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+            color: #60a5fa;
+        }
+
+        .otp-button.verified {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #4ade80;
+        }
+
+        /* OTP Section */
+        .otp-section {
+            display: none;
+        }
+
+        .otp-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Password Container */
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            color: #fff;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .status-unverified {
+            color: #f87171;
+        }
+
+        .status-verified {
+            color: #4ade80;
+        }
+
+        /* Google Link Section */
+        .google-link-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .google-link-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .google-btn-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .g_id_signin {
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .g_id_signin:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            gap: 16px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #334155 50%, transparent 100%);
+        }
+
+        .divider-text {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Save Button */
+        .save-button {
+            width: 100%;
+            background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 158, 87, 0.4);
+            margin-top: 8px;
+        }
+
+        .save-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #aefc90 0%, #00b066 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 158, 87, 0.6);
+        }
+
+        .save-button:active {
+            transform: translateY(0);
+        }
+
+        .save-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* User ID Display */
+        .user-id-display {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 24px;
+        }
+
+        /* Status Message */
+        .status-message {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .status-info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+        }
+
+        /* Error Modal */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -58,203 +502,325 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 50;
         }
 
-        /* Styles for OTP Section (Hidden by default) */
-        .otp-section {
-            display: none;
-            flex-direction: column;
-            gap: 12px; 
+        .modal-content {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .otp-section.active {
+
+        .modal-header {
             display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
         }
-        
-        /* Custom Google button container for centering */
-        .google-btn-container {
-            display: flex; 
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .modal-body {
+            color: #94a3b8;
+            margin-bottom: 24px;
+        }
+
+        .error-list {
+            list-style-type: disc;
+            margin-left: 20px;
+            color: #f87171;
+        }
+
+        .modal-button {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button:hover {
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        /* Loader Overlay */
+        #loader-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(7, 7, 7, 0.9);
+            display: none;
+            align-items: center;
             justify-content: center;
+            z-index: 9999;
         }
 
-        /* Hide number input arrows */
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        .loader {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: inline-block;
+            border-top: 3px solid #34d399;
+            border-right: 3px solid transparent;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
         }
-        input[type="number"] {
-            -moz-appearance: textfield;
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* Fullscreen Loader Overlay */
-#loader-overlay {
-  position: fixed;
-  inset: 0; /* full screen */
-  background-color: rgba(15, 23, 42, 0.9); /* dark translucent background */
-  display: none; /* hidden by default */
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.3s ease;
-}
-
-/* Spinner Style */
-.loader {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: inline-block;
-  border-top: 3px solid #4ADE80;
-  border-right: 3px solid transparent;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+        /* Responsive Adjustments */
+        @media (max-width: 480px) {
+            .profile-card {
+                padding: 32px 24px;
+            }
+            
+            .profile-title {
+                font-size: 20px;
+            }
+            
+            .mobile-otp-row {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start">
+<body>
+    <!-- Background Pattern -->
+    <div class="bg-pattern"></div>
     
-<div id="loader-overlay" style="display:flex;">
-  <span class="loader"></span>
-</div>
-    <!-- Main Profile Container (Dark Card) -->
-    <div id="app" class="w-full max-w-lg bg-slate-800 shadow-2xl rounded-xl p-6 sm:p-8">
-        
-        <!-- Header Section -->
-        <div class="flex items-center space-x-2 mb-8">
-            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 0012 21a12.001 12.001 0 008.618-17.964z"></path>
-            </svg>
-            <h1 class="text-2xl font-bold text-slate-100">User Profile</h1>
-        </div>
+    <!-- Sunray/Dark Fade Effect -->
+    <div class="sunray-effect"></div>
+    
+    <!-- God Rays Effect from Top Left Corner -->
+    <div class="god-rays"></div>
 
-        <!-- Notification/Status Message Area -->
-        <div id="status-message" class="hidden p-3 mb-6 rounded-lg text-sm" role="alert"></div>
-
-        <!-- Profile Form -->
-        <form id="profile-form">
-            
-            <!-- User Name -->
-            <div class="mb-4">
-                <label for="userName" class="block text-sm font-medium text-slate-400 mb-1">User Name</label>
-                <input type="text" id="userName" required maxlength="50"
-                       class="w-full p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 locked-input input-field-dark"
-                       placeholder="Your Full Name" readonly>
-            </div>
-
-            <!-- User Email -->
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-slate-400 mb-1">User Email</label>
-                <input type="email" id="email" required
-                       class="w-full p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 locked-input input-field-dark"
-                       placeholder="your.email@gmail.com" readonly>
-            </div>
-
-            <!-- Link Google Button (using GSI) -->
-            <div class="mb-4" id="google-link-container">
-                <label class="block text-sm font-medium text-slate-400 mb-1">Link Google Account</label>
-                <div class="google-btn-container">
-                    <!-- The GSI button will be rendered here -->
-                    <div id="google-link-btn"></div>
-                </div>
-            </div>
-
-            <hr class="my-6 border-slate-700" />
-            
-            <!-- User Mobile Number & OTP Send (Adjusted Layout) -->
-            <div class="mb-4">
-                <label for="mobileNumber" class="block text-sm font-medium text-slate-400 mb-1">User Mobile Number <span id="mobile-status-text" class="text-xs font-normal text-red-500">(Unverified)</span></label>
-                
-                <!-- Mobile Input Box (Full Width) -->
-                <div class="flex mb-3">
-                    <span class="inline-flex items-center px-3 text-sm text-slate-200 bg-slate-700 border border-r-0 border-slate-600 rounded-l-lg">
-                        +91
-                    </span>
-                    <input type="tel" id="mobileNumber" required minlength="10" maxlength="10"
-                           class="flex-1 p-3 rounded-r-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                           placeholder="10 digit number">
+    <!-- Main Profile Container -->
+    <div class="profile-container">
+        <div class="profile-card animate-in">
+            <div class="profile-content">
+                <!-- Header -->
+                <div class="profile-header animate-in delay-100">
+                    <div class="logo-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <defs>
+                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#9ef87a"/>
+                                <stop offset="100%" stop-color="#009e57"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">krishi</span>
                 </div>
 
-                <!-- Send OTP Button (Now full width, underneath the input) -->
-                <button type="button" id="send-otp-btn"
-                        class="w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-blue-600 hover:bg-blue-500 transition duration-150 disabled:bg-gray-700">
-                    Send OTP
-                </button>
+                <!-- Title -->
+                <h1 class="profile-title animate-in delay-200">Complete Your Profile</h1>
+                <p class="profile-subtitle animate-in delay-200">Finish setting up your account to get started</p>
+
+                <!-- Status Message -->
+                <div id="status-message" class="status-message"></div>
+
+                <!-- Profile Form -->
+                <form id="profile-form" class="animate-in delay-300">
+                    <!-- User Name -->
+                    <div class="form-group">
+                        <label class="input-label" for="userName">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="userName" 
+                            class="input-field" 
+                            placeholder="Enter your full name" 
+                            maxlength="50"
+                            required
+                        >
+                    </div>
+
+                    <!-- User Email -->
+                    <div class="form-group">
+                        <label class="input-label" for="email">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            class="input-field" 
+                            placeholder="your.email@example.com" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Google Link Section -->
+                    <div id="google-link-container" class="google-link-section">
+                        <div class="google-link-title">Link Google Account</div>
+                        <div class="google-btn-container">
+                            <div id="google-link-btn"></div>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <span class="divider-text">or continue with</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <!-- Mobile Number -->
+                    <div class="form-group">
+                        <label class="input-label" for="mobileNumber">
+                            Mobile Number
+                            <span id="mobile-status" class="status-indicator status-unverified">Unverified</span>
+                        </label>
+                        <div class="mobile-otp-row">
+                            <input 
+                                type="tel" 
+                                id="mobileNumber" 
+                                class="input-field mobile-input" 
+                                placeholder="10-digit mobile number" 
+                                maxlength="10"
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                id="send-otp-btn" 
+                                class="otp-button"
+                            >
+                                Send OTP
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- OTP Section -->
+                    <div id="otp-section" class="otp-section form-group">
+                        <label class="input-label" for="otp-input">Enter OTP</label>
+                        <div class="mobile-otp-row">
+                            <input 
+                                type="text" 
+                                id="otp-input" 
+                                class="input-field mobile-input" 
+                                placeholder="Enter 6-digit OTP" 
+                                maxlength="6"
+                                disabled
+                            >
+                            <button 
+                                type="button" 
+                                id="verify-otp-btn" 
+                                class="otp-button"
+                                disabled
+                            >
+                                Verify
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label class="input-label" for="password">Password</label>
+                        <div class="password-container">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                class="input-field" 
+                                placeholder="Create a secure password" 
+                                minlength="8"
+                                required
+                            >
+                            <button type="button" id="toggle-password" class="toggle-password">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <button 
+                        type="submit" 
+                        id="save-button" 
+                        class="save-button"
+                        disabled
+                    >
+                        Complete Profile
+                    </button>
+                </form>
+
+                <!-- User ID Display -->
+                <div class="user-id-display animate-in delay-400">
+                    <p>Your User ID: <span id="user-id">Loading...</span></p>
+                </div>
             </div>
-
-            <!-- OTP Input & Verify (Adjusted Layout: Stacked Block underneath) -->
-            <div id="otp-section" class="otp-section mb-4">
-                <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" maxlength="6"
-                       class="p-3 w-full rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                       disabled>
-                <button type="button" id="verify-otp-btn"
-                        class="w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-emerald-600 hover:bg-emerald-500 transition duration-150 disabled:bg-gray-700"
-                        disabled>
-                    Verify
-                </button>
-            </div>
-
-            <!-- User Password -->
-            <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-slate-400 mb-1">User Password</label>
-                <input type="password" id="password" required minlength="8"
-                       class="w-full p-3 rounded-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
-                       placeholder="Enter a secure password">
-                <!-- Eye icon -->
-  <button type="button" id="toggle-password"
-          class="absolute right-3 top-9 text-slate-400 hover:text-emerald-400"
-          tabindex="-1">
-    <i data-lucide="eye"></i>
-  </button>
-            </div>
-
-            <!-- Save Button (Text changed) -->
-            <button type="submit" id="save-button"
-                    class="w-full p-3 text-lg font-bold text-white bg-emerald-600 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 disabled:bg-gray-700"
-                    disabled>
-                Save Profile
-            </button>
-        </form>
-
-        <!-- Display User ID for debugging/reference -->
-        <div class="mt-6 text-center text-xs text-slate-500">
-            <p>Your User ID: <span id="user-id">Loading...</span></p>
         </div>
     </div>
-    
-    <!-- Custom Validation Error Modal Structure (Dark) -->
-    <div id="error-modal" class="modal-backdrop hidden">
-        <div class="bg-slate-800 p-6 rounded-xl shadow-2xl w-11/12 max-w-sm transform transition-all duration-300 scale-100 border border-slate-700">
-            <div class="flex items-center space-x-3 mb-4">
-                <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <h3 class="text-xl font-bold text-slate-100">Validation Error</h3>
+
+    <!-- Error Modal -->
+    <div id="error-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <h3 class="modal-title">Validation Error</h3>
             </div>
-            <p class="text-slate-400 mb-4">Please fix the following issues before updating your profile:</p>
-            <ul id="modal-error-list" class="list-disc list-inside text-sm text-red-400 space-y-1 pl-4 mb-6">
-                <!-- Errors will be inserted here -->
-            </ul>
-            <button id="close-modal-button"
-                    class="w-full p-3 text-md font-semibold text-white bg-red-600 rounded-lg hover:bg-red-500 transition duration-150">
-                Got It
-            </button>
+            <div class="modal-body">
+                <p>Please fix the following issues before updating your profile:</p>
+                <ul id="modal-error-list" class="error-list">
+                    <!-- Errors will be inserted here -->
+                </ul>
+            </div>
+            <button id="close-modal-button" class="modal-button">Got It</button>
         </div>
     </div>
+
     <!-- Loader Overlay -->
-<div id="loader-overlay">
-  <span class="loader"></span>
-</div>
+    <div id="loader-overlay">
+        <span class="loader"></span>
+    </div>
 
-    <!-- Supabase and Logic -->
     <script type="module">
-        // Supabase client (only used for auth session)
+        // Import Supabase client
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
         const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
@@ -265,20 +831,17 @@
         const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
 
         // ---------- Loader Overlay Functions ----------
-function showLoader() {
-  const loader = document.getElementById('loader-overlay');
-  loader.style.display = 'flex';
-  loader.style.opacity = '1';
-}
+        function showLoader() {
+            const loader = document.getElementById('loader-overlay');
+            loader.style.display = 'flex';
+        }
 
-function hideLoader() {
-  const loader = document.getElementById('loader-overlay');
-  loader.style.opacity = '0';
-  setTimeout(() => loader.style.display = 'none', 300); // matches CSS transition
-}
-
+        function hideLoader() {
+            const loader = document.getElementById('loader-overlay');
+            loader.style.display = 'none';
+        }
         
-        // Detect signup method from URL params or session
+        // Detect signup method from URL params
         const urlParams = new URLSearchParams(window.location.search);
         const mobile = urlParams.get('mobile');
         const userId = urlParams.get('id');
@@ -305,22 +868,23 @@ function hideLoader() {
         const inputEmail = document.getElementById('email');
         const inputMobileNumber = document.getElementById('mobileNumber');
         const inputPassword = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
         
         // OTP Elements
         const sendOtpBtn = document.getElementById('send-otp-btn');
         const otpSection = document.getElementById('otp-section');
         const otpInput = document.getElementById('otp-input');
         const verifyOtpBtn = document.getElementById('verify-otp-btn');
-        const mobileStatusText = document.getElementById('mobile-status-text');
+        const mobileStatus = document.getElementById('mobile-status');
         const googleLinkContainer = document.getElementById('google-link-container');
 
         // --- Helper Functions ---
         function lockElement(element, shouldLock) {
             element.readOnly = shouldLock;
             if (shouldLock) {
-                element.classList.add('locked-input');
+                element.classList.add('locked');
             } else {
-                element.classList.remove('locked-input');
+                element.classList.remove('locked');
             }
         }
 
@@ -335,13 +899,13 @@ function hideLoader() {
                 clearInterval(otpInterval);
             }
             btn.disabled = true;
+            btn.classList.add('sent');
+            btn.innerHTML = 'OTP sent! ';
             const timerSpan = document.createElement('span');
             timerSpan.id = 'timer-span';
-            timerSpan.className = 'ml-1 font-medium';
-            btn.innerHTML = 'OTP sent! ';
             btn.appendChild(timerSpan);
             timerSpan.innerHTML = formatTime(seconds);
-            btn.className = 'w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-blue-900 transition duration-150 disabled:bg-gray-700';
+            
             let timeLeft = seconds;
             otpInterval = setInterval(() => {
                 timeLeft--;
@@ -349,7 +913,7 @@ function hideLoader() {
                 if (timeLeft <= 0) {
                     clearInterval(otpInterval);
                     btn.innerHTML = originalText;
-                    btn.className = 'w-full px-4 py-2 font-semibold rounded-lg text-sm text-white bg-blue-600 hover:bg-blue-500 transition duration-150 disabled:bg-gray-700';
+                    btn.classList.remove('sent');
                     btn.disabled = false;
                 }
             }, 1000);
@@ -362,41 +926,41 @@ function hideLoader() {
          */
         function displayStatus(message, type) {
             statusMessage.textContent = message;
-            statusMessage.className = `p-3 mb-6 rounded-lg text-sm transition-all duration-300 ${type === 'success' ? 'bg-green-900 text-green-300' : type === 'error' ? 'bg-red-900 text-red-300' : 'bg-blue-900 text-blue-300'}`;
-            statusMessage.classList.remove('hidden');
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
 
             setTimeout(() => {
-                statusMessage.classList.add('hidden');
+                statusMessage.style.display = 'none';
             }, 5000);
         }
 
         function checkFormValidity() {
-    const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim();
+            const isBaseValid = inputUserName.value.trim() && inputEmail.value.trim();
 
-    // If password field is hidden or locked, we skip password check
-    const passwordValid = (
-        (!inputPassword || inputPassword.offsetParent === null) ||
-        inputPassword.value.length >= 8
-    );
+            // Password validation
+            const passwordValid = (
+                (!inputPassword || inputPassword.offsetParent === null) ||
+                inputPassword.value.length >= 8
+            );
 
-    // Mobile not required if hidden or locked
-    const mobileValid = (
-        (!inputMobileNumber || inputMobileNumber.offsetParent === null) ||
-        mobileVerified
-    );
+            // Mobile validation
+            const mobileValid = (
+                (!inputMobileNumber || inputMobileNumber.offsetParent === null) ||
+                mobileVerified
+            );
 
-    const canSave = isBaseValid && passwordValid && mobileValid;
-    saveButton.disabled = !canSave;
+            const canSave = isBaseValid && passwordValid && mobileValid;
+            saveButton.disabled = !canSave;
         }
 
         // --- Modal Functions ---
         function showModal(messages) {
             modalErrorList.innerHTML = messages.map(msg => `<li>${msg}</li>`).join('');
-            errorModal.classList.remove('hidden');
+            errorModal.style.display = 'flex';
         }
 
         function closeModal() {
-            errorModal.classList.add('hidden');
+            errorModal.style.display = 'none';
         }
 
         closeModalButton.addEventListener('click', closeModal);
@@ -409,12 +973,14 @@ function hideLoader() {
             displayStatus('Linking Google account...', 'info');
 
             try {
+                showLoader();
                 const res = await fetch(`${BACKEND_URL}/auth/google`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id_token, existing_user_id: userId }),
                 });
                 const data = await res.json();
+                hideLoader();
 
                 if (res.ok && data.success) {
                     inputUserName.value = data.user.user_name || inputUserName.value;
@@ -474,9 +1040,8 @@ function hideLoader() {
             // Reset verification status if mobile changes
             if (e.target.value !== currentMobile) {
                 mobileVerified = false;
-                mobileStatusText.innerHTML = '(Unverified)';
-                mobileStatusText.classList.remove('text-green-500');
-                mobileStatusText.classList.add('text-red-500');
+                mobileStatus.innerHTML = 'Unverified';
+                mobileStatus.className = 'status-indicator status-unverified';
                 otpSection.classList.remove('active');
                 verifyOtpBtn.innerHTML = 'Verify';
                 verifyOtpBtn.disabled = true;
@@ -493,12 +1058,14 @@ function hideLoader() {
             currentMobile = phoneInput;
 
             try {
+                showLoader();
                 const response = await fetch(`${BACKEND_URL}/send-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: currentMobile })
                 });
                 const data = await response.json();
+                hideLoader();
 
                 if (response.ok && data.success) {
                     startCountdown(sendOtpBtn, 119, 'Send OTP');
@@ -511,6 +1078,7 @@ function hideLoader() {
             } catch (error) {
                 console.error(error);
                 displayStatus('Error sending OTP: ' + error.message, 'error');
+                hideLoader();
             }
         });
 
@@ -528,25 +1096,25 @@ function hideLoader() {
             }
 
             try {
+                showLoader();
                 const response = await fetch(`${BACKEND_URL}/verify-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone: currentMobile, otp: otp })
                 });
                 const data = await response.json();
+                hideLoader();
 
                 if (response.ok && data.success) {
-                    verifyOtpBtn.innerHTML = 'Verified <i data-lucide="check" class="w-4 h-4 ml-1"></i>';
-                    verifyOtpBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
-                    verifyOtpBtn.classList.add('bg-green-700');
+                    verifyOtpBtn.innerHTML = 'Verified ✓';
+                    verifyOtpBtn.classList.remove('sent');
+                    verifyOtpBtn.classList.add('verified');
                     verifyOtpBtn.disabled = true;
                     otpInput.disabled = true;
-                    lucide.createIcons();
                     
                     mobileVerified = true;
-                    mobileStatusText.innerHTML = '(Verified)';
-                    mobileStatusText.classList.remove('text-red-500');
-                    mobileStatusText.classList.add('text-green-500');
+                    mobileStatus.innerHTML = 'Verified';
+                    mobileStatus.className = 'status-indicator status-verified';
                     
                     lockElement(inputMobileNumber, true);
                     sendOtpBtn.disabled = true;
@@ -561,7 +1129,21 @@ function hideLoader() {
                 displayStatus('Error verifying OTP. Please try again.', 'error');
                 otpInput.value = '';
                 verifyOtpBtn.disabled = true;
+                hideLoader();
             }
+        });
+
+        // --- Toggle Password Visibility ---
+        togglePasswordBtn.addEventListener('click', () => {
+            const isHidden = inputPassword.type === 'password';
+            inputPassword.type = isHidden ? 'text' : 'password';
+            
+            // Switch icon
+            const iconPath = isHidden ? 
+                'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68' : 
+                'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z';
+                
+            togglePasswordBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPath}"></path></svg>`;
         });
 
         // --- Validation Functions ---
@@ -588,19 +1170,16 @@ function hideLoader() {
                 }
             }
             
-            // Password validation — only if visible and not read-only
-if (
-  inputPassword.offsetParent !== null &&          // means: visible in layout
-  !inputPassword.readOnly &&                      // not read-only
-  (!inputPassword.value || inputPassword.value.length < 8) // empty or too short
-) {
-  errors.push("Password must be at least 8 characters.");
-}
+            // Password validation
+            if (inputPassword.offsetParent !== null && !inputPassword.readOnly && 
+                (!inputPassword.value || inputPassword.value.length < 8)) {
+                errors.push("Password must be at least 8 characters.");
+            }
 
             return errors;
         }
 
-        // --- Save Function - FIXED: Removed google_id from payload ---
+        // --- Save Function ---
         async function saveProfile(event) {
             event.preventDefault();
             const errors = validateForm();
@@ -611,9 +1190,9 @@ if (
             showLoader();
 
             saveButton.disabled = true;
-            saveButton.textContent = 'Updating...';
+            saveButton.textContent = 'Saving...';
 
-            // Construct the payload - ONLY include fields that backend expects
+            // Construct the payload
             const payload = {
                 id: userId,
                 user_name: inputUserName.value.trim(),
@@ -657,31 +1236,31 @@ if (
                 }
 
                 if (data.success) {
-    displayStatus('Profile saved successfully! Redirecting...', 'success');
+                    displayStatus('Profile saved successfully! Redirecting...', 'success');
 
-    // Get the user ID from backend response if available
-    const redirectId = data.user?.id || userId;
+                    // Get the user ID from backend response if available
+                    const redirectId = data.user?.id || userId;
 
-    // Add a slight delay so user sees success message
-    setTimeout(() => {
-        const googleParam = googleId ? `google_id=${googleId}&` : '';
-window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${redirectId}`;
-    }, 1200); // 1.2s delay before redirect
-} else {
-    throw new Error(data.error || 'Profile save failed');
-}
+                    // Add a slight delay so user sees success message
+                    setTimeout(() => {
+                        const googleParam = googleId ? `google_id=${googleId}&` : '';
+                        window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${redirectId}`;
+                    }, 1200);
+                } else {
+                    throw new Error(data.error || 'Profile save failed');
+                }
 
             } catch (error) {
                 console.error("Error updating profile:", error);
                 displayStatus('Error updating profile: ' + error.message, 'error');
             } finally {
                 saveButton.disabled = false;
-                saveButton.textContent = 'Save Profile';
-                setTimeout(() => hideLoader(), 500);
+                saveButton.textContent = 'Complete Profile';
+                hideLoader();
             }
         }
 
-        // --- Load Profile - FIXED: Only sends id to backend ---
+        // --- Load Profile ---
         async function loadProfile() {
             showLoader();
             if (!userId) {
@@ -726,93 +1305,52 @@ window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${
                 mobileVerified = !!user.mobile;
                 
                 if (mobileVerified) {
-                    mobileStatusText.innerHTML = '(Verified)';
-                    mobileStatusText.classList.remove('text-red-500');
-                    mobileStatusText.classList.add('text-green-500');
+                    mobileStatus.innerHTML = 'Verified';
+                    mobileStatus.className = 'status-indicator status-verified';
                 }
                 
-                const nameEmailExists = !!user.user_name && !!user.email;
+                // Handle different signup flows
+                if (signupMethod === 'google' || googleId) {
+                    // Lock name and email for Google signup
+                    lockElement(inputUserName, true);
+                    lockElement(inputEmail, true);
 
-// --- GOOGLE SIGNUP FLOW ---
-if (signupMethod === 'google' || googleId) {
-  // Lock name and email
-  lockElement(inputUserName, true);
-  lockElement(inputEmail, true);
-
-  // Hide Google link button (already linked)
-  googleLinkContainer.style.display = 'none';
-
-  // Show mobile + password section (for user to fill)
-  const mobileSection = inputMobileNumber.closest('.mb-4');
-  const passwordSection = inputPassword.closest('.mb-4');
-
-  if (mobileSection) {
-    mobileSection.style.display = 'block';
-    lockElement(inputMobileNumber, false);
-    sendOtpBtn.disabled = false;
-    mobileVerified = false; // force verification
-    mobileStatusText.innerHTML = '(Unverified)';
-    mobileStatusText.classList.remove('text-green-500');
-    mobileStatusText.classList.add('text-red-500');
-  }
-
-  if (passwordSection) {
-    passwordSection.style.display = 'block';
-    inputPassword.setAttribute('required', 'true');
-    lockElement(inputPassword, false);
-  }
-}
-
-// --- MOBILE + PASSWORD SIGNUP FLOW ---
-else if (signupMethod === 'mobile') {
-  // Show mobile section, hide password section
-  const mobileSection = inputMobileNumber.closest('.mb-4');
-  const passwordSection = inputPassword.closest('.mb-4');
-
-  if (mobileSection) {
-    mobileSection.style.display = 'block';
-    lockElement(inputMobileNumber, true);
-    sendOtpBtn.disabled = true;
-    sendOtpBtn.style.display = 'none'; // 👈 hides Send OTP button for mobile signup users
-    mobileVerified = true;
-    mobileStatusText.innerHTML = '(Verified)';
-    mobileStatusText.classList.remove('text-red-500');
-    mobileStatusText.classList.add('text-green-500');
-  }
-
-  if (passwordSection) {
-    passwordSection.style.display = 'none';
-    inputPassword.removeAttribute('required');
-  }
-
-  // Lock name & email, show Google link hint
-  lockElement(inputUserName, true);
-  lockElement(inputEmail, true);
-  googleLinkContainer.style.display = 'block';
-
-  if (!document.getElementById('google-hint')) {
-    const hint = document.createElement('p');
-    hint.id = 'google-hint';
-    hint.className = 'text-xs text-slate-400 mt-1';
-    hint.innerText = 'To add username & email ID, link your Google account!';
-    inputEmail.parentNode.appendChild(hint);
-  }
-}
-
-                
-                if (profileIsFull) {
-                    lockElement(inputMobileNumber, true);
-                    sendOtpBtn.disabled = true;
-                    lockElement(inputPassword, true);
+                    // Hide Google link button (already linked)
                     googleLinkContainer.style.display = 'none';
-                } else if (mobileVerified) {
+
+                    // Show mobile + password section
+                    inputMobileNumber.parentElement.parentElement.style.display = 'block';
+                    inputPassword.parentElement.parentElement.style.display = 'block';
+                    
+                    // Force mobile verification for Google users
+                    if (!mobileVerified) {
+                        lockElement(inputMobileNumber, false);
+                        sendOtpBtn.disabled = false;
+                        mobileVerified = false;
+                        mobileStatus.innerHTML = 'Unverified';
+                        mobileStatus.className = 'status-indicator status-unverified';
+                    }
+                } else if (signupMethod === 'mobile') {
+                    // Show mobile section, hide password section for mobile signup
+                    inputMobileNumber.parentElement.parentElement.style.display = 'block';
+                    inputPassword.parentElement.parentElement.style.display = 'none';
+                    
+                    // Lock mobile for mobile signup users
                     lockElement(inputMobileNumber, true);
                     sendOtpBtn.disabled = true;
-                    lockElement(inputPassword, false);
-                } else {
-                    lockElement(inputMobileNumber, false);
-                    sendOtpBtn.disabled = false;
-                    lockElement(inputPassword, false);
+                    sendOtpBtn.style.display = 'none';
+                    mobileVerified = true;
+                    mobileStatus.innerHTML = 'Verified';
+                    mobileStatus.className = 'status-indicator status-verified';
+
+                    // Show Google link hint
+                    if (!document.getElementById('google-hint')) {
+                        const hint = document.createElement('p');
+                        hint.id = 'google-hint';
+                        hint.className = 'text-xs text-slate-400 mt-1';
+                        hint.innerText = 'To add username & email ID, link your Google account!';
+                        inputEmail.parentNode.appendChild(hint);
+                    }
                 }
 
                 checkFormValidity();
@@ -820,7 +1358,8 @@ else if (signupMethod === 'mobile') {
             } catch (error) {
                 console.error("Error loading profile:", error);
                 displayStatus('Failed to load profile data: ' + error.message, 'error');
-            } hideLoader();
+            }
+            hideLoader();
         }
         
         // --- Event Listeners for Validation Check ---
@@ -841,7 +1380,6 @@ else if (signupMethod === 'mobile') {
             
             form.addEventListener('submit', saveProfile);
             displayStatus('Profile ready!', 'success');
-            hideLoader();
         }
 
         window.addEventListener('load', initApp);
@@ -852,22 +1390,6 @@ else if (signupMethod === 'mobile') {
                 location.reload();
             }
         });
-        
-        lucide.createIcons();
-
-        // --- Toggle Password Visibility ---
-const togglePasswordBtn = document.getElementById('toggle-password');
-const passwordInput = document.getElementById('password');
-
-togglePasswordBtn.addEventListener('click', () => {
-  const isHidden = passwordInput.type === 'password';
-  passwordInput.type = isHidden ? 'text' : 'password';
-
-  // Switch icon
-  const iconName = isHidden ? 'eye-off' : 'eye';
-  togglePasswordBtn.innerHTML = `<i data-lucide="${iconName}"></i>`;
-  lucide.createIcons();
-});
     </script>
 </body>
 </html>
