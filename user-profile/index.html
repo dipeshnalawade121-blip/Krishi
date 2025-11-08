@@ -1004,6 +1004,9 @@
                     
                     displayStatus('Google account linked and profile updated!', 'success');
                     checkFormValidity();
+                    // Show locked name & email after linking
+                    inputUserName.parentElement.style.display = 'block';
+                    inputEmail.parentElement.style.display = 'block';
                 } else {
                     throw new Error(data.error || 'Linking failed');
                 }
@@ -1344,6 +1347,9 @@
                     }
                 } else if (signupMethod === 'mobile') {
                     // Show mobile section, hide password section for mobile signup
+                    // Hide name & email fields initially
+                    inputUserName.parentElement.style.display = 'none';
+                    inputEmail.parentElement.style.display = 'none';
                     inputMobileNumber.parentElement.parentElement.style.display = 'block';
                     inputPassword.parentElement.parentElement.style.display = 'none';
                     
