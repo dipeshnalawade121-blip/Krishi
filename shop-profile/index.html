@@ -49,40 +49,14 @@
         /* Keep your texture layer as it is (.bg-pattern) */
 
 
-        .sunray-effect {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-
-    /* Base smooth dark gradient */
-    background:
-        linear-gradient(
-            to bottom left,
-            rgba(0, 0, 0, 0.0) 0%,    /* top-right low opacity */
-            rgba(0, 0, 0, 0.85) 100%  /* bottom-left fully dark */
-        );
-
-    /* Add super subtle noise to kill banding */
-    background-image:
-        linear-gradient(
-            to bottom left,
-            rgba(0, 0, 0, 0.0) 0%,
-            rgba(0, 0, 0, 0.85) 100%
-        ),
-        url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==");
-
-    background-size: cover;
-    background-blend-mode: overlay;
-    opacity: 1;
-        }
+        
 
         
         /* Sunray/Dark Fade Effect */
-       /* @keyframes sunrayPulse {
+        /*@keyframes sunrayPulse {
             0%, 100% { opacity: 0.95; }
             50% { opacity: 0.85; }
-        }
+        }*/
 
         .sunray-effect {
             position: fixed;
