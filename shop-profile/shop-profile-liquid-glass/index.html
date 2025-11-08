@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop Profile</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Mapbox -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet"/>
+
+  <!-- Three.js (global) -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/glass.css"/>
+</head>
+
+<body class="min-h-screen p-4 sm:p-8 flex justify-center items-start bg-slate-900">
+  <!-- Liquid glass canvas behind everything -->
+  <canvas id="glass-canvas"></canvas>
+
+  <!-- Main Profile Container (Dark Card) -->
+  <div id="app" class="w-full max-w-lg bg-slate-800 shadow-2xl rounded-xl p-6 sm:p-8 relative z-10">
+    <!-- Header Section -->
+    <div class="flex items-center space-x-2 mb-8">
+      <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 12h-15m15 0a3 3 0 11-6 0 3 3 0 016 0zm-7.5 0a3 3 0 11-6 0 3 3 0 016 0z"></path>
+      </svg>
+      <h1 class="text-2xl font-bold text-slate-100">Shop Profile</h1>
+    </div>
+
+    <!-- Notification/Status Message Area -->
+    <div id="status-message" class="hidden p-3 mb-6 rounded-lg text-sm" role="alert"></div>
+
+    <!-- Profile Form -->
+    <form id="profile-form">
+      <!-- Shop Name -->
+      <div class="mb-4">
+        <label for="shopName" class="block text-sm font-medium text-slate-400 mb-1">Shop Name</label>
+        <input type="text" id="shopName" required maxlength="100"
+               class="w-full p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 input-field-dark"
+               placeholder="Your Shop Name">
+      </div>
+
+      <!-- Shop Number -->
+      <div class="mb-4">
+        <label for="shopNumber" class="block text-sm font-medium text-slate-400 mb-1">Shop Contact Number</label>
+        <div class="flex">
+          <span class="inline-flex items-center px-3 text-sm text-slate-200 bg-slate-700 border border-r-0 border-slate-600 rounded-l-lg">
+            +91
+          </span>
+          <input type="tel" id="shopNumber" required minlength="10" maxlength="10"
+                 class="flex-1 p-3 rounded-r-lg input-field-dark focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150"
+                 placeholder="10 digit number">
+        </div>
+      </div>
+
+      <!-- Shop Address + Map -->
+      <div class="mb-4">
+        <label for="shopAddress" class="block text-sm font-medium text-slate-400 mb-1">Shop Address</label>
+        <textarea id="shopAddress" required rows="3" maxlength="500"
+                  class="w-full p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 input-field-dark resize-vertical"
+                  placeholder="Full shop address (street, city, pincode, etc.)"></textarea>
+
+        <div id="map" class="mt-2"></div>
+      </div>
+
+      <!-- Save Button -->
+      <button type="submit" id="save-button"
+              class="w-full p-3 text-lg font-bold text-white bg-emerald-600 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-150 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 disabled:bg-gray-700"
+              disabled>
+        Save Shop Profile
+      </button>
+    </form>
+
+    <!-- Display User ID for debugging/reference -->
+    <div class="mt-6 text-center text-xs text-slate-500">
+      <p>Your User ID: <span id="user-id">Loading...</span></p>
+    </div>
+  </div>
+
+  <!-- Custom Validation Error Modal Structure (Dark) -->
+  <div id="error-modal" class="modal-backdrop hidden">
+    <div class="bg-slate-800 p-6 rounded-xl shadow-2xl w-11/12 max-w-sm transform transition-all duration-300 scale-100 border border-slate-700">
+      <div class="flex items-center space-x-3 mb-4">
+        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <h3 class="text-xl font-bold text-slate-100">Validation Error</h3>
+      </div>
+      <p class="text-slate-400 mb-4">Please fix the following issues before updating your profile:</p>
+      <ul id="modal-error-list" class="list-disc list-inside text-sm text-red-400 space-y-1 pl-4 mb-6"></ul>
+      <button id="close-modal-button"
+              class="w-full p-3 text-md font-semibold text-white bg-red-600 rounded-lg hover:bg-red-500 transition duration-150">
+        Got It
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader Overlay -->
+  <div id="loader-overlay"><span class="loader"></span></div>
+
+  <!-- App logic -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
