@@ -484,6 +484,7 @@
         .delay-200 { animation-delay: 0.2s; }
         .delay-300 { animation-delay: 0.3s; }
         .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
 
         /* Loader Overlay */
         #loader-overlay {
@@ -540,12 +541,7 @@
 
     <!-- Main Signup Container -->
     <div class="signup-container">
-        <!-- Top Link -->
-        <div class="text-center mb-6 animate-in">
-            <a href="https://www.krishi.site/login" class="link">
-                Already have an account? <span class="font-semibold">Sign in</span> →
-            </a>
-        </div>
+        <!-- TOP LINK REMOVED FROM HERE -->
 
         <div class="signup-card animate-in delay-100">
             <div class="signup-content">
@@ -653,17 +649,24 @@
                     </button>
                 </form>
 
-                <!-- Links -->
+                <!-- Links (Terms/Privacy) -->
                 <div class="links animate-in delay-300">
                     <p class="link-text">
                         By creating an account, you agree to our <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>.
                     </p>
                 </div>
+
+                <!-- NEW LOCATION for Sign In Link -->
+                <div class="text-center mt-6 animate-in delay-400">
+                    <a href="https://www.krishi.site/login" class="link">
+                        Already have an account? <span class="font-semibold">Sign in</span> →
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- Footer Links -->
-        <div class="footer-links animate-in delay-400">
+        <div class="footer-links animate-in delay-500">
             <a href="#" class="footer-link">Terms</a>
             <a href="#" class="footer-link">Privacy</a>
             <a href="#" class="footer-link">Security</a>
@@ -726,7 +729,8 @@
         document.getElementById('reg-send-otp').addEventListener('click', async () => {
             const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
             if (phoneInput.length !== 10) {
-                alert('Please enter a valid 10-digit mobile number.');
+                // Using console.error instead of alert() per instructions
+                console.error('Validation Error: Please enter a valid 10-digit mobile number.'); 
                 return;
             }
             const sendBtn = document.getElementById('reg-send-otp');
@@ -748,8 +752,7 @@
                     throw new Error(data.message || 'Failed to send OTP');
                 }
             } catch (error) {
-                console.error(error);
-                alert('Error sending OTP: ' + error.message);
+                console.error('Error sending OTP: ' + error.message);
                 hideLoader();
             }
         });
@@ -770,7 +773,7 @@
             const phoneInput = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
             const otp = document.getElementById('reg-otp').value;
             if (phoneInput.length !== 10 || otp.length !== 6) {
-                alert('Please enter valid phone and OTP.');
+                console.error('Validation Error: Please enter valid phone and OTP.');
                 return;
             }
             const verifyBtn = document.getElementById('reg-verify-btn');
@@ -796,8 +799,7 @@
                     throw new Error(data.message || 'Invalid OTP');
                 }
             } catch (error) {
-                console.error(error);
-                alert('Error verifying OTP: ' + error.message);
+                console.error('Error verifying OTP: ' + error.message);
                 document.getElementById('reg-otp').value = '';
                 document.getElementById('reg-verify-btn').disabled = true;
                 hideLoader();
@@ -808,13 +810,13 @@
         document.getElementById('registration-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!regVerified) {
-                alert('Please verify your phone number first.');
+                console.error('Validation Error: Please verify your phone number first.');
                 return;
             }
             const mobile = document.getElementById('reg-mobile').value.replace(/[^0-9]/g, '');
             const pw = document.getElementById('reg-password').value;
             if (pw.length < 6) {
-                alert('Passwords must be at least 6 characters.');
+                console.error('Validation Error: Passwords must be at least 6 characters.');
                 return;
             }
             try {
@@ -828,14 +830,13 @@
                 hideLoader();
                 
                 if (response.ok && data.success) {
-                    alert('Account created successfully! Welcome to Krishi.');
+                    console.log('Account created successfully! Welcome to Krishi.');
                     window.location.href = `https://www.krishi.site/user-profile?mobile=${mobile}&id=${data.user.id}`;
                 } else {
                     throw new Error(data.message || 'Registration failed');
                 }
             } catch (error) {
-                console.error(error);
-                alert('Error during registration: ' + error.message);
+                console.error('Error during registration: ' + error.message);
                 hideLoader();
             }
         });
@@ -843,7 +844,7 @@
         // ---------- Google Sign In Integration (for Registration) ----------
         async function handleGoogleCredentialResponse(response) {
             const id_token = response.credential;
-            if (!id_token) return alert('Google sign-up failed.');
+            if (!id_token) return console.error('Google sign-up failed: No token received.');
             
             try {
                 showLoader();
@@ -867,10 +868,10 @@
                         window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
                     }
                 } else {
-                    alert('Google sign-up failed: ' + (data.error || 'Unknown'));
+                    console.error('Google sign-up failed: ' + (data.error || 'Unknown error'));
                 }
             } catch (err) {
-                alert('Error: ' + err.message);
+                console.error('Error in Google authentication: ' + err.message);
                 hideLoader();
             }
         }
@@ -906,6 +907,7 @@
 
         window.addEventListener('load', () => {
             initGoogleButton();
+            // Fallback for slower loading
             if (!window.google || !google.accounts || !google.accounts.id) {
                 setTimeout(initGoogleButton, 800);
             }
@@ -913,3 +915,5 @@
     </script>
 </body>
 </html>
+
+
