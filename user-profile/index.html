@@ -1352,6 +1352,7 @@
                     inputEmail.parentElement.style.display = 'none';
                     inputMobileNumber.parentElement.parentElement.style.display = 'block';
                     inputPassword.parentElement.parentElement.style.display = 'none';
+                    inputPassword.removeAttribute('required');
                     
                     // Lock mobile for mobile signup users
                     lockElement(inputMobileNumber, true);
