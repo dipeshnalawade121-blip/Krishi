@@ -48,26 +48,36 @@
         }
         /* Keep your texture layer as it is (.bg-pattern) */
 
-.sunray-effect {
+
+        .sunray-effect {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 0; /* 👈 keeps it behind your card/content */
-    
-    background: linear-gradient(
-        to bottom left,              /* 👈 direction: top-right → bottom-left */
-        rgba(0, 0, 0, 0.0) 0%,       /* start transparent */
-        rgba(0, 0, 0, 0.6) 60%,      /* smooth mid fade */
-        rgba(0, 0, 0, 0.9) 100%      /* dark end */
-    );
+    z-index: 0;
 
-    /* Optional smoothness: adds subtle noise for a creamy gradient */
-    background-image: 
-        linear-gradient(to bottom left, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.9) 100%),
+    /* Base smooth dark gradient */
+    background:
+        linear-gradient(
+            to bottom left,
+            rgba(0, 0, 0, 0.0) 0%,    /* top-right low opacity */
+            rgba(0, 0, 0, 0.85) 100%  /* bottom-left fully dark */
+        );
+
+    /* Add super subtle noise to kill banding */
+    background-image:
+        linear-gradient(
+            to bottom left,
+            rgba(0, 0, 0, 0.0) 0%,
+            rgba(0, 0, 0, 0.85) 100%
+        ),
         url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==");
+
+    background-size: cover;
     background-blend-mode: overlay;
-}
-}
+    opacity: 1;
+        }
+
+        
         /* Sunray/Dark Fade Effect */
        /* @keyframes sunrayPulse {
             0%, 100% { opacity: 0.95; }
