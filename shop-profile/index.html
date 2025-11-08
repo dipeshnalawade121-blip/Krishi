@@ -129,7 +129,7 @@
         }
 
         /* Shop Profile Card - Glass Transparent with Glow Effect */
-        .shop-profile-card {
+        /*.shop-profile-card {
             background: rgba(15, 23, 42, 0.15);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
@@ -139,6 +139,17 @@
             position: relative;
             overflow: hidden;
             margin-bottom: 24px;
+        }*/
+
+        .shop-profile-card {
+    background: linear-gradient(145deg, #101114 0%, #08090C 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 40px 32px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* optional soft shadow */
         }
 
         /* Glass Glow Effect */
@@ -180,7 +191,7 @@
             animation: glassGlow 3s ease-in-out infinite alternate;
         }*/
 
-        .shop-profile-card::before {
+        /*.shop-profile-card::before {
     background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
 }
 
@@ -197,7 +208,7 @@
                 opacity: 0.8;
                 filter: blur(18px);
             }
-        }
+        }*/
 
         /* Ensure content stays above glass effects */
         .shop-profile-content {
