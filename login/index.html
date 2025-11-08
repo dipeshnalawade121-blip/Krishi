@@ -47,7 +47,7 @@
         }
         
         /* Sunray/Dark Fade Effect */
-        @keyframes sunrayPulse {
+       /* @keyframes sunrayPulse {
             0%, 100% { opacity: 0.95; }
             50% { opacity: 0.85; }
         }
@@ -64,7 +64,7 @@
             animation: sunrayPulse 10s ease-in-out infinite alternate;
         }
 
-        /* God Rays Effect */
+        /* God Rays Effect 
         @keyframes godRays {
             0% {
                 transform: translate(-30%, -30%) rotate(0deg);
@@ -111,7 +111,7 @@
             pointer-events: none;
             animation: godRays 15s ease-in-out infinite;
             mix-blend-mode: overlay;
-        }
+        } */
 
         /* Main Login Container */
         .login-container {
@@ -122,7 +122,18 @@
             margin: 0 auto;
         }
 
-        /* Login Card - Glass Transparent with Glow Effect */
+        .login-card {
+    background: linear-gradient(145deg, #101114 0%, #08090C 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 40px 32px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* optional soft shadow */
+        }
+
+        /* Login Card - Glass Transparent with Glow Effect 
         .login-card {
             background: rgba(15, 23, 42, 0.15);
             backdrop-filter: blur(20px);
@@ -132,9 +143,9 @@
             padding: 40px 32px;
             position: relative;
             overflow: hidden;
-        }
+        }*/
 
-        /* Glass Glow Effect */
+        /* Glass Glow Effect 
         .login-card::before {
             content: '';
             position: absolute;
@@ -182,7 +193,7 @@
                 opacity: 0.8;
                 filter: blur(18px);
             }
-        }
+        }*/
 
         /* Ensure content stays above glass effects */
         .login-content {
@@ -239,7 +250,8 @@
 
         .input-field {
             width: 100%;
-            background: rgba(30, 41, 59, 0.6);
+           /* background: rgba(30, 41, 59, 0.6);*/
+            background: #0D1117;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
