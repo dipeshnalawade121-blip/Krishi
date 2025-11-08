@@ -46,12 +46,31 @@
                 repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px);
             background-size: 100px 100px;
         }
-        
+        /* Keep your texture layer as it is (.bg-pattern) */
+
+/* Smooth top-to-bottom fade overlay */
+.sunray-effect {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.0) 0%,   /* top transparent */
+        rgba(0, 0, 0, 0.6) 60%,  /* mid soft fade */
+        rgba(0, 0, 0, 0.9) 100%  /* bottom deep dark */
+    );
+    z-index: 1;
+}
+
+/* Optional — if you don’t want god rays at all, remove or comment out this whole block */
+.god-rays {
+    display: none;
+}
         /* Sunray/Dark Fade Effect */
        /* @keyframes sunrayPulse {
             0%, 100% { opacity: 0.95; }
             50% { opacity: 0.85; }
-        }*/
+        }
 
         .sunray-effect {
             position: fixed;
