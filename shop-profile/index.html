@@ -687,6 +687,12 @@
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
         document.getElementById('user-id').textContent = userId || 'N/A';
+        // ✅ Save user ID for dashboard use
+if (userId) {
+  localStorage.setItem('user_id', userId);
+  sessionStorage.setItem('user_id', userId);
+  console.log("✅ USER_ID stored for dashboard:", userId);
+}
 
         let dbReady = false;
         const form = document.getElementById('profile-form');
