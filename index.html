@@ -3,207 +3,1233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
-    <title>Krishi Platform</title>
+    <title>कृषी - Digital Krishi Platform</title>
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap"></noscript>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lucide Icons for potential use -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Add this new line -->
-    <script>window.addEventListener('load', () => lucide.createIcons());</script>
-    <!-- Google Identity Services -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Google Identity Services (Required for the Google button) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-
+    
     <style>
-    /* Custom font import for better Devanagari rendering */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+Devanagari:wght@400;700;900;800;900&display=swap');
-    
-    body {
-        font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
-        background-color: #0f172a; /* Dark blue-gray background */
-        color: #e2e8f0; /* Light text color */
-        overflow-x: hidden; /* Prevent horizontal scroll on mobile */
-    }
-    
-    /* Custom gradient for the top section - dark theme */
-    .top-gradient {
-        background: radial-gradient(circle at 50% 0%, rgba(30, 64, 30, 0.8) 0%, rgba(15, 23, 42, 0) 70%);
-        height: 300px;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 0;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Placeholder style for the instruction box - dark theme */
-    .instruction-box {
-        background-color: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(51, 65, 85, 0.8);
-        backdrop-filter: blur(4px);
-    }
+        body {
+            font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+            /*background-color: #121212;*/
+            background: radial-gradient(circle at center, #1D1D1D 0%, #0b0b0b 100%);
+  background-attachment: fixed;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
 
-    /* Card styling for steps section */
-    .steps-card {
-        background: linear-gradient(145deg, #1e293b, #0f172a);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        border: 1px solid #334155;
-    }
-    
-    /* Step connector styling */
-    .step-connector {
-        background: linear-gradient(to bottom, #10b981, #059669);
-    }
-    
-    /* Success step styling */
-    .success-step {
-        background: linear-gradient(145deg, #059669, #047857);
-        box-shadow: 0 0 15px rgba(5, 150, 105, 0.4);
-    }
+        /* Background Pattern Animation */
+       /* @keyframes pattern {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }*/
 
-    /* Keep button styles for landing page buttons (Register/Login) */
-    .login-button {
-        background: linear-gradient(90deg, #059669, #10b981);
-        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
-        transition: all 0.3s ease;
-    }
-    .login-button:hover {
-        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
-    }
-    
-    .register-button {
-        background-color: #1e293b;
-        border: 1px solid #334155;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        color: #cbd5e1;
-    }
-    .register-button:hover {
-        background-color: #334155;
-    }
-</style>
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            opacity: 0.5;
+            pointer-events: none;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px);
+            background-size: 100px 100px;
+            /*animation: pattern 20s linear infinite;*/
+        }
+        
+        /* NEW: Sunray/Dark Fade Effect */
+        @keyframes sunrayPulse {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.85; }
+        }
+
+        .sunray-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* Radial gradient centered at the top, fading to the dark background color */
+            background: radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%);
+            z-index: 1; /* Below content, above the pattern */
+            pointer-events: none;
+            animation: sunrayPulse 10s ease-in-out infinite alternate;
+        }
+
+        /* Floating Gradient Orbs */
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        @keyframes float-delayed {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-30px, 30px) scale(1.1); }
+            66% { transform: translate(20px, -20px) scale(0.9); }
+        }
+
+        
+
+        /* Container - Reduced max-width for narrower buttons */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 380px; /* Reduced from 448px */
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+        .delay-700 { animation-delay: 0.7s; }
+        .delay-800 { animation-delay: 0.8s; }
+
+        /* Header */
+        .header {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: -8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover .logo-icon {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
+        }
+
+        /*.logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }*/
+
+        .logo-icon {
+    width: auto;          /* ✅ Let SVG define its own size */
+    height: auto;         /* ✅ No fixed box */
+    background: none;     /* just in case */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;           /* ✅ remove default spacing */
+    margin: 0;            /* ✅ remove any margin */
+    box-shadow: none;
+        }
+
+        /*.logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }*/
+
+        .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+        }
+
+        /* Animated Icon */
+        @keyframes shimmer {
+            0% {
+                transform: rotate(0deg) scale(1);
+                box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.05);
+                box-shadow: 0 0 30px rgba(52, 211, 153, 0.5);
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+                box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+            }
+        }
+        
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .animated-icon-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 48px 0 24px;
+            position: relative;
+        }
+
+        .animated-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: shimmer 8s linear infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        .icon-glow {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.4) 0%, rgba(16, 185, 129, 0.4) 100%);
+            border-radius: 16px;
+            filter: blur(20px);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+       /* .hero-title {
+            font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+            font-size: 84px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+
+        .hero-title {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+    font-size: 94px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1;
+    position: relative;
+    display: inline-block; /* ensures .site stays tied to this 
+        }*/
+
+.hero-title {
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  font-size: 94px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 16px;
+  position: relative;
+  display: inline-block;
+  text-align: center;
+}
+
+/* gradient applied only to कृषी text */
+.hero-text {
+  display: inline-block;
+  background: linear-gradient(45deg, #27C48B 0%, #DDC53B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+
+  /* 🧠 Fix gradient cropping for tall glyphs */
+  padding-top: 20px;    /* add space above text */
+  padding-bottom: 20px; /* add space below text */
+  margin-top: -20px;    /* pull text back into correct place */
+  margin-bottom: -20px; /* restore spacing balance */
+  line-height: 1;       /* keeps consistent vertical alignment */
+}
+
+        
+.hero-sub {
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-40%);
+  font-size: 0.25em;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  z-index: 2;
+
+  /* 🌈 Gradient text (same as login button & "digital market") */
+  background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+
+  /* subtle matching glow (optional but classy) */
+  text-shadow: 0 0 8px rgba(0, 158, 87, 0.25);
+}
+/*.hero-sub {
+    position: absolute;
+    bottom: -3px;       /* pushes .site below कृषी 
+    left: 50%;
+    transform: translateX(-40%);
+    font-size: 0.25em;   /* 25% of कृषी size – scales automatically 
+    color: #fff;      /* soft mint tone to match theme 
+    font-weight: 700;
+    letter-spacing: 0.02em;
+} */
+        
+        .hero-subtitle {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        
+
+        .hero-highlight {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /*.hero-highlight span {
+            color: #34d399;
+        }*/
+        .hero-highlight span {
+    background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+        }
+
+        .hero-link {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .hero-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .hero-link a:hover {
+            color: #93c5fd;
+        }
+
+        /* Buttons */
+        button {
+            width: 100%;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Note: btn-register is no longer used for a native button, but kept for context */
+        .btn-register {
+            background: #fff;
+            color: #1f2937;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-register:hover {
+            background: #f1f5f9;
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-register svg {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-register:hover svg {
+            transform: rotate(12deg);
+        }
+
+        /*.btn-login {
+            background: #10b981;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }*/
+
+        .btn-login {
+    background: linear-gradient(135deg, #9ef87a 0%, #009e57 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 158, 87, 0.4);
+    border-radius: 8px !important; /* from your previous tweak */
+    padding: 10px 24px !important;
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, #aefc90 0%, #00b066 100%);
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 158, 87, 0.6);
+}
+
+        /*.btn-login:hover {
+            background: #34d399;
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }*/
+
+        /* Google button container styling */
+        .google-btn-container {
+            margin: 0 0 16px 0; /* Match margin of original btn-register */
+            display: flex; 
+            justify-content: center;
+        }
+
+        /* Custom style to adjust Google button appearance (CRITICAL for curve) */
+        .g_id_signin {
+            border-radius: 9999px !important; /* Ensures the pill shape */
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .g_id_signin:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            gap: 16px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #334155 50%, transparent 100%);
+        }
+
+        .divider-text {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Terms */
+        .terms {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        /* Scroll Indicator */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .scroll-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 48px;
+        }
+
+        .scroll-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #009e57;
+        }
+
+        .scroll-text svg {
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        /* Journey Card - Glass Transparent with Glow Effect */
+        .journey-card {
+            background: rgba(15, 23, 42, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 64px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Glass Glow Effect */
+        .journey-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(158, 248, 122, 0.1) 0%,
+                rgba(0, 158, 87, 0.05) 50%,
+                transparent 100%
+            );
+            border-radius: 24px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .journey-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(
+                135deg,
+                rgba(158, 248, 122, 0.3) 0%,
+                rgba(0, 158, 87, 0.1) 50%,
+                transparent 100%
+            );
+            border-radius: 26px;
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+            animation: glassGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glassGlow {
+            0% {
+                opacity: 0.5;
+                filter: blur(12px);
+            }
+            100% {
+                opacity: 0.8;
+                filter: blur(18px);
+            }
+        }
+
+        /* Ensure content stays above glass effects */
+        .journey-badge,
+        .journey-title,
+        .step {
+            position: relative;
+            z-index: 2;
+        }
+
+        .journey-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 9999px;
+            margin: 0 auto 24px;
+            display: flex;
+            justify-content: center;
+            width: fit-content;
+        }
+
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: #9ef87a;
+            border-radius: 50%;
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        .badge-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #9ef87a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .journey-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        /* Steps */
+        .step {
+            display: flex;
+            margin-bottom: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 24px;
+            flex-shrink: 0;
+        }
+
+        /* Enhanced step icons with glass effect */
+        .step-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(158, 248, 122, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(158, 248, 122, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 4px 15px rgba(16, 185, 129, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .step:hover .step-icon {
+            background: rgba(158, 248, 122, 0.25);
+            box-shadow: 
+                0 6px 20px rgba(16, 185, 129, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: scale(1.1) translateY(-2px);
+        }
+
+        .step-icon::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .step:hover .step-icon::after {
+            opacity: 1;
+        }
+
+        .step-connector {
+            width: 2px;
+            height: 32px !important;
+            background: linear-gradient(to bottom, #9ef87a 0%, #009e57 100%);
+            margin: 6px 0 !important;
+        }
+
+        .step-content {
+            padding-top: 8px;
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .step:hover .step-title {
+            color: linear-gradient(135deg, #9ef87a 0%, #009e57 100%) !important;
+        }
+
+        .step-description {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        /* Success Step */
+        @keyframes pulse-slow {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+        }
+
+        /* Success step enhanced glass effect */
+        .step-success .step-icon {
+            background: rgba(158, 248, 122, 0.2);
+            border: 1px solid rgba(158, 248, 122, 0.4);
+            box-shadow: 
+                0 4px 15px rgba(52, 211, 153, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: pulse-slow 3s ease-in-out infinite;
+        }
+
+        .step-success:hover .step-icon {
+            background: rgba(158, 248, 122, 0.3);
+            box-shadow: 
+                0 6px 20px rgba(52, 211, 153, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .step-success .step-title {
+            color: #009e57;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .success-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .success-dot {
+            width: 6px;
+            height: 6px;
+            background: #009e57;
+            border-radius: 50%;
+            animation: ping 2s ease-in-out infinite;
+        }
+
+        .success-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .success-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .step-success .step-description {
+            color: #009e57;
+            font-weight: 500;
+        }
+
+        /* SVG Icons */
+        svg {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2.5;
+        }
+
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Fullscreen loader overlay (NEW) */
+        #loader-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(7, 7, 7, 0.9); /* Dark background with opacity */
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        /* Loader Spinner (NEW) */
+        .loader {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: inline-block;
+            border-top: 3px solid #34d399; /* Green color from theme */
+            border-right: 3px solid transparent;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Compact Version of Journey Section --- */
+        .journey-card {
+          padding: 20px !important;  /* reduce from 32px */
+          border-radius: 18px !important;
+        }
+
+        .journey-title {
+          font-size: 20px !important;  /* was 32px */
+          margin-bottom: 20px !important;
+        }
+
+        .step {
+          margin-bottom: 10px !important;  /* was 32px */
+          align-items: flex-start !important;
+        }
+
+        .step-icon-wrapper {
+          margin-right: 16px !important;   /* tighter horizontal space */
+        }
+
+        .step-icon {
+          width: 42px !important;   /* was 56px */
+          height: 42px !important;
+          border-radius: 12px !important;
+        }
+
+        .step-icon svg {
+          width: 18px !important;
+          height: 18px !important;
+        }
+
+        .step-connector {
+          height: 24px !important;  /* shorter line between steps */
+          margin: 2px 0 !important;
+        }
+
+        .step-content {
+          padding-top: 2px !important;     /* bring text closer to icon */
+        }
+
+        .step-title {
+          font-size: 15px !important;  /* was 20px */
+          margin-bottom: 2px !important;
+        }
+
+        .step-description {
+          font-size: 12px !important;  /* was 14px */
+          line-height: 1.4 !important;
+        }
+
+        .journey-badge {
+          padding: 5px 12px !important;
+          margin-bottom: 16px !important;
+        }
+
+        .badge-text {
+          font-size: 10px !important;
+        }
+
+        .success-dot {
+          width: 5px !important;
+          height: 5px !important;
+        }
+        /*gugu*/
+        html, body {
+  height: 100%;
+  min-height: 100%;
+  background-color: #0e0e0e; /* solid base, never shows white */
+  overflow-x: hidden;
+  overscroll-behavior: none; /* stop overscroll flicker on mobile */
+}
+
+/* 🔒 Permanent background wrapper */
+.bg-fixed {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  background-color: #0e0e0e; /* fallback dark tone */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* optional: make sure background layers don’t trigger repaints */
+.bg-pattern,
+.sunray-effect {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+        .journey-card {
+  background: rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* 💀 Remove that blue focus box on clicks/taps */
+.step, 
+.step * {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none; /* optional: prevent accidental text highlight */
+}
+    </style>
 </head>
-<body class="min-h-screen flex flex-col items-center">
+<body>
+    <!-- Background Pattern 
+    <div class="bg-pattern"></div>    
+    <!-- NEW: Animated Sunray/Dark Fade Effect 
+    <div class="sunray-effect"></div> -->
 
-    <!-- Top Gradient Effect -->
-    <div class="top-gradient"></div>
-
-    <!-- Main Content Container (fixed width for mobile app feel) -->
-    <div class="relative z-10 w-full max-w-sm p-4">
-
+    <!-- FIXED BACKGROUND WRAPPER -->
+<div class="bg-fixed">
+  <div class="bg-pattern"></div>
+  <div class="sunray-effect"></div>
+</div>
+    
+<!-- Animated Fog Layer -->
+    
+    <!-- Main Content -->
+    <div class="container">
         <!-- Header -->
-        <header class="flex justify-between items-center py-4">
-            <div class="text-xl font-bold text-green-400 flex items-center">
-                <i data-lucide="leaf" class="w-6 h-6 mr-1 text-green-400"></i>
-                krishi
+        <header class="header animate-in">
+            <div class="logo">
+                <div class="logo-icon">
+                    <!--<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                    </svg>-->
+                    <svg xmlns="http://www.w3.org/2000/svg" display: block; width="24" height="24"
+     viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)"
+     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9ef87a"/>
+      <stop offset="100%" stop-color="#009e57"/>
+    </linearGradient>
+  </defs>
+  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                    </svg>
+                </div>
+                <span class="logo-text">krishi</span>
             </div>
         </header>
 
-        <!-- Title Section -->
-        <div class="text-center mt-4 mb-10">
-            <h1 class="text-8xl font-black text-white" style="font-weight: 900;">कृषी</h1>
-            <!-- Subtitle/Tagline (Visual placeholder for the text in the image) -->
-            <p class="text-sm mt-3 text-slate-300 px-4">
-                आपकी कृषी ज़रूरतों का डिजीटल केंद्र
-            </p>
+        <!-- Animated Glow Only (no rotating square) -->
+        <div class="animated-icon-wrapper animate-in delay-100">
+            <div class="icon-glow"></div>
         </div>
 
-        <!-- Instructions/Message Box -->
-        <div class="instruction-box p-4 mt-8 rounded-2xl">
-            <!-- Text replicated as a block of regional content -->
-            <p class="text-xs leading-relaxed text-slate-200">
-                नए उपयोगकर्ता: 'Register' पर क्लिक करें और अपनी जानकारी भरें। 
-                मौजूदा उपयोगकर्ता: 'Login' पर क्लिक करके सीधे आगे बढ़ें। यह मंच किसानों और कृषी-केंद्रों के लिए है।
-            </p>
-            <p class="text-xs mt-2 text-slate-400 font-bold">
-                 'Registration' / 'Login' process to access service.
-            </p>
+        <!-- Hero Section -->
+        <div class="hero animate-in delay-200">
+            <h1 class="hero-title">
+                <span class="hero-text">कृषी</span>
+                <span class="hero-sub">.site</span>
+            </h1>
+            <p class="hero-subtitle">The fastest path from</p>
+            <p class="hero-highlight">farm to <span>digital market</span></p>
+            <p class="hero-link">Already have an account? <a href="https://www.krishi.site/login">Sign in</a></p>
         </div>
 
-        <!-- Login/Register Section -->
-        <div class="mt-6 p-4 rounded-2xl">
-            <!-- New User Register -->
-            <div class="flex items-center justify-between mb-4">
-                <p class="text-sm font-semibold text-slate-300 mr-4">New user:</p>
-                <button 
-    class="register-button flex-grow py-3 px-6 font-bold rounded-full"
-    onclick="window.location.href='https://www.krishi.site/signup';">
-    Register
-</button>
-            </div>
+        <!-- Google Sign-in Button (Replaces Krishi Registration Button) -->
+        <div class="animate-in delay-300 google-btn-container">
+            <!-- This DIV will be filled by the Google GSI script -->
+            <div id="google-register-btn" class="g_id_signin"></div>
+        </div>
 
-            <!-- Existing User Login -->
-            <div class="flex items-center justify-between">
-                <p class="text-sm font-semibold text-slate-300 mr-4">Existing user:</p>
-<button 
-    class="login-button flex-grow py-3 px-6 text-white font-bold rounded-full"
-    onclick="window.location.href='https://www.krishi.site/login';">
-    Login
-</button>
+        <!-- Divider -->
+        <div class="divider animate-in delay-400">
+            <div class="divider-line"></div>
+            <span class="divider-text">Or start with login</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- Login Button (Given ID for Google button width reference) -->
+        <div class="animate-in delay-500">
+            <button class="btn-login" id="btn-login-ref" onclick="window.location.href='https://www.krishi.site/signup'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
+                    <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
+                    <path d="M12 3v6"/>
+                </svg>
+                <span>Create a Account</span>
+            </button>
+        </div>
+
+                <!-- Terms -->
+        <p class="terms animate-in delay-600">
+            नए उपयोगकर्ता: Register करें। मौजूदा उपयोगकर्ता: Login करें।<br/>
+            यह मंच किसानों और कृषी-केंद्रों के लिए है।
+        </p>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator animate-in delay-700">
+            <div class="scroll-text">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sm">
+                    <path d="m6 9 6 6 6-6"/>
+                </svg>
+                <span>Scroll to see your journey</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sm">
+                    <path d="m6 9 6 6 6-6"/>
+                </svg>
             </div>
         </div>
 
-        <!-- --- USER FLOW STEPS --- -->
-        <div class="mt-12 mb-8 w-full p-4 steps-card rounded-xl">
-            <h2 class="text-lg font-extrabold text-center text-green-400 mb-6 uppercase tracking-wider">
-                Digital Krishi Store in 4 Steps
-            </h2>
+        <!-- Journey Card -->
+        <div class="journey-card animate-in delay-800">
+            <!-- Badge -->
             
-            <!-- STEP 1: Create a Profile -->
-            <div class="flex">
-                <div class="flex flex-col items-center mr-6">
-                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg">1</div>
-                    <div class="w-0.5 h-12 step-connector"></div>
+
+            <h2 class="journey-title">Digital Krishi Store<br/>in 4 Steps</h2>
+
+            <!-- Step 1 -->
+            <div class="step">
+                <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 20h10"/>
+                            <path d="M10 20c5.5-2.5.8-6.4 3-10"/>
+                            <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/>
+                            <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
+                        </svg>
+                    </div>
+                    <div class="step-connector"></div>
                 </div>
-                <div class="pt-0.5 pb-4">
-                    <h3 class="font-bold text-white">Create a Profile</h3>
-                    <p class="text-sm text-slate-400">Sign up and tell us about your farm or business.</p>
+                <div class="step-content">
+                    <h3 class="step-title">Create a Profile</h3>
+                    <p class="step-description">Sign up and tell us about your farm or agribusiness.</p>
                 </div>
             </div>
-            
-            <!-- STEP 2: Create a Digital Krishi Store -->
-            <div class="flex">
-                <div class="flex flex-col items-center mr-6">
-                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg">2</div>
-                    <div class="w-0.5 h-12 step-connector"></div>
+
+            <!-- Step 2 -->
+            <div class="step">
+                <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
+                            <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
+                            <path d="M12 3v6"/>
+                        </svg>
+                    </div>
+                    <div class="step-connector"></div>
                 </div>
-                <div class="pt-0.5 pb-4">
-                    <h3 class="font-bold text-white">Create a Digital Krishi Store</h3>
-                    <p class="text-sm text-slate-400">Add your products, seeds, or fertilizers to your digital catalog.</p>
-                </div>
-            </div>
-            
-            <!-- STEP 3: Publish Your Online Store -->
-            <div class="flex">
-                <div class="flex flex-col items-center mr-6">
-                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-lg">3</div>
-                    <div class="w-0.5 h-12 step-connector"></div>
-                </div>
-                <div class="pt-0.5 pb-4">
-                    <h3 class="font-bold text-white">Publish Your Online Store</h3>
-                    <p class="text-sm text-slate-400">Set shipping options and payment methods, then go live!</p>
+                <div class="step-content">
+                    <h3 class="step-title">Create Digital Store</h3>
+                    <p class="step-description">Add products, seeds, or fertilizers to your catalog.</p>
                 </div>
             </div>
-            
-            <!-- STEP 4: Your Digital Store Ready! -->
-            <div class="flex">
-                <div class="flex flex-col items-center mr-6">
-                    <div class="w-8 h-8 flex items-center justify-center rounded-full success-step text-white font-bold">
-                         <i data-lucide="check" class="w-4 h-4"></i>
+
+            <!-- Step 3 -->
+            <div class="step">
+                <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                            <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+                            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                        </svg>
+                    </div>
+                    <div class="step-connector"></div>
+                </div>
+                <div class="step-content">
+                    <h3 class="step-title">Publish Online Store</h3>
+                    <p class="step-description">Set shipping options and payment methods, then go live!</p>
+                </div>
+            </div>
+
+            <!-- Step 4 - Success -->
+            <div class="step step-success">
+                <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6 9 17l-5-5"/>
+                        </svg>
                     </div>
                 </div>
-                <div class="pt-0.5 pb-4">
-                    <h3 class="font-extrabold text-green-400">Your Digital Store Ready!</h3>
-                    <p class="text-sm text-green-300 font-medium">Manage orders, track sales, and grow your krishi business!</p>
+                <div class="step-content">
+                    <h3 class="step-title">
+                        Store Ready!
+                        <div class="success-dots">
+                            <div class="success-dot"></div>
+                            <div class="success-dot"></div>
+                            <div class="success-dot"></div>
+                        </div>
+                    </h3>
+                    <p class="step-description">Manage orders, track sales, and grow your krishi business!</p>
                 </div>
             </div>
         </div>
-        <!-- --- END USER FLOW STEPS --- -->        
     </div>
+
+    <!-- Loader Overlay -->
+    <div id="loader-overlay">
+        <span class="loader"></span>
+    </div>
+
+    <script>
+        // BACKEND URL and CLIENT ID from the previous file's context
+        const BACKEND_URL = 'https://api.krishi.site'; 
+        const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
+
+        // ---------- Loader Overlay Functions ----------
+        function showLoader() {
+          document.getElementById('loader-overlay').style.display = 'flex';
+        }
+        function hideLoader() {
+          document.getElementById('loader-overlay').style.display = 'none';
+        }
+
+        // ---------- Google Sign In Integration ----------
+
+        // Callback for Google (handles reg/login unified)
+        async function handleGoogleCredentialResponse(response) {
+            const id_token = response.credential;
+            if (!id_token) return console.error('Google sign-up failed: Token missing.');
+            
+            try {
+                showLoader();
+                const res = await fetch(`${BACKEND_URL}/auth/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_token }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    const user = data.user;
+                    const userId = user.id;
+                    // Check profile completion status from the previous logic
+                    const isProfileComplete = user.user_name && user.shop_name && user.shop_address
+                                              && user.user_name.trim() !== '' && user.shop_name.trim() !== '' && user.shop_address.trim() !== '';
+                    
+                    if (isProfileComplete) {
+                        window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
+                    } else {
+                        window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
+                    }
+                } else {
+                    console.error('Google sign-up failed or login error:', data.error || 'Unknown error');
+                    hideLoader();
+                }
+            } catch (err) {
+                console.error('Network Error during Google sign-in:', err.message);
+                hideLoader();
+            }
+        }
+
+        // Initialize Google button
+        function initGoogleButton() {
+            // Wait for the GSI library to load
+            if (!window.google || !google.accounts || !google.accounts.id) return;
+
+            const referenceElement = document.getElementById('btn-login-ref'); 
+            let desiredWidth = 332; // Fallback width (max-width of container - 2*padding_x)
+
+             setTimeout(() => {
+                if (referenceElement) {
+                    // Get the computed width of the login button for reference
+                    desiredWidth = referenceElement.offsetWidth;
+                    // Max width is constrained by the container CSS (380px) minus padding
+                    if (desiredWidth > 332) desiredWidth = 332; 
+                } else {
+                    console.warn('Could not find the reference login button for width calculation. Using default width 332.');
+                }
+                
+                // Initialize the Google Sign-in client
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredentialResponse,
+                    ux_mode: 'popup'
+                });
+
+                const registerBtnContainer = document.getElementById('google-register-btn');
+                if (registerBtnContainer) {
+                    // Render the Google button with updated theme and type
+                    google.accounts.id.renderButton(registerBtnContainer, {
+                        theme: 'filled_white', 
+                        text: 'continue_with', 
+                        size: 'large', 
+                        type: 'standard', 
+                        width: desiredWidth, 
+                    });
+                }
+            }, 100); 
+        }
+        
+        // Wait for the window to load before running initialization
+        window.addEventListener('load', () => {
+            initGoogleButton();
+            // Fallback in case the Google script loads a bit slower
+            if (!window.google || !google.accounts || !google.accounts.id) {
+                setTimeout(initGoogleButton, 800);
+            }
+        });
+    </script>
 </body>
 </html>
