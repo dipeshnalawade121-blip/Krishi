@@ -1,4 +1,5 @@
 "use client";
+// @ts-nocheck
 // @ts-ignore
 declare global {
   interface Window {
