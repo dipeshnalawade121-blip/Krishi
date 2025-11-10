@@ -1,4 +1,11 @@
 "use client";
+// @ts-ignore
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
+
 import React, { useState, useEffect, useCallback } from 'react';
 
 // Configuation Constants
