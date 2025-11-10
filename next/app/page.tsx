@@ -433,7 +433,7 @@ const App = () => {
                 </div>
 
                 {/* Journey Card (Glass) */}
-                <div className="journey-card relative rounded-xl p-5 mb-16 overflow-hidden animate-in delay-800">
+                <div className="journey-card relative rounded-xl p-10 mb-32 overflow-hidden animate-in delay-800">
 
                     <h2 className="text-center text-xl font-extrabold text-white mb-5 relative z-20 leading-tight">Digital Krishi Store<br/>in 4 Steps</h2>
 
