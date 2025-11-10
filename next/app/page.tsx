@@ -344,7 +344,8 @@ const App = () => {
             </div>
 
             {/* Main Content Container (Mobile-First Max Width) */}
-            <div className="relative z-10 max-w-[380px] mx-auto px-6 pt-6">
+            <div className="relative z-10 max-w-[380px] mx-auto px-6 min-h-screen flex flex-col justify-center gap-12 pt-6">
+
 
                 {/* Header */}
                 <header className="flex items-center py-6 animate-in">
