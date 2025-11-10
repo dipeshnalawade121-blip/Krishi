@@ -247,7 +247,8 @@ const SignupPage: React.FC = () => {
       <div className="sunray-effect fixed inset-0 bg-[radial-gradient(circle_at_top_center,rgba(20,20,20,0.5)_0%,rgba(7,7,7,1)_70%)] z-10 pointer-events-none animate-[sunrayPulse_10s_ease-in-out_infinite_alternate]" />
       <div className="god-rays fixed inset-0 w-[200%] h-[200%] bg-[radial-gradient(ellipse_at_0%_0%,rgba(158,248,122,0.2)_0%,rgba(0,158,87,0.1)_30%,transparent_70%),linear-gradient(135deg,transparent_0%,rgba(255,255,255,0.05)_45%,transparent_55%)] z-20 pointer-events-none animate-[godRays_15s_ease-in-out_infinite] [mix-blend-mode:overlay]" />
 
-      <div className="signup-container relative z-30 w-full max-w-[1600px] mx-auto mt-16 px-6">
+      <div className="min-h-screen flex flex-col items-center justify-center py-10 sm:py-16 relative z-30 w-full">
+        <div className="signup-container relative z-30 w-full max-w-[480px] mx-auto">
         <div className="signup-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-10 md:p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0 [animation-delay:0.1s]">
           <div className="signup-content relative z-10">
             {/* Logo */}
@@ -409,6 +410,7 @@ const SignupPage: React.FC = () => {
           </a>
         </div>
       </div>
+    </div>
 
       {/* Loader Overlay */}
       {loading && (
