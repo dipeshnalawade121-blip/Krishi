@@ -420,7 +420,7 @@ const SignupPage: React.FC = () => {
         </div>
       )}
 
-      <style jsx>{`
+      <style jsx global>{`
         * {
           margin: 0;
           padding: 0;
