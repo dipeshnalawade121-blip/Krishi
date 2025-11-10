@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link'; // Not used for external, but for consistency if needed
 
 const BACKEND_URL = 'https://api.krishi.site';
 const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
@@ -198,7 +197,9 @@ const SignupPage: React.FC = () => {
     };
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, []);
 
@@ -243,174 +244,221 @@ const SignupPage: React.FC = () => {
 
   return (
     <>
-      <div className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[repeating-linear_gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.03)_2px,rgba(255,255,255,0.03)_4px),repeating-linear_gradient(90deg,transparent,transparent_2px,rgba(255,255,255,0.03)_2px,rgba(255,255,255,0.03)_4px)] bg-[length:100px_100px]" />
-      <div className="sunray-effect fixed inset-0 bg-[radial-gradient(circle_at_top_center,rgba(20,20,20,0.5)_0%,rgba(7,7,7,1)_70%)] z-10 pointer-events-none animate-[sunrayPulse_10s_ease-in-out_infinite_alternate]" />
-      <div className="god-rays fixed inset-0 w-[200%] h-[200%] bg-[radial-gradient(ellipse_at_0%_0%,rgba(158,248,122,0.2)_0%,rgba(0,158,87,0.1)_30%,transparent_70%),linear-gradient(135deg,transparent_0%,rgba(255,255,255,0.05)_45%,transparent_55%)] z-20 pointer-events-none animate-[godRays_15s_ease-in-out_infinite] [mix-blend-mode:overlay]" />
+      {/* Scoped Page Wrapper for Body-Like Styles */}
+      <div className="signup-page-wrapper min-h-screen flex items-center justify-center p-5 bg-[#0E0E0E] text-white overflow-x-hidden font-['Inter','Noto_Sans_Devanagari',sans-serif] antialiased">
+        <style dangerouslySetInnerHTML={{ __html: `
+          .signup-page-wrapper {
+            font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+          @media (max-width: 480px) {
+            .signup-page-wrapper { padding: 20px; }
+            .signup-card { padding: 32px 24px !important; }
+            .signup-title { font-size: 24px !important; }
+            .mobile-otp-row { flex-direction: column !important; }
+          }
+        ` }} />
 
-      <div className="min-h-screen flex flex-col items-center justify-center py-10 sm:py-16 relative z-30 w-full">
+        {/* Background Effects */}
+        <div 
+          className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
+          }}
+        />
+        <div 
+          className="sunray-effect fixed inset-0 pointer-events-none z-10"
+          style={{
+            background: 'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
+            animation: 'sunrayPulse 10s ease-in-out infinite alternate'
+          }}
+        />
+        <div 
+          className="god-rays fixed top-0 left-0 w-[200%] h-[200%] pointer-events-none z-20"
+          style={{
+            background: 'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
+            mixBlendMode: 'overlay' as const,
+            animation: 'godRays 15s ease-in-out infinite'
+          }}
+        />
+
+        {/* Scoped Keyframes */}
+        <style jsx>{`
+          @keyframes sunrayPulse {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.85; }
+          }
+          @keyframes godRays {
+            0% { transform: translate(-30%, -30%) rotate(0deg); opacity: 0.4; }
+            25% { transform: translate(-25%, -25%) rotate(5deg); opacity: 0.6; }
+            50% { transform: translate(-30%, -30%) rotate(10deg); opacity: 0.4; }
+            75% { transform: translate(-25%, -25%) rotate(5deg); opacity: 0.6; }
+            100% { transform: translate(-30%, -30%) rotate(0deg); opacity: 0.4; }
+          }
+          @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          .g_id_signin { border-radius: 12px !important; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+          .g_id_signin:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important; }
+          .animate-in { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; }
+          .delay-100 { animation-delay: 0.1s; }
+          .delay-200 { animation-delay: 0.2s; }
+          .delay-300 { animation-delay: 0.3s; }
+          .delay-400 { animation-delay: 0.4s; }
+          .delay-500 { animation-delay: 0.5s; }
+        `}</style>
+
         <div className="signup-container relative z-30 w-full max-w-[480px] mx-auto">
-        <div className="signup-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-10 md:p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0 [animation-delay:0.1s]">
-          <div className="signup-content relative z-10">
-            {/* Logo */}
-            <div className="logo flex items-center justify-center mb-4 gap-[10px]">
-              <div className="logo-icon flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <defs>
-                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#9ef87a" />
-                      <stop offset="100%" stopColor="#009e57" />
-                    </linearGradient>
-                  </defs>
-                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-                </svg>
+          <div className="signup-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] animate-in delay-100">
+            <div className="signup-content relative z-[2]">
+              {/* Logo */}
+              <div className="logo flex items-center justify-center mb-4 gap-[10px]">
+                <div className="logo-icon flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <defs>
+                      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#9ef87a" />
+                        <stop offset="100%" stopColor="#009e57" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                  </svg>
+                </div>
+                <span className="logo-text text-[28px] font-black bg-gradient-to-se from-[#9ef87a] to-[#009e57] bg-clip-text text-transparent leading-[1]">krishi</span>
               </div>
-              <span className="logo-text text-[28px] font-black bg-gradient-to-se from-[#9ef87a] to-[#009e57] bg-clip-text text-transparent leading-[1]">krishi</span>
-            </div>
-            {/* Title */}
-            <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
-            <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
-            {/* Google Sign-in */}
-            <div className="google-btn-container mx-auto mb-6 flex justify-center">
-              <div id="google-register-btn" />
-            </div>
-            {/* Or Divider */}
-            <div className="divider flex items-center my-8 gap-4">
-              <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-              <span className="divider-text text-sm text-[#64748b]">or</span>
-              <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-            </div>
-            {/* Registration Form */}
-            <form onSubmit={handleSubmit} className="animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0 [animation-delay:0.2s]">
-              {/* Mobile Number & OTP Send */}
-              <div className="form-group mb-6">
-                <label htmlFor="reg-mobile" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                  Mobile Number
-                </label>
-                <div className="mobile-otp-row flex gap-3">
+              {/* Title */}
+              <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
+              <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
+              {/* Google Sign-in */}
+              <div className="google-btn-container mx-auto mb-6 flex justify-center">
+                <div id="google-register-btn" />
+              </div>
+              {/* Or Divider */}
+              <div className="divider flex items-center my-8 gap-4">
+                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                <span className="divider-text text-sm text-[#64748b]">or</span>
+                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+              </div>
+              {/* Registration Form */}
+              <form onSubmit={handleSubmit} className="animate-in delay-200">
+                {/* Mobile Number & OTP Send */}
+                <div className="form-group mb-6">
+                  <label htmlFor="reg-mobile" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                    Mobile Number
+                  </label>
+                  <div className="mobile-otp-row flex gap-3">
+                    <input
+                      type="tel"
+                      id="reg-mobile"
+                      className="input-field flex-1 w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+                      placeholder="Enter your mobile number"
+                      maxLength={10}
+                      required
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      id="reg-send-otp"
+                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 backdrop-blur-[10px] bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30 ${
+                        sendOtpDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                      } ${countdown > 0 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : ''}`}
+                      disabled={sendOtpDisabled}
+                      onClick={handleSendOtp}
+                    >
+                      {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Get OTP'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* OTP Input & Verify */}
+                <div id="otp-section" className={`otp-section form-group mb-6 ${otpSectionActive ? 'block animate-[fadeIn_0.5s_ease-out]' : 'hidden'}`}>
+                  <label htmlFor="reg-otp" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                    Enter OTP
+                  </label>
+                  <div className="mobile-otp-row flex gap-3">
+                    <input
+                      type="number"
+                      id="reg-otp"
+                      className="input-field flex-1 w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] disabled:opacity-50 disabled:cursor-not-allowed"
+                      placeholder="Enter 6-digit OTP"
+                      maxLength={6}
+                      disabled={!otpSectionActive}
+                      value={otp}
+                      onChange={handleOtpInput}
+                    />
+                    <button
+                      type="button"
+                      id="reg-verify-btn"
+                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 backdrop-blur-[10px] bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30 ${
+                        verifyOtpDisabled || verified ? 'opacity-50 cursor-not-allowed' : ''
+                      } ${verified ? 'bg-green-500/20 border-green-500/50 text-green-400' : ''}`}
+                      disabled={verifyOtpDisabled || verified}
+                      onClick={handleVerifyOtp}
+                    >
+                      {verified ? 'Verified ✓' : 'Verify OTP'}
+                    </button>
+                  </div>
+                </div>
+                {/* Password */}
+                <div className="form-group mb-6">
+                  <label htmlFor="reg-password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                    Password
+                  </label>
                   <input
-                    type="tel"
-                    id="reg-mobile"
-                    className="input-field flex-1 w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 placeholder:text-[#64748b]"
-                    placeholder="Enter your mobile number"
-                    maxLength={10}
+                    type="password"
+                    id="reg-password"
+                    className="input-field w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+                    placeholder="Create a secure password"
                     required
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  <button
-                    type="button"
-                    id="reg-send-otp"
-                    className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 backdrop-blur-[10px] bg-slate-800/60 ${
-                      sendOtpDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
-                    } ${countdown > 0 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : ''}`}
-                    disabled={sendOtpDisabled}
-                    onClick={handleSendOtp}
-                  >
-                    {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Get OTP'}
-                  </button>
+                  <p className="helper-text text-sm text-[#94a3b8] mt-2">Password should be at least 6 characters</p>
                 </div>
-              </div>
 
-              {/* OTP Input & Verify */}
-              <div id="otp-section" className={`otp-section form-group mb-6 ${otpSectionActive ? 'block animate-[fadeIn_0.5s_ease-out]' : 'hidden'}`}>
-                <label htmlFor="reg-otp" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                  Enter OTP
-                </label>
-                <div className="mobile-otp-row flex gap-3">
-                  <input
-                    type="number"
-                    id="reg-otp"
-                    className="input-field flex-1 w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 placeholder:text-[#64748b] disabled:opacity-50 disabled:cursor-not-allowed"
-                    placeholder="Enter 6-digit OTP"
-                    maxLength={6}
-                    disabled={!otpSectionActive}
-                    value={otp}
-                    onChange={handleOtpInput}
-                  />
-                  <button
-                    type="button"
-                    id="reg-verify-btn"
-                    className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 backdrop-blur-[10px] bg-slate-800/60 ${
-                      verifyOtpDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
-                    } ${verified ? 'bg-green-500/20 border-green-500/50 text-green-400' : ''}`}
-                    disabled={verifyOtpDisabled || verified}
-                    onClick={handleVerifyOtp}
-                  >
-                    {verified ? 'Verified ✓' : 'Verify OTP'}
-                  </button>
-                </div>
+                {/* Create Account Button */}
+                <button
+                  type="submit"
+                  className={`create-account-button w-full bg-gradient-to-se from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] mt-2 ${
+                    submitDisabled
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:from-[#aefc90] hover:to-[#00b066] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(0,158,87,0.6)] active:translate-y-0'
+                  }`}
+                  id="reg-submit-btn"
+                  disabled={submitDisabled}
+                >
+                  Create account →
+                </button>
+              </form>
+              {/* Links (Terms/Privacy) */}
+              <div className="links text-center mt-6 animate-in delay-300">
+                <p className="link-text text-sm text-[#94a3b8] mb-2 [&_a]:text-[#60a5fa] [&_a]:no-underline [&_a]:hover:text-[#93c5fd] [&_a]:font-medium [&_a]:transition-colors [&_a]:duration-200">
+                  By creating an account, you agree to our{' '}
+                  <a href="#" className="link">Terms of Service</a>{' '}
+                  and{' '}
+                  <a href="#" className="link">Privacy Policy</a>.
+                </p>
               </div>
-              {/* Password */}
-              <div className="form-group mb-6">
-                <label htmlFor="reg-password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="reg-password"
-                  className="input-field w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 placeholder:text-[#64748b] focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20"
-                  placeholder="Create a secure password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <p className="helper-text text-sm text-[#94a3b8] mt-2">Password should be at least 6 characters</p>
+              {/* Sign In Link */}
+              <div className="links text-center mt-6 animate-in delay-400">
+                <p className="link-text text-sm text-[#94a3b8] [&_a]:text-[#60a5fa] [&_a]:no-underline [&_a]:hover:text-[#93c5fd] [&_a]:font-medium [&_a]:transition-colors [&_a]:duration-200">
+                  Already have an account?{' '}
+                  <a href="https://www.krishi.site/login" className="link">Sign in →</a>
+                </p>
               </div>
-
-              {/* Create Account Button */}
-              <button
-                type="submit"
-                className={`create-account-button w-full bg-gradient-to-se from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] mt-2 ${
-                  submitDisabled
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:from-[#aefc90] hover:to-[#00b066] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(0,158,87,0.6)] active:translate-y-0'
-                }`}
-                id="reg-submit-btn"
-                disabled={submitDisabled}
-              >
-                Create account →
-              </button>
-            </form>
-            {/* Links (Terms/Privacy) */}
-            <div className="links text-center mt-6 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0 [animation-delay:0.3s]">
-              <p className="link-text text-sm text-[#94a3b8] mb-2">
-                By creating an account, you agree to our{' '}
-                <a href="#" className="link text-[#60a5fa] no-underline hover:text-[#93c5fd] font-medium transition-colors duration-200">
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="#" className="link text-[#60a5fa] no-underline hover:text-[#93c5fd] font-medium transition-colors duration-200">
-                  Privacy Policy
-                </a>
-                .
-              </p>
-            </div>
-            {/* Sign In Link */}
-            <div className="links text-center mt-6 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0 [animation-delay:0.4s]">
-              <p className="link-text text-sm text-[#94a3b8]">
-                Already have an account?{' '}
-                <a href="https://www.krishi.site/login" className="link text-[#60a5fa] no-underline hover:text-[#93c5fd] font-medium transition-colors duration-200">
-                  Sign in →
-                </a>
-              </p>
             </div>
           </div>
-        </div>
-        {/* Footer Links */}
-        <div className="footer-links flex justify-center gap-6 mt-8 animate-[fadeInUp_0.8s_ease-out_forwards] opacity-0 [animation-delay:0.5s]">
-          <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">
-            Terms
-          </a>
-          <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">
-            Privacy
-          </a>
-          <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">
-            Security
-          </a>
+          {/* Footer Links */}
+          <div className="footer-links flex justify-center gap-6 mt-8 animate-in delay-500">
+            <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Terms</a>
+            <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Privacy</a>
+            <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Security</a>
+          </div>
         </div>
       </div>
-    </div>
 
       {/* Loader Overlay */}
       {loading && (
@@ -418,99 +466,14 @@ const SignupPage: React.FC = () => {
           id="loader-overlay"
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-[9999]"
         >
-          <span className="loader w-12 h-12 rounded-full inline-block border-t-2 border-r-transparent border-[#34d399] border-solid animate-[rotation_1s_linear_infinite]" />
+          <span 
+            className="loader w-12 h-12 rounded-full inline-block border-t-[3px] border-r-transparent border-[#34d399] border-solid"
+            style={{ animation: 'rotation 1s linear infinite' }}
+          />
         </div>
       )}
 
-      <style jsx global>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        body {
-          font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
-          background-color: #0E0E0E;
-          color: #fff;
-          overflow-x: hidden;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-        }
-        @keyframes sunrayPulse {
-          0%, 100% { opacity: 0.95; }
-          50% { opacity: 0.85; }
-        }
-        @keyframes godRays {
-          0% {
-            transform: translate(-30%, -30%) rotate(0deg);
-            opacity: 0.4;
-          }
-          25% {
-            transform: translate(-25%, -25%) rotate(5deg);
-            opacity: 0.6;
-          }
-          50% {
-            transform: translate(-30%, -30%) rotate(10deg);
-            opacity: 0.4;
-          }
-          75% {
-            transform: translate(-25%, -25%) rotate(5deg);
-            opacity: 0.6;
-          }
-          100% {
-            transform: translate(-30%, -30%) rotate(0deg);
-            opacity: 0.4;
-          }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes rotation {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        .g_id_signin {
-          border-radius: 12px !important;
-          box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .g_id_signin:hover {
-          transform: scale(1.02);
-          box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important;
-        }
-        @media (max-width: 480px) {
-          .signup-card {
-            padding: 32px 24px;
-          }
-          .signup-title {
-            font-size: 24px;
-          }
-          .mobile-otp-row {
-            flex-direction: column;
-          }
-          body {
-            padding: 20px;
-          }
-        }
-      `}</style>
-
-      {/* Google Fonts - In Next.js, better to use next/font in layout.tsx, but for self-contained */}
+      {/* Fonts */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       <link
