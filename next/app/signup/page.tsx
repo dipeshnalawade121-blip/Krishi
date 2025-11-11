@@ -201,29 +201,28 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  // Google Auth - Fixed initialization
+  // Google Auth - Pre-calculate width to prevent re-render jumps
   useEffect(() => {
     const initializeGoogleButton = () => {
       if (!window.google?.accounts?.id) {
-        // If Google library isn't loaded yet, try again in 100ms
         setTimeout(initializeGoogleButton, 100);
         return;
       }
 
-      // Calculate width from the submit button
+      // Pre-calculate width BEFORE initializing Google button
       const submitButton = document.getElementById('reg-submit-btn');
       if (submitButton) {
         googleButtonWidthRef.current = submitButton.offsetWidth;
       }
 
-      // Initialize Google button
+      // Initialize with pre-calculated width
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleCredentialResponse,
         ux_mode: 'popup',
       });
 
-      // Render the button
+      // Render button immediately with correct width
       if (googleButtonContainerRef.current) {
         window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
           theme: 'outline',
@@ -233,12 +232,11 @@ const SignUpPage: React.FC = () => {
           width: googleButtonWidthRef.current,
         });
         
-        // Mark as ready
+        // Mark as ready - this won't cause layout shift since everything is already positioned
         setIsGoogleButtonReady(true);
       }
     };
 
-    // Load Google script if not already loaded
     if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
       const script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
@@ -247,7 +245,6 @@ const SignUpPage: React.FC = () => {
       script.onload = initializeGoogleButton;
       document.head.appendChild(script);
     } else {
-      // Script already exists, just initialize
       initializeGoogleButton();
     }
   }, []);
@@ -296,7 +293,7 @@ const SignUpPage: React.FC = () => {
           }
         ` }} />
 
-        {/* Background Effects - No animations */}
+        {/* Background Effects */}
         <div 
           className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
           style={{
@@ -351,26 +348,27 @@ const SignUpPage: React.FC = () => {
               <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
               <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
 
-              {/* Google Sign-in - ALWAYS RENDER BUT HIDE UNTIL READY */}
+              {/* Google Sign-in - ALWAYS VISIBLE BUT INITIALLY TRANSPARENT */}
               <div 
-                className="google-btn-container my-6 flex justify-center"
+                ref={googleButtonContainerRef}
+                className="google-btn-container my-6 flex justify-center transition-opacity duration-300"
                 style={{ 
-                  visibility: isGoogleButtonReady ? 'visible' : 'hidden',
-                  height: isGoogleButtonReady ? 'auto' : '0px',
-                  overflow: 'hidden'
+                  opacity: isGoogleButtonReady ? 1 : 0,
+                  minHeight: '44px' // Reserve space to prevent jump
+                }}
+              />
+
+              {/* Or Divider - ALWAYS VISIBLE BUT TRANSPARENT INITIALLY */}
+              <div 
+                className="divider flex items-center my-8 gap-4 transition-opacity duration-300"
+                style={{ 
+                  opacity: isGoogleButtonReady ? 1 : 0 
                 }}
               >
-                <div ref={googleButtonContainerRef} id="google-register-btn" />
+                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                <span className="divider-text text-sm text-[#64748b]">or</span>
+                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
               </div>
-
-              {/* Or Divider - Only show if Google button is ready */}
-              {isGoogleButtonReady && (
-                <div className="divider flex items-center my-8 gap-4">
-                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                  <span className="divider-text text-sm text-[#64748b]">or</span>
-                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                </div>
-              )}
 
               {/* Registration Form */}
               <form onSubmit={handleSubmit}>
