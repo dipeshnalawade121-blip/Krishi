@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const BACKEND_URL = 'https://api.krishi.site';
 const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
@@ -8,67 +10,50 @@ const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
 
 const CompleteProfilePage: React.FC = () => {
+  // Form states
   const [userName, setUserName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
-  const [mobileNumber, setMobileNumber] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [mobile, setMobile] = useState<string>('');
   const [otp, setOtp] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [mobileVerified, setMobileVerified] = useState<boolean>(false);
-  const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
-  const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [modalErrors, setModalErrors] = useState<string[]>([]);
-  const [userId, setUserId] = useState<string>('Loading...');
-  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [otpSectionActive, setOtpSectionActive] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(0);
+  const [sendOtpDisabled, setSendOtpDisabled] = useState<boolean>(false);
+  const [verifyOtpDisabled, setVerifyOtpDisabled] = useState<boolean>(true);
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string>('Loading...');
+  const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [errorModal, setErrorModal] = useState<string[]>([]);
+  const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
+  const [signupMethod, setSignupMethod] = useState<'mobile' | 'google'>('mobile');
+  const [googleId, setGoogleId] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const [userNameLocked, setUserNameLocked] = useState<boolean>(false);
   const [emailLocked, setEmailLocked] = useState<boolean>(false);
   const [mobileLocked, setMobileLocked] = useState<boolean>(false);
-  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
-  
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
-  const otpIntervalRef = useRef<NodeJS.Timeout>();
-  const currentMobileRef = useRef<string>('');
+  const googleButtonWidthRef = useRef<number>(400);
+
+  // URL params
+  const searchParams = useSearchParams();
+  const urlMobile = searchParams.get('mobile') || '';
+  const urlUserId = searchParams.get('id') || '';
+  const urlGoogleId = searchParams.get('google_id') || '';
+  const urlMethod = searchParams.get('method') || 'mobile';
+
+  useEffect(() => {
+    setMobile(urlMobile);
+    setUserId(urlUserId);
+    setGoogleId(urlGoogleId);
+    setSignupMethod(urlMethod as 'mobile' | 'google');
+  }, [urlMobile, urlUserId, urlGoogleId, urlMethod]);
 
   const showLoader = () => setLoading(true);
   const hideLoader = () => setLoading(false);
-
-  // Get URL parameters
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const mobile = urlParams.get('mobile');
-      const id = urlParams.get('id');
-      const googleId = urlParams.get('google_id');
-      
-      if (mobile) {
-        setMobileNumber(mobile);
-        currentMobileRef.current = mobile;
-      }
-      if (id) setUserId(id);
-    }
-  }, []);
-
-  // Countdown timer
-  useEffect(() => {
-    if (countdown > 0) {
-      otpIntervalRef.current = setTimeout(() => setCountdown(countdown - 1), 1000);
-    } else if (otpIntervalRef.current) {
-      clearTimeout(otpIntervalRef.current);
-    }
-    
-    return () => {
-      if (otpIntervalRef.current) {
-        clearTimeout(otpIntervalRef.current);
-      }
-    };
-  }, [countdown]);
-
-  const displayStatus = (message: string, type: 'success' | 'error' | 'info') => {
-    setStatusMessage({ text: message, type });
-    setTimeout(() => setStatusMessage(null), 5000);
-  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -77,16 +62,119 @@ const CompleteProfilePage: React.FC = () => {
   };
 
   const startCountdown = (seconds: number) => {
-    setOtpSent(true);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     setCountdown(seconds);
+    setSendOtpDisabled(true);
+
+    intervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!);
+          setSendOtpDisabled(false);
+          setCountdown(0);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const displayStatus = (text: string, type: 'success' | 'error' | 'info') => {
+    setStatusMessage({ text, type });
+    setTimeout(() => setStatusMessage(null), 5000);
   };
 
   const checkFormValidity = () => {
     const isBaseValid = userName.trim() && email.trim();
-    const passwordValid = password.length >= 8;
+    const passwordValid = password.length >= 8 || signupMethod === 'google';
     const mobileValid = mobileVerified;
-    
-    return isBaseValid && passwordValid && mobileValid;
+    const canSave = isBaseValid && passwordValid && mobileValid;
+    setSaveDisabled(!canSave);
+  };
+
+  const showErrorModal = (errors: string[]) => {
+    setErrorModal(errors);
+  };
+
+  const closeErrorModal = () => {
+    setErrorModal([]);
+  };
+
+  const handleSendOtp = async () => {
+    const phoneInput = mobile.replace(/[^0-9]/g, '');
+    if (phoneInput.length !== 10) {
+      displayStatus('Please enter a valid 10-digit mobile number.', 'error');
+      return;
+    }
+
+    try {
+      showLoader();
+      const response = await fetch(`${BACKEND_URL}/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneInput }),
+      });
+      const data = await response.json();
+      hideLoader();
+
+      if (response.ok && data.success) {
+        startCountdown(119);
+        setOtpSectionActive(true);
+        displayStatus('OTP sent to your mobile!', 'success');
+      } else {
+        throw new Error(data.error || 'Failed to send OTP');
+      }
+    } catch (error) {
+      console.error(error);
+      displayStatus('Error sending OTP: ' + (error as Error).message, 'error');
+      hideLoader();
+    }
+  };
+
+  const handleOtpInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+    setOtp(value);
+    setVerifyOtpDisabled(!(value.length === 6));
+  };
+
+  const handleVerifyOtp = async () => {
+    const phoneInput = mobile.replace(/[^0-9]/g, '');
+    const otpValue = otp;
+    if (phoneInput.length !== 10 || otpValue.length !== 6) {
+      displayStatus('Please enter valid phone and OTP.', 'error');
+      return;
+    }
+
+    try {
+      showLoader();
+      const response = await fetch(`${BACKEND_URL}/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneInput, otp: otpValue }),
+      });
+      const data = await response.json();
+      hideLoader();
+
+      if (response.ok && data.success) {
+        setMobileVerified(true);
+        setOtp('');
+        setVerifyOtpDisabled(true);
+        setOtpSectionActive(false);
+        setMobileLocked(true);
+        displayStatus('Phone number verified successfully!', 'success');
+        checkFormValidity();
+      } else {
+        throw new Error(data.error || 'Invalid OTP');
+      }
+    } catch (error) {
+      console.error(error);
+      displayStatus('Error verifying OTP. Please try again.', 'error');
+      setOtp('');
+      setVerifyOtpDisabled(true);
+      hideLoader();
+    }
   };
 
   const handleGoogleCredentialResponse = async (response: any) => {
@@ -95,6 +183,8 @@ const CompleteProfilePage: React.FC = () => {
       displayStatus('Google link failed.', 'error');
       return;
     }
+
+    displayStatus('Linking Google account...', 'info');
 
     try {
       showLoader();
@@ -112,6 +202,7 @@ const CompleteProfilePage: React.FC = () => {
         setUserNameLocked(true);
         setEmailLocked(true);
         displayStatus('Google account linked and profile updated!', 'success');
+        checkFormValidity();
       } else {
         throw new Error(data.error || 'Linking failed');
       }
@@ -121,35 +212,32 @@ const CompleteProfilePage: React.FC = () => {
     }
   };
 
-  // Google Auth Integration
+  // Google Auth init
   useEffect(() => {
     const initializeGoogleButton = () => {
       if (!(window as any).google?.accounts?.id) {
-        setTimeout(initializeGoogleButton, 500);
+        setTimeout(initializeGoogleButton, 100);
         return;
       }
 
-      const referenceElement = document.getElementById('save-button');
-      let desiredWidth = 400;
-
-      if (referenceElement) {
-        desiredWidth = referenceElement.offsetWidth;
+      const saveButton = document.getElementById('save-button');
+      if (saveButton) {
+        googleButtonWidthRef.current = saveButton.offsetWidth;
       }
-      
+
       (window as any).google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleCredentialResponse,
-        ux_mode: 'popup'
+        ux_mode: 'popup',
       });
 
-      const linkBtnContainer = document.getElementById('google-link-btn');
-      if (linkBtnContainer) {
-        (window as any).google.accounts.id.renderButton(linkBtnContainer, {
+      if (googleButtonContainerRef.current) {
+        (window as any).google.accounts.id.renderButton(googleButtonContainerRef.current, {
           theme: 'outline',
           text: 'continue_with',
           size: 'large',
           type: 'standard',
-          width: desiredWidth,
+          width: googleButtonWidthRef.current,
         });
         setIsGoogleButtonReady(true);
       }
@@ -169,89 +257,6 @@ const CompleteProfilePage: React.FC = () => {
     }
   }, [userId]);
 
-  const handleSendOtp = async () => {
-    const phoneInput = mobileNumber.replace(/[^0-9]/g, '');
-    if (phoneInput.length !== 10) {
-      displayStatus('Please enter a valid 10-digit mobile number.', 'error');
-      return;
-    }
-    currentMobileRef.current = phoneInput;
-
-    try {
-      showLoader();
-      const response = await fetch(`${BACKEND_URL}/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: currentMobileRef.current })
-      });
-      const data = await response.json();
-      hideLoader();
-
-      if (response.ok && data.success) {
-        startCountdown(119);
-        displayStatus('OTP sent to your mobile!', 'success');
-      } else {
-        throw new Error(data.error || 'Failed to send OTP');
-      }
-    } catch (error) {
-      console.error(error);
-      displayStatus('Error sending OTP: ' + (error as Error).message, 'error');
-      hideLoader();
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    const otpValue = otp;
-    if (currentMobileRef.current.length !== 10 || otpValue.length !== 6) {
-      displayStatus('Please enter valid phone and OTP.', 'error');
-      return;
-    }
-
-    try {
-      showLoader();
-      const response = await fetch(`${BACKEND_URL}/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: currentMobileRef.current, otp: otpValue })
-      });
-      const data = await response.json();
-      hideLoader();
-
-      if (response.ok && data.success) {
-        setMobileVerified(true);
-        setMobileLocked(true);
-        displayStatus('Phone number verified successfully!', 'success');
-      } else {
-        throw new Error(data.error || 'Invalid OTP');
-      }
-    } catch (error) {
-      console.error(error);
-      displayStatus('Error verifying OTP. Please try again.', 'error');
-      setOtp('');
-      hideLoader();
-    }
-  };
-
-  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
-    setMobileNumber(value);
-    
-    if (value !== currentMobileRef.current) {
-      setMobileVerified(false);
-      setOtpSent(false);
-      setCountdown(0);
-    }
-  };
-
-  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
-    setOtp(value);
-  };
-
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
-
   const validateForm = () => {
     const errors: string[] = [];
     
@@ -266,7 +271,7 @@ const CompleteProfilePage: React.FC = () => {
     }
     
     if (!mobileLocked) {
-      if (!mobileNumber.trim() || mobileNumber.length !== 10) {
+      if (!mobile.trim() || mobile.length !== 10) {
         errors.push("Valid 10-digit mobile number is required.");
       }
       if (!mobileVerified) {
@@ -285,8 +290,7 @@ const CompleteProfilePage: React.FC = () => {
     e.preventDefault();
     const errors = validateForm();
     if (errors.length > 0) {
-      setModalErrors(errors);
-      setModalOpen(true);
+      showErrorModal(errors);
       return;
     }
 
@@ -296,7 +300,7 @@ const CompleteProfilePage: React.FC = () => {
       id: userId,
       user_name: userName.trim(),
       email: email.trim(),
-      mobile: mobileVerified ? currentMobileRef.current : undefined,
+      mobile: mobileVerified ? mobile : undefined,
       password: password,
     };
 
@@ -326,8 +330,6 @@ const CompleteProfilePage: React.FC = () => {
         const redirectId = data.user?.id || userId;
         
         setTimeout(() => {
-          const urlParams = new URLSearchParams(window.location.search);
-          const googleId = urlParams.get('google_id');
           const googleParam = googleId ? `google_id=${googleId}&` : '';
           window.location.href = `https://www.krishi.site/shop-profile?${googleParam}id=${redirectId}`;
         }, 1200);
@@ -341,6 +343,76 @@ const CompleteProfilePage: React.FC = () => {
       hideLoader();
     }
   };
+
+  // Load profile data
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!userId || userId === 'Loading...') return;
+
+      showLoader();
+      const payload = { id: userId };
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/get-user-profile`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        
+        const responseText = await res.text();
+        let data;
+        
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse profile response as JSON:', responseText);
+          throw new Error('Server returned invalid response');
+        }
+        
+        if (!res.ok || !data.success || !data.user) {
+          throw new Error(data.error || 'User profile not found');
+        }
+        
+        const user = data.user;
+        
+        setUserName(user.user_name || '');
+        setEmail(user.email || '');
+        setMobile(user.mobile || '');
+        setMobileVerified(!!user.mobile);
+        
+        if (signupMethod === 'google' || googleId) {
+          setUserNameLocked(true);
+          setEmailLocked(true);
+        } else if (signupMethod === 'mobile') {
+          setMobileLocked(true);
+          setMobileVerified(true);
+        }
+
+        checkFormValidity();
+        
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        displayStatus('Failed to load profile data: ' + (error as Error).message, 'error');
+      }
+      hideLoader();
+    };
+
+    loadProfile();
+  }, [userId, signupMethod, googleId]);
+
+  // Check form validity on changes
+  useEffect(() => {
+    checkFormValidity();
+  }, [userName, email, mobile, password, mobileVerified]);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -557,14 +629,14 @@ const CompleteProfilePage: React.FC = () => {
                       placeholder="10-digit mobile number"
                       maxLength={10}
                       required
-                      value={mobileNumber}
-                      onChange={handleMobileChange}
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, ''))}
                       readOnly={mobileLocked}
                     />
                     <button
                       type="button"
                       onClick={handleSendOtp}
-                      disabled={countdown > 0 || mobileLocked}
+                      disabled={sendOtpDisabled || mobileLocked}
                       className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                         countdown > 0 
                           ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 cursor-not-allowed' 
@@ -579,7 +651,7 @@ const CompleteProfilePage: React.FC = () => {
                 </div>
 
                 {/* OTP Section */}
-                {(otpSent || mobileVerified) && (
+                {otpSectionActive && (
                   <div className="otp-section form-group mb-6 animate-[fadeIn_0.5s_ease-out]">
                     <label htmlFor="otp-input" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                       Enter OTP
@@ -592,17 +664,17 @@ const CompleteProfilePage: React.FC = () => {
                         placeholder="Enter 6-digit OTP"
                         maxLength={6}
                         value={otp}
-                        onChange={handleOtpChange}
+                        onChange={handleOtpInput}
                         disabled={mobileVerified}
                       />
                       <button
                         type="button"
                         onClick={handleVerifyOtp}
-                        disabled={otp.length !== 6 || mobileVerified}
+                        disabled={verifyOtpDisabled || mobileVerified}
                         className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                           mobileVerified
                             ? 'bg-green-500/20 border-green-500/50 text-green-400 cursor-not-allowed'
-                            : otp.length === 6
+                            : !verifyOtpDisabled
                             ? 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
                             : 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
                         }`}
@@ -620,7 +692,7 @@ const CompleteProfilePage: React.FC = () => {
                   </label>
                   <div className="password-container relative">
                     <input
-                      type={passwordVisible ? "text" : "password"}
+                      type={showPassword ? "text" : "password"}
                       id="password"
                       className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] pr-12"
                       placeholder="Create a secure password"
@@ -631,10 +703,10 @@ const CompleteProfilePage: React.FC = () => {
                     />
                     <button
                       type="button"
-                      onClick={togglePasswordVisibility}
+                      onClick={() => setShowPassword(!showPassword)}
                       className="toggle-password absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-[#94a3b8] hover:text-white transition-colors duration-200 cursor-pointer"
                     >
-                      {passwordVisible ? (
+                      {showPassword ? (
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
                         </svg>
@@ -653,7 +725,7 @@ const CompleteProfilePage: React.FC = () => {
                   type="submit"
                   id="save-button"
                   className="save-button w-full bg-gradient-to-br from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] hover:from-[#aefc90] hover:to-[#00b066] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(0,158,87,0.6)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-[0_4px_15px_rgba(0,158,87,0.4)]"
-                  disabled={!checkFormValidity() || loading}
+                  disabled={saveDisabled || loading}
                 >
                   {loading ? 'Saving...' : 'Complete Profile'}
                 </button>
@@ -669,7 +741,7 @@ const CompleteProfilePage: React.FC = () => {
       </div>
 
       {/* Error Modal */}
-      {modalOpen && (
+      {errorModal.length > 0 && (
         <div className="modal-backdrop fixed inset-0 bg-black/80 flex justify-center items-center z-50">
           <div className="modal-content bg-[#0f172a]/90 backdrop-blur-xl border border-white/10 rounded-[16px] p-6 w-[90%] max-w-[400px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
             <div className="modal-header flex items-center gap-3 mb-4">
@@ -683,13 +755,13 @@ const CompleteProfilePage: React.FC = () => {
             <div className="modal-body text-[#94a3b8] mb-6">
               <p>Please fix the following issues before updating your profile:</p>
               <ul id="modal-error-list" className="error-list list-disc ml-5 text-red-400 mt-2">
-                {modalErrors.map((error, index) => (
+                {errorModal.map((error, index) => (
                   <li key={index}>{error}</li>
                 ))}
               </ul>
             </div>
             <button 
-              onClick={() => setModalOpen(false)}
+              onClick={closeErrorModal}
               className="modal-button w-full bg-[#1e293b] border border-white/10 rounded-[12px] px-3 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#1e293b]/80"
             >
               Got It
@@ -708,4 +780,13 @@ const CompleteProfilePage: React.FC = () => {
   );
 };
 
-export default CompleteProfilePage;
+// Wrap with Suspense for useSearchParams
+const CompleteProfilePageWrapper: React.FC = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0E0E0E] text-white">Loading...</div>}>
+      <CompleteProfilePage />
+    </Suspense>
+  );
+};
+
+export default CompleteProfilePageWrapper;
