@@ -357,17 +357,17 @@ const App = () => {
                     </div>
                 </header>
 
-                {/* Animated Glow Only */}
+                {/* Animated Glow Only 
                 <div className="animated-icon-wrapper flex justify-center mt-12 mb-6 relative animate-in delay-100">
                     <div className="icon-glow absolute inset-0 bg-gradient-to-br from-green-400/40 to-emerald-500/40 rounded-xl"></div>
                     <div className="relative z-20 w-16 h-16 bg-gradient-to-br from-green-400/20 to-emerald-500/20 backdrop-blur-md border border-green-400/30 rounded-xl flex items-center justify-center">
-                        {/* Leaf Icon */}
+                        {/* Leaf Icon 
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ef87a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
                             <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
                         </svg>
                     </div>
-                </div>
+                </div>*/}
 
                 {/* Hero Section */}
                 <div className="text-center mb-8 animate-in delay-200">
