@@ -16,7 +16,10 @@ const SignUpPage: React.FC = () => {
   const [sendOtpDisabled, setSendOtpDisabled] = useState<boolean>(false);
   const [verifyOtpDisabled, setVerifyOtpDisabled] = useState<boolean>(true);
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
+  const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
+  
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const googleButtonWidthRef = useRef<number>(400);
 
   const showLoader = () => setLoading(true);
   const hideLoader = () => setLoading(false);
@@ -158,46 +161,6 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  // Google Auth
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
-
-    script.onload = () => {
-      if (typeof window !== 'undefined' && window.google && window.google.accounts && window.google.accounts.id) {
-        const referenceElement = document.getElementById('reg-submit-btn');
-        let desiredWidth = 400;
-        if (referenceElement) {
-          desiredWidth = referenceElement.offsetWidth;
-        }
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleCredentialResponse,
-          ux_mode: 'popup',
-        });
-        const registerBtnContainer = document.getElementById('google-register-btn');
-        if (registerBtnContainer) {
-          window.google.accounts.id.renderButton(registerBtnContainer, {
-            theme: 'outline',
-            text: 'continue_with',
-            size: 'large',
-            type: 'standard',
-            width: desiredWidth,
-          });
-        }
-      }
-    };
-
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, []);
-
   const handleGoogleCredentialResponse = async (response: any) => {
     const id_token = response.credential;
     if (!id_token) return alert('Google sign-up failed.');
@@ -237,6 +200,58 @@ const SignUpPage: React.FC = () => {
     }
   };
 
+  // Google Auth - Improved to prevent re-renders
+  useEffect(() => {
+    const calculateAndInitializeGoogleButton = () => {
+      // Calculate width first (without causing re-render)
+      const referenceElement = document.getElementById('reg-submit-btn');
+      if (referenceElement) {
+        googleButtonWidthRef.current = referenceElement.offsetWidth;
+      }
+
+      // Now initialize Google button with calculated width
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleCredentialResponse,
+          ux_mode: 'popup',
+        });
+
+        const registerBtnContainer = document.getElementById('google-register-btn');
+        if (registerBtnContainer) {
+          window.google.accounts.id.renderButton(registerBtnContainer, {
+            theme: 'outline',
+            text: 'continue_with',
+            size: 'large',
+            type: 'standard',
+            width: googleButtonWidthRef.current,
+          });
+          
+          // Only NOW show the Google button - fully calculated and initialized
+          setIsGoogleButtonReady(true);
+        }
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    
+    script.onload = () => {
+      // Wait a tiny bit for DOM to be fully ready, then calculate and initialize
+      setTimeout(calculateAndInitializeGoogleButton, 100);
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -258,24 +273,6 @@ const SignUpPage: React.FC = () => {
             -moz-osx-font-smoothing: grayscale;
           }
 
-          @keyframes sunrayPulse {
-            0%, 100% { opacity: 0.95; }
-            50% { opacity: 0.85; }
-          }
-
-          @keyframes godRays {
-            0% { transform: translate(-30%, -30%) rotate(0deg); opacity: 0.4; }
-            25% { transform: translate(-25%, -25%) rotate(5deg); opacity: 0.6; }
-            50% { transform: translate(-30%, -30%) rotate(10deg); opacity: 0.4; }
-            75% { transform: translate(-25%, -25%) rotate(5deg); opacity: 0.6; }
-            100% { transform: translate(-30%, -30%) rotate(0deg); opacity: 0.4; }
-          }
-
-          @keyframes rotation { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-          }
-
           .g_id_signin { 
             border-radius: 12px !important; 
             box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important; 
@@ -287,6 +284,11 @@ const SignUpPage: React.FC = () => {
             box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important; 
           }
 
+          @keyframes rotation { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+          }
+
           @media (max-width: 480px) {
             .signup-card { padding: 32px 24px !important; }
             .signup-title { font-size: 24px !important; }
@@ -294,7 +296,7 @@ const SignUpPage: React.FC = () => {
           }
         ` }} />
 
-        {/* Background Effects - Removed animations that cause jumps */}
+        {/* Background Effects - No animations */}
         <div 
           className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
           style={{
@@ -349,17 +351,21 @@ const SignUpPage: React.FC = () => {
               <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
               <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
 
-              {/* Google Sign-in */}
-              <div className="google-btn-container my-6 flex justify-center">
-                <div id="google-register-btn" />
-              </div>
+              {/* Google Sign-in - ONLY RENDER WHEN READY */}
+              {isGoogleButtonReady && (
+                <div className="google-btn-container my-6 flex justify-center">
+                  <div id="google-register-btn" />
+                </div>
+              )}
 
-              {/* Or Divider */}
-              <div className="divider flex items-center my-8 gap-4">
-                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                <span className="divider-text text-sm text-[#64748b]">or</span>
-                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-              </div>
+              {/* Or Divider - Only show if Google button is ready */}
+              {isGoogleButtonReady && (
+                <div className="divider flex items-center my-8 gap-4">
+                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                  <span className="divider-text text-sm text-[#64748b]">or</span>
+                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                </div>
+              )}
 
               {/* Registration Form */}
               <form onSubmit={handleSubmit}>
@@ -448,7 +454,7 @@ const SignUpPage: React.FC = () => {
                   <p className="helper-text text-sm text-[#94a3b8] mt-2">Password should be at least 6 characters</p>
                 </div>
                 
-                {/* Create Account Button */}
+                {/* Create Account Button - Used for Google button width calculation */}
                 <button
                   type="submit"
                   className={`create-account-button w-full bg-gradient-to-br from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] mt-2 ${
