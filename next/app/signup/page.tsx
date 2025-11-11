@@ -1,25 +1,60 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-const BACKEND_URL = 'https://api.krishi.site';
-const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
+/** ==== Config via ENV with sensible fallbacks ==== */
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? 'https://api.krishi.site';
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.krishi.site';
+const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ??
+  '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
+
+/** Minimal typing for window.google */
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: {
+          initialize: (opts: {
+            client_id: string;
+            callback: (resp: any) => void;
+            ux_mode?: 'popup' | 'redirect';
+          }) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options?: Record<string, any>
+          ) => void;
+          prompt?: () => void;
+        };
+      };
+    };
+  }
+}
 
 const SignUpPage: React.FC = () => {
+  const router = useRouter();
+
   const [mobile, setMobile] = useState<string>('');
   const [otp, setOtp] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+
   const [verified, setVerified] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+
   const [otpSectionActive, setOtpSectionActive] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(0);
+
   const [sendOtpDisabled, setSendOtpDisabled] = useState<boolean>(false);
   const [verifyOtpDisabled, setVerifyOtpDisabled] = useState<boolean>(true);
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
-  const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
-  
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const googleButtonContainerRef = useRef<HTMLDivElement>(null);
+
+  const [isGoogleReady, setIsGoogleReady] = useState<boolean>(false);
+
+  /** setInterval in browsers returns number, not NodeJS.Timeout */
+  const intervalRef = useRef<number | null>(null);
   const googleButtonWidthRef = useRef<number>(400);
 
   const showLoader = () => setLoading(true);
@@ -31,24 +66,50 @@ const SignUpPage: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const startCountdown = (seconds: number) => {
-    if (intervalRef.current) {
+  const clearTimer = () => {
+    if (intervalRef.current !== null) {
       clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
+  };
+
+  const startCountdown = (seconds: number) => {
+    clearTimer();
     setCountdown(seconds);
     setSendOtpDisabled(true);
 
-    intervalRef.current = setInterval(() => {
+    intervalRef.current = window.setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(intervalRef.current!);
+          clearTimer();
           setSendOtpDisabled(false);
-          setCountdown(0);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
+  };
+
+  /** Keep submit button state in sync with verified + password length */
+  useEffect(() => {
+    setSubmitDisabled(!(verified && password.length >= 6));
+  }, [verified, password]);
+
+  /** OTP input validation */
+  const handleOtpInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // keep only digits, max 6
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setOtp(value);
+    setVerifyOtpDisabled(!(value.length === 6));
+  };
+
+  /** Safe JSON parse for fetch responses */
+  const safeJson = async (res: Response) => {
+    try {
+      return await res.json();
+    } catch {
+      return {};
+    }
   };
 
   const handleSendOtp = async () => {
@@ -58,6 +119,9 @@ const SignUpPage: React.FC = () => {
       return;
     }
 
+    // prevent rapid double-clicks before request even fires
+    setSendOtpDisabled(true);
+
     try {
       showLoader();
       const response = await fetch(`${BACKEND_URL}/send-otp`, {
@@ -65,36 +129,27 @@ const SignUpPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: phoneInput }),
       });
-      const data = await response.json();
+      const data: any = await safeJson(response);
       hideLoader();
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success) {
         startCountdown(119);
         setOtpSectionActive(true);
       } else {
-        throw new Error(data.message || 'Failed to send OTP');
+        setSendOtpDisabled(false);
+        throw new Error(data?.message || 'Failed to send OTP');
       }
     } catch (error) {
-      console.error('Error sending OTP: ' + (error as Error).message);
+      console.error('Error sending OTP:', error);
       alert('Error sending OTP: ' + (error as Error).message);
       hideLoader();
-    }
-  };
-
-  const handleOtpInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setOtp(value);
-    if (value.length === 6 && /^\d{6}$/.test(value)) {
-      setVerifyOtpDisabled(false);
-    } else {
-      setVerifyOtpDisabled(true);
+      setSendOtpDisabled(false);
     }
   };
 
   const handleVerifyOtp = async () => {
     const phoneInput = mobile.replace(/[^0-9]/g, '');
-    const otpValue = otp;
-    if (phoneInput.length !== 10 || otpValue.length !== 6) {
+    if (phoneInput.length !== 10 || otp.length !== 6) {
       alert('Please enter valid phone and OTP.');
       return;
     }
@@ -104,21 +159,20 @@ const SignUpPage: React.FC = () => {
       const response = await fetch(`${BACKEND_URL}/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneInput, otp: otpValue }),
+        body: JSON.stringify({ phone: phoneInput, otp }),
       });
-      const data = await response.json();
+      const data: any = await safeJson(response);
       hideLoader();
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success) {
         setVerified(true);
         setOtp('');
         setVerifyOtpDisabled(true);
-        setSubmitDisabled(false);
       } else {
-        throw new Error(data.message || 'Invalid OTP');
+        throw new Error(data?.message || 'Invalid OTP');
       }
     } catch (error) {
-      console.error('Error verifying OTP: ' + (error as Error).message);
+      console.error('Error verifying OTP:', error);
       alert('Error verifying OTP: ' + (error as Error).message);
       setOtp('');
       setVerifyOtpDisabled(true);
@@ -132,8 +186,7 @@ const SignUpPage: React.FC = () => {
       alert('Please verify your phone number first.');
       return;
     }
-    const pw = password;
-    if (pw.length < 6) {
+    if (password.length < 6) {
       alert('Passwords must be at least 6 characters.');
       return;
     }
@@ -144,27 +197,35 @@ const SignUpPage: React.FC = () => {
       const response = await fetch(`${BACKEND_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: mobileClean, password: pw }),
+        body: JSON.stringify({ mobile: mobileClean, password }),
       });
-      const data = await response.json();
+      const data: any = await safeJson(response);
       hideLoader();
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success) {
         alert('Account created successfully! Welcome to Krishi.');
-        window.location.href = `https://www.krishi.site/user-profile?mobile=${mobileClean}&id=${data.user.id}`;
+        // Client-side navigation within the same site
+        router.push(
+          `/user-profile?mobile=${mobileClean}&id=${encodeURIComponent(
+            data.user.id
+          )}`
+        );
       } else {
-        throw new Error(data.message || 'Registration failed');
+        throw new Error(data?.message || 'Registration failed');
       }
     } catch (error) {
-      console.error('Error during registration: ' + (error as Error).message);
+      console.error('Error during registration:', error);
       alert('Error during registration: ' + (error as Error).message);
       hideLoader();
     }
   };
 
   const handleGoogleCredentialResponse = async (response: any) => {
-    const id_token = response.credential;
-    if (!id_token) return alert('Google sign-up failed.');
+    const id_token = response?.credential;
+    if (!id_token) {
+      alert('Google sign-up failed.');
+      return;
+    }
 
     try {
       showLoader();
@@ -173,27 +234,29 @@ const SignUpPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_token }),
       });
-      const data = await res.json();
+      const data: any = await safeJson(res);
       hideLoader();
 
-      if (res.ok && data.success) {
+      if (res.ok && data?.success) {
         const user = data.user;
-        const userId = user.id;
+        const userId = user.id as string;
+
         const isProfileComplete =
-          user.user_name &&
-          user.shop_name &&
-          user.shop_address &&
-          user.user_name.trim() !== '' &&
-          user.shop_name.trim() !== '' &&
-          user.shop_address.trim() !== '';
+          !!user.user_name?.trim() &&
+          !!user.shop_name?.trim() &&
+          !!user.shop_address?.trim();
 
         if (isProfileComplete) {
-          window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
+          router.push(`/dashboard?id=${encodeURIComponent(userId)}`);
         } else {
-          window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
+          router.push(
+            `/user-profile?google_id=${encodeURIComponent(
+              user.google_id || ''
+            )}&id=${encodeURIComponent(userId)}`
+          );
         }
       } else {
-        alert('Google sign-up failed: ' + (data.error || 'Unknown'));
+        alert('Google sign-up failed: ' + (data?.error || 'Unknown'));
       }
     } catch (err) {
       alert('Error: ' + (err as Error).message);
@@ -201,115 +264,110 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  // Google Auth - Pre-calculate width to prevent re-render jumps
+  /** Google Auth initialization (robust, idempotent, no reflows) */
   useEffect(() => {
-    const initializeGoogleButton = () => {
-      if (!window.google?.accounts?.id) {
-        setTimeout(initializeGoogleButton, 100);
-        return;
-      }
-
-      // Pre-calculate width BEFORE initializing Google button
-      const submitButton = document.getElementById('reg-submit-btn');
-      if (submitButton) {
-        googleButtonWidthRef.current = submitButton.offsetWidth;
-      }
-
-      // Initialize with pre-calculated width
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleCredentialResponse,
-        ux_mode: 'popup',
-      });
-
-      // Render button immediately with correct width
-      if (googleButtonContainerRef.current) {
-        window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
-          theme: 'outline',
-          text: 'continue_with',
-          size: 'large',
-          type: 'standard',
-          width: googleButtonWidthRef.current,
-        });
-        
-        // Mark as ready - this won't cause layout shift since everything is already positioned
-        setIsGoogleButtonReady(true);
-      }
-    };
-
-    if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+    // Avoid duplicate injections
+    if (!document.getElementById('google-gsi')) {
       const script = document.createElement('script');
+      script.id = 'google-gsi';
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
-      script.onload = initializeGoogleButton;
+
+      script.onload = () => {
+        const init = () => {
+          // Guard: SDK available?
+          if (!window.google?.accounts?.id) return;
+
+          // Calculate width AFTER the submit button exists
+          const refEl = document.getElementById('reg-submit-btn');
+          if (refEl) {
+            googleButtonWidthRef.current = refEl.offsetWidth;
+          }
+
+          // Initialize and render
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'popup',
+          });
+
+          const container = document.getElementById('google-register-btn');
+          if (container) {
+            // Clean previous render if any
+            container.innerHTML = '';
+            window.google.accounts.id.renderButton(container, {
+              theme: 'outline',
+              text: 'continue_with',
+              size: 'large',
+              type: 'standard',
+              width: googleButtonWidthRef.current,
+            });
+            setIsGoogleReady(true);
+          }
+        };
+
+        // Ensure the DOM is fully painted before measuring
+        setTimeout(init, 100);
+      };
+
       document.head.appendChild(script);
     } else {
-      initializeGoogleButton();
-    }
-  }, []);
+      // Script already present; try to init immediately
+      if (window.google?.accounts?.id) {
+        const refEl = document.getElementById('reg-submit-btn');
+        if (refEl) googleButtonWidthRef.current = refEl.offsetWidth;
 
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+        const container = document.getElementById('google-register-btn');
+        if (container) {
+          container.innerHTML = '';
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'popup',
+          });
+          window.google.accounts.id.renderButton(container, {
+            theme: 'outline',
+            text: 'continue_with',
+            size: 'large',
+            type: 'standard',
+            width: googleButtonWidthRef.current,
+          });
+          setIsGoogleReady(true);
+        }
       }
+    }
+
+    // Cleanup only timers/listeners; keep the GSI script for other pages
+    return () => {
+      clearTimer();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
-      {/* Scoped Page Wrapper for Body-Like Styles */}
       <div className="min-h-screen flex items-center justify-center p-5 bg-[#0E0E0E] text-white overflow-x-hidden font-['Inter','Noto_Sans_Devanagari',sans-serif] antialiased">
-        <style dangerouslySetInnerHTML={{ __html: `
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;700;800;900&display=swap');
-          
-          body {
-            font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-          }
-
-          .g_id_signin { 
-            border-radius: 12px !important; 
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important; 
-            transition: transform 0.3s ease, box-shadow 0.3s ease !important; 
-          }
-          
-          .g_id_signin:hover { 
-            transform: scale(1.02); 
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important; 
-          }
-
-          @keyframes rotation { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-          }
-
-          @media (max-width: 480px) {
-            .signup-card { padding: 32px 24px !important; }
-            .signup-title { font-size: 24px !important; }
-            .mobile-otp-row { flex-direction: column !important; }
-          }
-        ` }} />
-
-        {/* Background Effects */}
-        <div 
+        {/* Subtle background */}
+        <div
           className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
           style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
+            backgroundImage:
+              'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)',
           }}
         />
-        <div 
+        <div
           className="sunray-effect fixed inset-0 pointer-events-none z-10 opacity-90"
           style={{
-            background: 'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
+            background:
+              'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
           }}
         />
-        <div 
+        <div
           className="god-rays fixed top-0 left-0 w-[200%] h-[200%] pointer-events-none z-20 opacity-50"
           style={{
-            background: 'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
+            background:
+              'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
             mixBlendMode: 'overlay' as const,
           }}
         />
@@ -317,8 +375,8 @@ const SignUpPage: React.FC = () => {
         <div className="signup-container relative z-30 w-full max-w-[480px] mx-auto">
           {/* Top Link */}
           <div className="text-center mb-6">
-            <a 
-              href="https://www.krishi.site/login" 
+            <a
+              href={`${SITE_URL}/login`}
               className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline"
             >
               Already have an account? <span className="font-semibold">Sign in</span> →
@@ -330,7 +388,17 @@ const SignUpPage: React.FC = () => {
               {/* Logo */}
               <div className="logo flex items-center justify-center mb-4 gap-[10px]">
                 <div className="logo-icon flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="url(#logoGradient)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <defs>
                       <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#9ef87a" />
@@ -341,40 +409,46 @@ const SignUpPage: React.FC = () => {
                     <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
                   </svg>
                 </div>
-                <span className="logo-text text-[28px] font-black bg-gradient-to-br from-[#9ef87a] to-[#009e57] bg-clip-text text-transparent leading-[1]">krishi</span>
+                <span className="logo-text text-[28px] font-black bg-gradient-to-br from-[#9ef87a] to-[#009e57] bg-clip-text text-transparent leading-[1]">
+                  krishi
+                </span>
               </div>
 
               {/* Title */}
-              <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
-              <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
+              <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">
+                Create your free account
+              </h1>
+              <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">
+                Explore Krishi&apos;s core features for farmers and agri-businesses
+              </p>
 
-              {/* Google Sign-in - ALWAYS VISIBLE BUT INITIALLY TRANSPARENT */}
-              <div 
-                ref={googleButtonContainerRef}
-                className="google-btn-container my-6 flex justify-center transition-opacity duration-300"
-                style={{ 
-                  opacity: isGoogleButtonReady ? 1 : 0,
-                  minHeight: '44px' // Reserve space to prevent jump
-                }}
-              />
-
-              {/* Or Divider - ALWAYS VISIBLE BUT TRANSPARENT INITIALLY */}
-              <div 
-                className="divider flex items-center my-8 gap-4 transition-opacity duration-300"
-                style={{ 
-                  opacity: isGoogleButtonReady ? 1 : 0 
-                }}
-              >
-                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                <span className="divider-text text-sm text-[#64748b]">or</span>
-                <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+              {/* Google Sign-in Container — always in DOM to avoid deadlock; visually hidden until ready */}
+              <div className="google-btn-container my-6 flex justify-center">
+                <div
+                  id="google-register-btn"
+                  className={`${isGoogleReady ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+                  // Reserve height to prevent layout shift
+                  style={{ minHeight: 40 }}
+                />
               </div>
+
+              {/* Or Divider - Only show if Google button is ready */}
+              {isGoogleReady && (
+                <div className="divider flex items-center my-8 gap-4">
+                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                  <span className="divider-text text-sm text-[#64748b]">or</span>
+                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                </div>
+              )}
 
               {/* Registration Form */}
               <form onSubmit={handleSubmit}>
                 {/* Mobile Number & OTP Send */}
                 <div className="form-group mb-6">
-                  <label htmlFor="reg-mobile" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                  <label
+                    htmlFor="reg-mobile"
+                    className="input-label block text-sm font-semibold text-[#94a3b8] mb-2"
+                  >
                     Mobile Number
                   </label>
                   <div className="mobile-otp-row flex gap-3">
@@ -386,18 +460,18 @@ const SignUpPage: React.FC = () => {
                       maxLength={10}
                       required
                       value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
+                      onChange={(e) =>
+                        setMobile(e.target.value.replace(/[^0-9]/g, '').slice(0, 10))
+                      }
                     />
                     <button
                       type="button"
                       id="reg-send-otp"
                       className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
-                        sendOtpDisabled 
-                          ? 'opacity-50 cursor-not-allowed' 
+                        sendOtpDisabled
+                          ? 'opacity-50 cursor-not-allowed'
                           : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
-                      } ${
-                        countdown > 0 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : ''
-                      }`}
+                      } ${countdown > 0 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : ''}`}
                       disabled={sendOtpDisabled}
                       onClick={handleSendOtp}
                     >
@@ -405,15 +479,23 @@ const SignUpPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 {/* OTP Input & Verify */}
-                <div id="otp-section" className={`otp-section form-group mb-6 ${otpSectionActive ? 'block' : 'hidden'}`}>
-                  <label htmlFor="reg-otp" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                <div
+                  id="otp-section"
+                  className={`otp-section form-group mb-6 ${otpSectionActive ? 'block' : 'hidden'}`}
+                >
+                  <label
+                    htmlFor="reg-otp"
+                    className="input-label block text-sm font-semibold text-[#94a3b8] mb-2"
+                  >
                     Enter OTP
                   </label>
                   <div className="mobile-otp-row flex gap-3">
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="\d*"
                       id="reg-otp"
                       className="input-field flex-1 w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Enter 6-digit OTP"
@@ -429,9 +511,7 @@ const SignUpPage: React.FC = () => {
                         verifyOtpDisabled || verified
                           ? 'opacity-50 cursor-not-allowed'
                           : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
-                      } ${
-                        verified ? 'bg-green-500/20 border-green-500/50 text-green-400' : ''
-                      }`}
+                      } ${verified ? 'bg-green-500/20 border-green-500/50 text-green-400' : ''}`}
                       disabled={verifyOtpDisabled || verified}
                       onClick={handleVerifyOtp}
                     >
@@ -442,7 +522,10 @@ const SignUpPage: React.FC = () => {
 
                 {/* Password */}
                 <div className="form-group mb-6">
-                  <label htmlFor="reg-password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                  <label
+                    htmlFor="reg-password"
+                    className="input-label block text-sm font-semibold text-[#94a3b8] mb-2"
+                  >
                     Password
                   </label>
                   <input
@@ -454,10 +537,12 @@ const SignUpPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <p className="helper-text text-sm text-[#94a3b8] mt-2">Password should be at least 6 characters</p>
+                  <p className="helper-text text-sm text-[#94a3b8] mt-2">
+                    Password should be at least 6 characters
+                  </p>
                 </div>
-                
-                {/* Create Account Button */}
+
+                {/* Create Account Button (width reference for GSI) */}
                 <button
                   type="submit"
                   className={`create-account-button w-full bg-gradient-to-br from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] mt-2 ${
@@ -476,9 +561,20 @@ const SignUpPage: React.FC = () => {
               <div className="links text-center mt-6">
                 <p className="link-text text-sm text-[#94a3b8] mb-2">
                   By creating an account, you agree to our{' '}
-                  <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline font-medium">Terms of Service</a>{' '}
+                  <a
+                    href={`${SITE_URL}/terms`}
+                    className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline font-medium"
+                  >
+                    Terms of Service
+                  </a>{' '}
                   and{' '}
-                  <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline font-medium">Privacy Policy</a>.
+                  <a
+                    href={`${SITE_URL}/privacy`}
+                    className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline font-medium"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
                 </p>
               </div>
             </div>
@@ -486,9 +582,24 @@ const SignUpPage: React.FC = () => {
 
           {/* Footer Links */}
           <div className="footer-links flex justify-center gap-6 mt-8">
-            <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Terms</a>
-            <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Privacy</a>
-            <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Security</a>
+            <a
+              href={`${SITE_URL}/terms`}
+              className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200"
+            >
+              Terms
+            </a>
+            <a
+              href={`${SITE_URL}/privacy`}
+              className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200"
+            >
+              Privacy
+            </a>
+            <a
+              href={`${SITE_URL}/security`}
+              className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200"
+            >
+              Security
+            </a>
           </div>
         </div>
       </div>
@@ -499,11 +610,30 @@ const SignUpPage: React.FC = () => {
           id="loader-overlay"
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-[9999]"
         >
-          <span 
-            className="loader w-12 h-12 rounded-full inline-block border-t-[3px] border-r-3 border-r-transparent border-[#34d399] box-border animate-spin"
-          />
+          <span className="loader w-12 h-12 rounded-full inline-block border-t-[3px] border-r-[3px] border-r-transparent border-[#34d399] box-border animate-spin" />
         </div>
       )}
+
+      {/* Small CSS for hover feel; no @import to avoid CSP issues */}
+      <style jsx>{`
+        .g_id_signin {
+          border-radius: 12px !important;
+          box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
+          transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+        }
+        .g_id_signin:hover {
+          transform: scale(1.02);
+          box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important;
+        }
+        @media (max-width: 480px) {
+          .signup-card {
+            padding: 32px 24px !important;
+          }
+          .signup-title {
+            font-size: 24px !important;
+          }
+        }
+      `}</style>
     </>
   );
 };
