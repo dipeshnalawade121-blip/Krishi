@@ -17,17 +17,13 @@ const SignUpPage: React.FC = () => {
   const [verifyOtpDisabled, setVerifyOtpDisabled] = useState<boolean>(true);
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
   const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
   const googleButtonWidthRef = useRef<number>(400);
-  const isMountedRef = useRef<boolean>(true);
 
   const showLoader = () => setLoading(true);
-  const hideLoader = () => {
-    if (isMountedRef.current) setLoading(false);
-  };
+  const hideLoader = () => setLoading(false);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -43,35 +39,22 @@ const SignUpPage: React.FC = () => {
     setSendOtpDisabled(true);
 
     intervalRef.current = setInterval(() => {
-      if (isMountedRef.current) {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(intervalRef.current!);
-            setSendOtpDisabled(false);
-            setCountdown(0);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!);
+          setSendOtpDisabled(false);
+          setCountdown(0);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
   };
 
-  const validatePhoneNumber = (phone: string): boolean => {
-    const phoneInput = phone.replace(/[^0-9]/g, '');
-    return phoneInput.length === 10 && /^[6-9]\d{9}$/.test(phoneInput);
-  };
-
-  const validatePassword = (pw: string): boolean => {
-    return pw.length >= 6;
-  };
-
   const handleSendOtp = async () => {
-    setError('');
     const phoneInput = mobile.replace(/[^0-9]/g, '');
-    
-    if (!validatePhoneNumber(phoneInput)) {
-      setError('Please enter a valid 10-digit mobile number starting with 6-9.');
+    if (phoneInput.length !== 10) {
+      alert('Please enter a valid 10-digit mobile number.');
       return;
     }
 
@@ -83,30 +66,25 @@ const SignUpPage: React.FC = () => {
         body: JSON.stringify({ phone: phoneInput }),
       });
       const data = await response.json();
-      
-      if (!isMountedRef.current) return;
+      hideLoader();
 
       if (response.ok && data.success) {
         startCountdown(119);
         setOtpSectionActive(true);
-        setError('');
       } else {
         throw new Error(data.message || 'Failed to send OTP');
       }
     } catch (error) {
       console.error('Error sending OTP: ' + (error as Error).message);
-      if (isMountedRef.current) {
-        setError('Error sending OTP: ' + (error as Error).message);
-      }
-    } finally {
+      alert('Error sending OTP: ' + (error as Error).message);
       hideLoader();
     }
   };
 
   const handleOtpInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+    const value = e.target.value;
     setOtp(value);
-    if (value.length === 6) {
+    if (value.length === 6 && /^\d{6}$/.test(value)) {
       setVerifyOtpDisabled(false);
     } else {
       setVerifyOtpDisabled(true);
@@ -114,12 +92,10 @@ const SignUpPage: React.FC = () => {
   };
 
   const handleVerifyOtp = async () => {
-    setError('');
     const phoneInput = mobile.replace(/[^0-9]/g, '');
     const otpValue = otp;
-    
-    if (!validatePhoneNumber(phoneInput) || otpValue.length !== 6) {
-      setError('Please enter valid phone and 6-digit OTP.');
+    if (phoneInput.length !== 10 || otpValue.length !== 6) {
+      alert('Please enter valid phone and OTP.');
       return;
     }
 
@@ -131,41 +107,34 @@ const SignUpPage: React.FC = () => {
         body: JSON.stringify({ phone: phoneInput, otp: otpValue }),
       });
       const data = await response.json();
-      
-      if (!isMountedRef.current) return;
+      hideLoader();
 
       if (response.ok && data.success) {
         setVerified(true);
         setOtp('');
         setVerifyOtpDisabled(true);
         setSubmitDisabled(false);
-        setError('');
       } else {
         throw new Error(data.message || 'Invalid OTP');
       }
     } catch (error) {
       console.error('Error verifying OTP: ' + (error as Error).message);
-      if (isMountedRef.current) {
-        setError('Error verifying OTP: ' + (error as Error).message);
-        setOtp('');
-        setVerifyOtpDisabled(true);
-      }
-    } finally {
+      alert('Error verifying OTP: ' + (error as Error).message);
+      setOtp('');
+      setVerifyOtpDisabled(true);
       hideLoader();
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    
     if (!verified) {
-      setError('Please verify your phone number first.');
+      alert('Please verify your phone number first.');
       return;
     }
-    
-    if (!validatePassword(password)) {
-      setError('Password must be at least 6 characters long.');
+    const pw = password;
+    if (pw.length < 6) {
+      alert('Passwords must be at least 6 characters.');
       return;
     }
 
@@ -175,11 +144,10 @@ const SignUpPage: React.FC = () => {
       const response = await fetch(`${BACKEND_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: mobileClean, password }),
+        body: JSON.stringify({ mobile: mobileClean, password: pw }),
       });
       const data = await response.json();
-      
-      if (!isMountedRef.current) return;
+      hideLoader();
 
       if (response.ok && data.success) {
         alert('Account created successfully! Welcome to Krishi.');
@@ -189,20 +157,14 @@ const SignUpPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error during registration: ' + (error as Error).message);
-      if (isMountedRef.current) {
-        setError('Error during registration: ' + (error as Error).message);
-      }
-    } finally {
+      alert('Error during registration: ' + (error as Error).message);
       hideLoader();
     }
   };
 
   const handleGoogleCredentialResponse = async (response: any) => {
     const id_token = response.credential;
-    if (!id_token) {
-      setError('Google sign-up failed: No token received.');
-      return;
-    }
+    if (!id_token) return alert('Google sign-up failed.');
 
     try {
       showLoader();
@@ -212,8 +174,7 @@ const SignUpPage: React.FC = () => {
         body: JSON.stringify({ id_token }),
       });
       const data = await res.json();
-      
-      if (!isMountedRef.current) return;
+      hideLoader();
 
       if (res.ok && data.success) {
         const user = data.user;
@@ -232,90 +193,60 @@ const SignUpPage: React.FC = () => {
           window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
         }
       } else {
-        throw new Error(data.error || 'Google sign-up failed');
+        alert('Google sign-up failed: ' + (data.error || 'Unknown'));
       }
     } catch (err) {
-      console.error('Error in Google authentication: ' + (err as Error).message);
-      if (isMountedRef.current) {
-        setError('Error: ' + (err as Error).message);
-      }
-    } finally {
+      alert('Error: ' + (err as Error).message);
       hideLoader();
     }
   };
 
-  // Google Auth - Fixed with proper cleanup and error handling
+  // Google Auth - Pre-calculate width to prevent re-render jumps
   useEffect(() => {
-    isMountedRef.current = true;
-
     const initializeGoogleButton = () => {
-      if (!isMountedRef.current) return;
-
-      if (window.google?.accounts?.id) {
-        // Calculate width from the submit button
-        const submitButton = document.getElementById('reg-submit-btn');
-        if (submitButton) {
-          googleButtonWidthRef.current = submitButton.offsetWidth;
-        }
-
-        // Initialize Google button
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleCredentialResponse,
-          ux_mode: 'popup',
-        });
-
-        // Render the button
-        if (googleButtonContainerRef.current) {
-          window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
-            theme: 'outline',
-            text: 'continue_with',
-            size: 'large',
-            type: 'standard',
-            width: googleButtonWidthRef.current,
-          });
-          
-          // Mark as ready
-          setIsGoogleButtonReady(true);
-        }
-      } else {
-        // Retry after a short delay if Google library isn't loaded yet
+      if (!window.google?.accounts?.id) {
         setTimeout(initializeGoogleButton, 100);
+        return;
+      }
+
+      // Pre-calculate width BEFORE initializing Google button
+      const submitButton = document.getElementById('reg-submit-btn');
+      if (submitButton) {
+        googleButtonWidthRef.current = submitButton.offsetWidth;
+      }
+
+      // Initialize with pre-calculated width
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredentialResponse,
+        ux_mode: 'popup',
+      });
+
+      // Render button immediately with correct width
+      if (googleButtonContainerRef.current) {
+        window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
+          theme: 'outline',
+          text: 'continue_with',
+          size: 'large',
+          type: 'standard',
+          width: googleButtonWidthRef.current,
+        });
+        
+        // Mark as ready - this won't cause layout shift since everything is already positioned
+        setIsGoogleButtonReady(true);
       }
     };
 
-    const loadGoogleScript = () => {
-      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-      
-      if (existingScript) {
-        // Script already exists, wait for it to load
-        if (window.google?.accounts?.id) {
-          initializeGoogleButton();
-        } else {
-          existingScript.addEventListener('load', initializeGoogleButton);
-        }
-      } else {
-        // Load the script
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.onload = initializeGoogleButton;
-        script.onerror = () => {
-          if (isMountedRef.current) {
-            setError('Failed to load Google Sign-In. Please refresh the page.');
-          }
-        };
-        document.head.appendChild(script);
-      }
-    };
-
-    // Small delay to ensure DOM is ready
-    setTimeout(loadGoogleScript, 50);
-
-    return () => {
-      isMountedRef.current = false;
-    };
+    if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogleButton;
+      document.head.appendChild(script);
+    } else {
+      initializeGoogleButton();
+    }
   }, []);
 
   useEffect(() => {
@@ -417,34 +348,21 @@ const SignUpPage: React.FC = () => {
               <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
               <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-
-              {/* Google Sign-in - Always rendered but with opacity transition */}
+              {/* Google Sign-in - ALWAYS VISIBLE BUT INITIALLY TRANSPARENT */}
               <div 
                 ref={googleButtonContainerRef}
                 className="google-btn-container my-6 flex justify-center transition-opacity duration-300"
                 style={{ 
-                  opacity: isGoogleButtonReady ? 1 : 0.3,
-                  minHeight: '44px'
+                  opacity: isGoogleButtonReady ? 1 : 0,
+                  minHeight: '44px' // Reserve space to prevent jump
                 }}
-              >
-                {!isGoogleButtonReady && (
-                  <div className="w-full h-11 bg-gray-700 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-400 text-sm">Loading Google Sign-In...</span>
-                  </div>
-                )}
-              </div>
+              />
 
-              {/* Or Divider - Always visible but with opacity transition */}
+              {/* Or Divider - ALWAYS VISIBLE BUT TRANSPARENT INITIALLY */}
               <div 
                 className="divider flex items-center my-8 gap-4 transition-opacity duration-300"
                 style={{ 
-                  opacity: isGoogleButtonReady ? 1 : 0.3 
+                  opacity: isGoogleButtonReady ? 1 : 0 
                 }}
               >
                 <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
@@ -464,19 +382,19 @@ const SignUpPage: React.FC = () => {
                       type="tel"
                       id="reg-mobile"
                       className="input-field flex-1 w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
-                      placeholder="Enter 10-digit mobile number"
+                      placeholder="Enter your mobile number"
                       maxLength={10}
                       required
                       value={mobile}
-                      onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, ''))}
+                      onChange={(e) => setMobile(e.target.value)}
                     />
                     <button
                       type="button"
                       id="reg-send-otp"
-                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border ${
+                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
                         sendOtpDisabled 
-                          ? 'opacity-50 cursor-not-allowed border-white/10 bg-slate-800/60' 
-                          : 'border-white/10 bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
                       } ${
                         countdown > 0 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : ''
                       }`}
@@ -489,30 +407,28 @@ const SignUpPage: React.FC = () => {
                 </div>
                 
                 {/* OTP Input & Verify */}
-                <div className={`form-group mb-6 transition-all duration-300 ${otpSectionActive ? 'block' : 'hidden'}`}>
+                <div id="otp-section" className={`otp-section form-group mb-6 ${otpSectionActive ? 'block' : 'hidden'}`}>
                   <label htmlFor="reg-otp" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                     Enter OTP
                   </label>
                   <div className="mobile-otp-row flex gap-3">
                     <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
+                      type="number"
                       id="reg-otp"
                       className="input-field flex-1 w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Enter 6-digit OTP"
                       maxLength={6}
-                      disabled={verified}
+                      disabled={!otpSectionActive || verified}
                       value={otp}
                       onChange={handleOtpInput}
                     />
                     <button
                       type="button"
                       id="reg-verify-btn"
-                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border ${
+                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
                         verifyOtpDisabled || verified
                           ? 'opacity-50 cursor-not-allowed'
-                          : 'border-white/10 bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
+                          : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
                       } ${
                         verified ? 'bg-green-500/20 border-green-500/50 text-green-400' : ''
                       }`}
@@ -533,7 +449,7 @@ const SignUpPage: React.FC = () => {
                     type="password"
                     id="reg-password"
                     className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
-                    placeholder="Create a secure password (min. 6 characters)"
+                    placeholder="Create a secure password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -580,6 +496,7 @@ const SignUpPage: React.FC = () => {
       {/* Loader Overlay */}
       {loading && (
         <div
+          id="loader-overlay"
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-[9999]"
         >
           <span 
