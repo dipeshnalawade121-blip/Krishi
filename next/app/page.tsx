@@ -189,12 +189,12 @@ body {
 /* GSI Button Override */
 .g_id_signin {
     border-radius: 9999px !important;
-    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
+   /* box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important; */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .g_id_signin:hover {
     transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important;
+  /*  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important; */
 }
 `;
 
