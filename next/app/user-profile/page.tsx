@@ -234,9 +234,9 @@ const CompleteProfilePage: React.FC = () => {
           setShowGoogleSection(false);
           setShowNameField(true);
           setShowEmailField(true);
-          setShowMobileSection(true);
-          setShowPasswordField(true);
-          setPasswordRequired(true);
+          setShowMobileSection(false);
+          setShowPasswordField(false);
+          setPasswordRequired(false);
         }
         
         displayStatus('Google account linked and profile updated!', 'success');
