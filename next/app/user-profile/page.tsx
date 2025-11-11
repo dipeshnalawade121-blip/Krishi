@@ -34,11 +34,12 @@ const CompleteProfilePage: React.FC = () => {
   const [emailLocked, setEmailLocked] = useState<boolean>(false);
   const [mobileLocked, setMobileLocked] = useState<boolean>(false);
   const [showGoogleSection, setShowGoogleSection] = useState<boolean>(true);
-  const [showNameField, setShowNameField] = useState<boolean>(true);
-  const [showEmailField, setShowEmailField] = useState<boolean>(true);
-  const [showMobileSection, setShowMobileSection] = useState<boolean>(true);
-  const [showPasswordField, setShowPasswordField] = useState<boolean>(true);
+  const [showNameField, setShowNameField] = useState<boolean>(false);
+  const [showEmailField, setShowEmailField] = useState<boolean>(false);
+  const [showMobileSection, setShowMobileSection] = useState<boolean>(false);
+  const [showPasswordField, setShowPasswordField] = useState<boolean>(false);
   const [passwordRequired, setPasswordRequired] = useState<boolean>(true);
+  const [googleLinked, setGoogleLinked] = useState<boolean>(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
@@ -59,17 +60,18 @@ const CompleteProfilePage: React.FC = () => {
     
     // Set initial visibility based on signup method
     if (urlMethod === 'google' || urlGoogleId) {
-      // Google signup - show name, email, mobile, password
-      setShowNameField(true);
-      setShowEmailField(true);
-      setShowMobileSection(true);
-      setShowPasswordField(true);
-      setShowGoogleSection(true);
-    } else if (urlMethod === 'mobile') {
-      // Mobile signup - hide name, email, password; show mobile only
+      // Google signup - show ONLY mobile + password sections
       setShowNameField(false);
       setShowEmailField(false);
       setShowMobileSection(true);
+      setShowPasswordField(true);
+      setShowGoogleSection(false); // Hide Google button for Google signup
+      setPasswordRequired(true);
+    } else if (urlMethod === 'mobile') {
+      // Mobile signup - show ONLY Google section initially
+      setShowNameField(false);
+      setShowEmailField(false);
+      setShowMobileSection(false);
       setShowPasswordField(false);
       setShowGoogleSection(true);
       setPasswordRequired(false);
@@ -225,13 +227,16 @@ const CompleteProfilePage: React.FC = () => {
         setEmail(data.user.email || email);
         setUserNameLocked(true);
         setEmailLocked(true);
-        setShowGoogleSection(false); // Hide Google section after linking
+        setGoogleLinked(true);
         
-        // For Google signup, force mobile verification
-        if (!mobileVerified) {
-          setMobileLocked(false);
-          setSendOtpDisabled(false);
-          setMobileVerified(false);
+        // For mobile signup after Google linking: hide Google button, show name/email, show mobile/password
+        if (signupMethod === 'mobile') {
+          setShowGoogleSection(false);
+          setShowNameField(true);
+          setShowEmailField(true);
+          setShowMobileSection(true);
+          setShowPasswordField(true);
+          setPasswordRequired(true);
         }
         
         displayStatus('Google account linked and profile updated!', 'success');
@@ -415,37 +420,42 @@ const CompleteProfilePage: React.FC = () => {
         
         // Handle different signup flows based on URL params and existing data
         if (signupMethod === 'google' || googleId) {
-          // Google signup flow
-          setUserNameLocked(true);
-          setEmailLocked(true);
-          setShowGoogleSection(false); // Hide Google button if already linked
-          
-          // Show all sections for Google users
-          setShowNameField(true);
-          setShowEmailField(true);
-          setShowMobileSection(true);
-          setShowPasswordField(true);
-          setPasswordRequired(true);
-          
-          // Force mobile verification for Google users if not already verified
-          if (!user.mobile) {
-            setMobileLocked(false);
-            setMobileVerified(false);
-          } else {
-            setMobileLocked(true);
-          }
-        } else if (signupMethod === 'mobile') {
-          // Mobile signup flow
+          // Google signup flow - show ONLY mobile + password
           setShowNameField(false);
           setShowEmailField(false);
           setShowMobileSection(true);
+          setShowPasswordField(true);
+          setShowGoogleSection(false);
+          setPasswordRequired(true);
+          
+          // If mobile already exists in profile, lock it
+          if (user.mobile) {
+            setMobileLocked(true);
+          } else {
+            setMobileLocked(false);
+            setMobileVerified(false);
+          }
+        } else if (signupMethod === 'mobile') {
+          // Mobile signup flow - show ONLY Google button initially
+          setShowNameField(false);
+          setShowEmailField(false);
+          setShowMobileSection(false);
           setShowPasswordField(false);
+          setShowGoogleSection(true);
           setPasswordRequired(false);
           
-          // Lock mobile for mobile signup users (already verified during signup)
-          setMobileLocked(true);
-          setMobileVerified(true);
-          setSendOtpDisabled(true);
+          // If user already linked Google, show the linked state
+          if (user.email && user.user_name) {
+            setGoogleLinked(true);
+            setShowGoogleSection(false);
+            setShowNameField(true);
+            setShowEmailField(true);
+            setShowMobileSection(true);
+            setShowPasswordField(true);
+            setPasswordRequired(true);
+            setUserNameLocked(true);
+            setEmailLocked(true);
+          }
         }
 
         checkFormValidity();
@@ -547,6 +557,8 @@ const CompleteProfilePage: React.FC = () => {
           @media (max-width: 480px) {
             .profile-card { padding: 32px 24px !important; }
             .profile-title { font-size: 20px !important; }
+            .mobile-otp-row { flex-direction: column !important; }
+            .otp-button { width: 100% !important; margin-top: 8px !important; }
           }
         ` }} />
 
@@ -608,7 +620,7 @@ const CompleteProfilePage: React.FC = () => {
 
               {/* Profile Form */}
               <form onSubmit={handleSubmit}>
-                {/* User Name - Conditionally shown */}
+                {/* User Name - Only shown for mobile signup after Google linking */}
                 {showNameField && (
                   <div className="form-group mb-6">
                     <label htmlFor="userName" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
@@ -630,7 +642,7 @@ const CompleteProfilePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* User Email - Conditionally shown */}
+                {/* User Email - Only shown for mobile signup after Google linking */}
                 {showEmailField && (
                   <div className="form-group mb-6">
                     <label htmlFor="email" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
@@ -651,7 +663,7 @@ const CompleteProfilePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Google Link Section - Conditionally shown */}
+                {/* Google Link Section - Only shown for mobile signup initially */}
                 {showGoogleSection && (
                   <div className="google-link-section my-6 p-5 bg-[#1e293b]/30 rounded-[12px] border border-white/5">
                     <div className="google-link-title text-sm font-semibold text-[#94a3b8] mb-3 text-center">
@@ -668,16 +680,7 @@ const CompleteProfilePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Divider - Only show if both Google section and mobile section are visible */}
-                {(showGoogleSection && showMobileSection) && (
-                  <div className="divider flex items-center my-6 gap-4">
-                    <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                    <span className="divider-text text-sm text-[#64748b]">or continue with</span>
-                    <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                  </div>
-                )}
-
-                {/* Mobile Number - Conditionally shown */}
+                {/* Mobile Number - Only shown for Google signup or mobile signup after Google linking */}
                 {showMobileSection && (
                   <div className="form-group mb-6">
                     <label htmlFor="mobileNumber" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
@@ -688,11 +691,11 @@ const CompleteProfilePage: React.FC = () => {
                         {mobileVerified ? 'Verified' : 'Unverified'}
                       </span>
                     </label>
-                    <div className="mobile-otp-row flex gap-3">
+                    <div className="mobile-otp-row flex gap-3 md:flex-row flex-col">
                       <input
                         type="tel"
                         id="mobileNumber"
-                        className={`input-field mobile-input flex-1 bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
+                        className={`input-field mobile-input w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
                           mobileLocked ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                         placeholder="10-digit mobile number"
@@ -706,7 +709,7 @@ const CompleteProfilePage: React.FC = () => {
                         type="button"
                         onClick={handleSendOtp}
                         disabled={sendOtpDisabled || mobileLocked}
-                        className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
+                        className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap md:w-auto w-full ${
                           countdown > 0 
                             ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 cursor-not-allowed' 
                             : mobileLocked
@@ -726,11 +729,11 @@ const CompleteProfilePage: React.FC = () => {
                     <label htmlFor="otp-input" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                       Enter OTP
                     </label>
-                    <div className="mobile-otp-row flex gap-3">
+                    <div className="mobile-otp-row flex gap-3 md:flex-row flex-col">
                       <input
                         type="text"
                         id="otp-input"
-                        className="input-field mobile-input flex-1 bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+                        className="input-field mobile-input w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
                         placeholder="Enter 6-digit OTP"
                         maxLength={6}
                         value={otp}
@@ -741,7 +744,7 @@ const CompleteProfilePage: React.FC = () => {
                         type="button"
                         onClick={handleVerifyOtp}
                         disabled={verifyOtpDisabled || mobileVerified}
-                        className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
+                        className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap md:w-auto w-full ${
                           mobileVerified
                             ? 'bg-green-500/20 border-green-500/50 text-green-400 cursor-not-allowed'
                             : !verifyOtpDisabled
@@ -755,7 +758,7 @@ const CompleteProfilePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Password - Conditionally shown */}
+                {/* Password - Only shown for Google signup or mobile signup after Google linking */}
                 {showPasswordField && (
                   <div className="form-group mb-6">
                     <label htmlFor="password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
