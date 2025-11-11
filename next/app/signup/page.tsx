@@ -54,7 +54,7 @@ const SignUpPage: React.FC = () => {
   const handleSendOtp = async () => {
     const phoneInput = mobile.replace(/[^0-9]/g, '');
     if (phoneInput.length !== 10) {
-      alert('Please enter a valid 10-digit mobile number.');
+      console.error('Validation Error: Please enter a valid 10-digit mobile number.'); 
       return;
     }
 
@@ -76,7 +76,6 @@ const SignUpPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error sending OTP: ' + (error as Error).message);
-      alert('Error sending OTP: ' + (error as Error).message);
       hideLoader();
     }
   };
@@ -95,7 +94,7 @@ const SignUpPage: React.FC = () => {
     const phoneInput = mobile.replace(/[^0-9]/g, '');
     const otpValue = otp;
     if (phoneInput.length !== 10 || otpValue.length !== 6) {
-      alert('Please enter valid phone and OTP.');
+      console.error('Validation Error: Please enter valid phone and OTP.');
       return;
     }
 
@@ -114,12 +113,12 @@ const SignUpPage: React.FC = () => {
         setOtp('');
         setVerifyOtpDisabled(true);
         setSubmitDisabled(false);
+        console.log('Phone number successfully verified.');
       } else {
         throw new Error(data.message || 'Invalid OTP');
       }
     } catch (error) {
       console.error('Error verifying OTP: ' + (error as Error).message);
-      alert('Error verifying OTP: ' + (error as Error).message);
       setOtp('');
       setVerifyOtpDisabled(true);
       hideLoader();
@@ -129,12 +128,12 @@ const SignUpPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!verified) {
-      alert('Please verify your phone number first.');
+      console.error('Submission Error: Please verify your phone number first.');
       return;
     }
     const pw = password;
     if (pw.length < 6) {
-      alert('Passwords must be at least 6 characters.');
+      console.error('Validation Error: Passwords must be at least 6 characters.');
       return;
     }
 
@@ -150,21 +149,20 @@ const SignUpPage: React.FC = () => {
       hideLoader();
 
       if (response.ok && data.success) {
-        alert('Account created successfully! Welcome to Krishi.');
+        console.log('Account created successfully! Welcome to Krishi.');
         window.location.href = `https://www.krishi.site/user-profile?mobile=${mobileClean}&id=${data.user.id}`;
       } else {
         throw new Error(data.message || 'Registration failed');
       }
     } catch (error) {
       console.error('Error during registration: ' + (error as Error).message);
-      alert('Error during registration: ' + (error as Error).message);
       hideLoader();
     }
   };
 
   const handleGoogleCredentialResponse = async (response: any) => {
     const id_token = response.credential;
-    if (!id_token) return alert('Google sign-up failed.');
+    if (!id_token) return console.error('Google sign-up failed: Token not received.'); 
 
     try {
       showLoader();
@@ -193,15 +191,15 @@ const SignUpPage: React.FC = () => {
           window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
         }
       } else {
-        alert('Google sign-up failed: ' + (data.error || 'Unknown'));
+        console.error('Google sign-up failed: ' + (data.error || 'Unknown'));
       }
     } catch (err) {
-      alert('Error: ' + (err as Error).message);
+      console.error('Network Error: ' + (err as Error).message);
       hideLoader();
     }
   };
 
-  // Google Auth - Pre-calculate width to prevent re-render jumps
+  // Google Auth - Fix for CLS
   useEffect(() => {
     const initializeGoogleButton = () => {
       // Use runtime check to ensure google is available, bypassing TypeScript conflicts.
@@ -349,13 +347,13 @@ const SignUpPage: React.FC = () => {
               <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
               <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
 
-              {/* Google Sign-in - ALWAYS VISIBLE BUT INITIALLY TRANSPARENT */}
+              {/* Google Sign-in - FIX: Set height to exactly 50px */}
               <div 
                 ref={googleButtonContainerRef}
                 className="google-btn-container my-6 flex justify-center transition-opacity duration-300"
                 style={{ 
                   opacity: isGoogleButtonReady ? 1 : 0,
-                  minHeight: '50px' // Reserved height to prevent CLS
+                  height: '50px' // <-- THE FINAL CLS FIX: Force exact height
                 }}
               />
 
