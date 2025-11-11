@@ -19,6 +19,7 @@ const SignUpPage: React.FC = () => {
   const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const googleButtonContainerRef = useRef<HTMLDivElement>(null);
   const googleButtonWidthRef = useRef<number>(400);
 
   const showLoader = () => setLoading(true);
@@ -200,56 +201,55 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  // Google Auth - Improved to prevent re-renders
+  // Google Auth - Fixed initialization
   useEffect(() => {
-    const calculateAndInitializeGoogleButton = () => {
-      // Calculate width first (without causing re-render)
-      const referenceElement = document.getElementById('reg-submit-btn');
-      if (referenceElement) {
-        googleButtonWidthRef.current = referenceElement.offsetWidth;
+    const initializeGoogleButton = () => {
+      if (!window.google?.accounts?.id) {
+        // If Google library isn't loaded yet, try again in 100ms
+        setTimeout(initializeGoogleButton, 100);
+        return;
       }
 
-      // Now initialize Google button with calculated width
-      if (window.google?.accounts?.id) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleCredentialResponse,
-          ux_mode: 'popup',
+      // Calculate width from the submit button
+      const submitButton = document.getElementById('reg-submit-btn');
+      if (submitButton) {
+        googleButtonWidthRef.current = submitButton.offsetWidth;
+      }
+
+      // Initialize Google button
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredentialResponse,
+        ux_mode: 'popup',
+      });
+
+      // Render the button
+      if (googleButtonContainerRef.current) {
+        window.google.accounts.id.renderButton(googleButtonContainerRef.current, {
+          theme: 'outline',
+          text: 'continue_with',
+          size: 'large',
+          type: 'standard',
+          width: googleButtonWidthRef.current,
         });
-
-        const registerBtnContainer = document.getElementById('google-register-btn');
-        if (registerBtnContainer) {
-          window.google.accounts.id.renderButton(registerBtnContainer, {
-            theme: 'outline',
-            text: 'continue_with',
-            size: 'large',
-            type: 'standard',
-            width: googleButtonWidthRef.current,
-          });
-          
-          // Only NOW show the Google button - fully calculated and initialized
-          setIsGoogleButtonReady(true);
-        }
+        
+        // Mark as ready
+        setIsGoogleButtonReady(true);
       }
     };
 
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    
-    script.onload = () => {
-      // Wait a tiny bit for DOM to be fully ready, then calculate and initialize
-      setTimeout(calculateAndInitializeGoogleButton, 100);
-    };
-
-    document.head.appendChild(script);
-
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
+    // Load Google script if not already loaded
+    if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogleButton;
+      document.head.appendChild(script);
+    } else {
+      // Script already exists, just initialize
+      initializeGoogleButton();
+    }
   }, []);
 
   useEffect(() => {
@@ -351,12 +351,17 @@ const SignUpPage: React.FC = () => {
               <h1 className="signup-title text-center text-[28px] font-bold text-white mb-2 leading-[1.2]">Create your free account</h1>
               <p className="signup-subtitle text-center text-base text-[#94a3b8] mb-8">Explore Krishi&apos;s core features for farmers and agri-businesses</p>
 
-              {/* Google Sign-in - ONLY RENDER WHEN READY */}
-              {isGoogleButtonReady && (
-                <div className="google-btn-container my-6 flex justify-center">
-                  <div id="google-register-btn" />
-                </div>
-              )}
+              {/* Google Sign-in - ALWAYS RENDER BUT HIDE UNTIL READY */}
+              <div 
+                className="google-btn-container my-6 flex justify-center"
+                style={{ 
+                  visibility: isGoogleButtonReady ? 'visible' : 'hidden',
+                  height: isGoogleButtonReady ? 'auto' : '0px',
+                  overflow: 'hidden'
+                }}
+              >
+                <div ref={googleButtonContainerRef} id="google-register-btn" />
+              </div>
 
               {/* Or Divider - Only show if Google button is ready */}
               {isGoogleButtonReady && (
@@ -403,7 +408,7 @@ const SignUpPage: React.FC = () => {
                   </div>
                 </div>
                 
-                {/* OTP Input & Verify - Simple show/hide without animation */}
+                {/* OTP Input & Verify */}
                 <div id="otp-section" className={`otp-section form-group mb-6 ${otpSectionActive ? 'block' : 'hidden'}`}>
                   <label htmlFor="reg-otp" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                     Enter OTP
@@ -454,7 +459,7 @@ const SignUpPage: React.FC = () => {
                   <p className="helper-text text-sm text-[#94a3b8] mt-2">Password should be at least 6 characters</p>
                 </div>
                 
-                {/* Create Account Button - Used for Google button width calculation */}
+                {/* Create Account Button */}
                 <button
                   type="submit"
                   className={`create-account-button w-full bg-gradient-to-br from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] mt-2 ${
