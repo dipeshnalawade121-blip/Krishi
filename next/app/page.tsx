@@ -385,7 +385,7 @@ const App = () => {
                 </div>
 
                 {/* Google Sign-in Button */}
-                <div className="animate-in delay-300 mb-4 flex justify-center">
+                <div className="animate-in delay-300 mb-4 flex justify-center" style={{ height: '50px' }}>
                     {/* This DIV will be filled by the Google GSI script */}
                     <div id="google-register-btn" className="g_id_signin"></div>
                 </div>
