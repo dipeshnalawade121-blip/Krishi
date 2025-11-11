@@ -248,50 +248,21 @@ const SignUpPage: React.FC = () => {
   return (
     <>
       {/* Scoped Page Wrapper for Body-Like Styles */}
-      <div className="signup-page-wrapper min-h-screen flex items-center justify-center p-5 bg-[#0E0E0E] text-white overflow-x-hidden font-['Inter','Noto_Sans_Devanagari',sans-serif] antialiased">
+      <div className="min-h-screen flex items-center justify-center p-5 bg-[#0E0E0E] text-white overflow-x-hidden font-['Inter','Noto_Sans_Devanagari',sans-serif] antialiased">
         <style dangerouslySetInnerHTML={{ __html: `
-          .signup-page-wrapper {
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;700;800;900&display=swap');
+          
+          body {
             font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
           }
-          @media (max-width: 480px) {
-            .signup-page-wrapper { padding: 20px; }
-            .signup-card { padding: 32px 24px !important; }
-            .signup-title { font-size: 24px !important; }
-            .mobile-otp-row { flex-direction: column !important; }
-          }
-        ` }} />
 
-        {/* Background Effects */}
-        <div 
-          className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
-          style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
-          }}
-        />
-        <div 
-          className="sunray-effect fixed inset-0 pointer-events-none z-10"
-          style={{
-            background: 'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
-            animation: 'sunrayPulse 10s ease-in-out infinite alternate'
-          }}
-        />
-        <div 
-          className="god-rays fixed top-0 left-0 w-[200%] h-[200%] pointer-events-none z-20"
-          style={{
-            background: 'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
-            mixBlendMode: 'overlay' as const,
-            animation: 'godRays 15s ease-in-out infinite'
-          }}
-        />
-
-        {/* Scoped Keyframes */}
-        <style jsx>{`
           @keyframes sunrayPulse {
             0%, 100% { opacity: 0.95; }
             50% { opacity: 0.85; }
           }
+
           @keyframes godRays {
             0% { transform: translate(-30%, -30%) rotate(0deg); opacity: 0.4; }
             25% { transform: translate(-25%, -25%) rotate(5deg); opacity: 0.6; }
@@ -299,32 +270,63 @@ const SignUpPage: React.FC = () => {
             75% { transform: translate(-25%, -25%) rotate(5deg); opacity: 0.6; }
             100% { transform: translate(-30%, -30%) rotate(0deg); opacity: 0.4; }
           }
-          @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-          @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-          @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          .g_id_signin { border-radius: 12px !important; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-          .g_id_signin:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important; }
-          .animate-in { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; }
-          .delay-100 { animation-delay: 0.1s; }
-          .delay-200 { animation-delay: 0.2s; }
-          .delay-300 { animation-delay: 0.3s; }
-          .delay-400 { animation-delay: 0.4s; }
-          .delay-500 { animation-delay: 0.5s; }
-        `}</style>
+
+          @keyframes rotation { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+          }
+
+          .g_id_signin { 
+            border-radius: 12px !important; 
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease !important; 
+          }
+          
+          .g_id_signin:hover { 
+            transform: scale(1.02); 
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important; 
+          }
+
+          @media (max-width: 480px) {
+            .signup-card { padding: 32px 24px !important; }
+            .signup-title { font-size: 24px !important; }
+            .mobile-otp-row { flex-direction: column !important; }
+          }
+        ` }} />
+
+        {/* Background Effects - Removed animations that cause jumps */}
+        <div 
+          className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
+          }}
+        />
+        <div 
+          className="sunray-effect fixed inset-0 pointer-events-none z-10 opacity-90"
+          style={{
+            background: 'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
+          }}
+        />
+        <div 
+          className="god-rays fixed top-0 left-0 w-[200%] h-[200%] pointer-events-none z-20 opacity-50"
+          style={{
+            background: 'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
+            mixBlendMode: 'overlay' as const,
+          }}
+        />
 
         <div className="signup-container relative z-30 w-full max-w-[480px] mx-auto">
           {/* Top Link */}
-          <div className="text-center mb-6 animate-in">
+          <div className="text-center mb-6">
             <a 
               href="https://www.krishi.site/login" 
               className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline"
             >
               Already have an account? <span className="font-semibold">Sign in</span> →
             </a>
-            
           </div>
 
-          <div className="signup-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] animate-in delay-100">
+          <div className="signup-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
             <div className="signup-content relative z-[2]">
               {/* Logo */}
               <div className="logo flex items-center justify-center mb-4 gap-[10px]">
@@ -360,7 +362,7 @@ const SignUpPage: React.FC = () => {
               </div>
 
               {/* Registration Form */}
-              <form onSubmit={handleSubmit} className="animate-in delay-200">
+              <form onSubmit={handleSubmit}>
                 {/* Mobile Number & OTP Send */}
                 <div className="form-group mb-6">
                   <label htmlFor="reg-mobile" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
@@ -370,7 +372,7 @@ const SignUpPage: React.FC = () => {
                     <input
                       type="tel"
                       id="reg-mobile"
-                      className="input-field flex-1 w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+                      className="input-field flex-1 w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
                       placeholder="Enter your mobile number"
                       maxLength={10}
                       required
@@ -380,7 +382,7 @@ const SignUpPage: React.FC = () => {
                     <button
                       type="button"
                       id="reg-send-otp"
-                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 backdrop-blur-[10px] ${
+                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
                         sendOtpDisabled 
                           ? 'opacity-50 cursor-not-allowed' 
                           : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
@@ -395,8 +397,8 @@ const SignUpPage: React.FC = () => {
                   </div>
                 </div>
                 
-                {/* OTP Input & Verify */}
-                <div id="otp-section" className={`otp-section form-group mb-6 ${otpSectionActive ? 'block animate-[fadeIn_0.5s_ease-out]' : 'hidden'}`}>
+                {/* OTP Input & Verify - Simple show/hide without animation */}
+                <div id="otp-section" className={`otp-section form-group mb-6 ${otpSectionActive ? 'block' : 'hidden'}`}>
                   <label htmlFor="reg-otp" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                     Enter OTP
                   </label>
@@ -404,7 +406,7 @@ const SignUpPage: React.FC = () => {
                     <input
                       type="number"
                       id="reg-otp"
-                      className="input-field flex-1 w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="input-field flex-1 w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Enter 6-digit OTP"
                       maxLength={6}
                       disabled={!otpSectionActive || verified}
@@ -414,7 +416,7 @@ const SignUpPage: React.FC = () => {
                     <button
                       type="button"
                       id="reg-verify-btn"
-                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 backdrop-blur-[10px] ${
+                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
                         verifyOtpDisabled || verified
                           ? 'opacity-50 cursor-not-allowed'
                           : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
@@ -437,7 +439,7 @@ const SignUpPage: React.FC = () => {
                   <input
                     type="password"
                     id="reg-password"
-                    className="input-field w-full bg-[#0D1117] backdrop-blur-[10px] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+                    className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
                     placeholder="Create a secure password"
                     required
                     value={password}
@@ -462,7 +464,7 @@ const SignUpPage: React.FC = () => {
               </form>
 
               {/* Links */}
-              <div className="links text-center mt-6 animate-in delay-300">
+              <div className="links text-center mt-6">
                 <p className="link-text text-sm text-[#94a3b8] mb-2">
                   By creating an account, you agree to our{' '}
                   <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline font-medium">Terms of Service</a>{' '}
@@ -473,9 +475,8 @@ const SignUpPage: React.FC = () => {
             </div>
           </div>
 
-                                
           {/* Footer Links */}
-          <div className="footer-links flex justify-center gap-6 mt-8 animate-in delay-400">
+          <div className="footer-links flex justify-center gap-6 mt-8">
             <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Terms</a>
             <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Privacy</a>
             <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Security</a>
@@ -490,19 +491,10 @@ const SignUpPage: React.FC = () => {
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-[9999]"
         >
           <span 
-            className="loader w-12 h-12 rounded-full inline-block border-t-[3px] border-r-3 border-r-transparent border-[#34d399] box-border"
-            style={{ animation: 'rotation 1s linear infinite' }}
+            className="loader w-12 h-12 rounded-full inline-block border-t-[3px] border-r-3 border-r-transparent border-[#34d399] box-border animate-spin"
           />
         </div>
       )}
-
-      {/* Fonts */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;700;800;900&display=swap"
-        rel="stylesheet"
-      />
     </>
   );
 };
