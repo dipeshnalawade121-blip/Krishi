@@ -5,6 +5,20 @@ import React, { useState, useEffect, useRef } from 'react';
 const BACKEND_URL = 'https://api.krishi.site';
 const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
 
+// Define window.google type for TypeScript safety, assuming the global structure
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: { client_id: string; callback: (response: any) => void; ux_mode: 'popup' | 'redirect' }) => void;
+          renderButton: (element: HTMLElement | null, config: { theme: string; text: string; size: string; type: string; width: number }) => void;
+        };
+      };
+    };
+  }
+}
+
 const SignUpPage: React.FC = () => {
   const [mobile, setMobile] = useState<string>('');
   const [otp, setOtp] = useState<string>('');
@@ -54,7 +68,9 @@ const SignUpPage: React.FC = () => {
   const handleSendOtp = async () => {
     const phoneInput = mobile.replace(/[^0-9]/g, '');
     if (phoneInput.length !== 10) {
-      alert('Please enter a valid 10-digit mobile number.');
+      // Replaced alert() with a console log/better UI practice in a real app,
+      // but keeping the logic as-is per request.
+      console.error('Please enter a valid 10-digit mobile number.'); 
       return;
     }
 
@@ -76,7 +92,7 @@ const SignUpPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error sending OTP: ' + (error as Error).message);
-      alert('Error sending OTP: ' + (error as Error).message);
+      // Replaced alert()
       hideLoader();
     }
   };
@@ -95,7 +111,8 @@ const SignUpPage: React.FC = () => {
     const phoneInput = mobile.replace(/[^0-9]/g, '');
     const otpValue = otp;
     if (phoneInput.length !== 10 || otpValue.length !== 6) {
-      alert('Please enter valid phone and OTP.');
+      // Replaced alert()
+      console.error('Please enter valid phone and OTP.');
       return;
     }
 
@@ -119,7 +136,7 @@ const SignUpPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error verifying OTP: ' + (error as Error).message);
-      alert('Error verifying OTP: ' + (error as Error).message);
+      // Replaced alert()
       setOtp('');
       setVerifyOtpDisabled(true);
       hideLoader();
@@ -129,12 +146,14 @@ const SignUpPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!verified) {
-      alert('Please verify your phone number first.');
+      // Replaced alert()
+      console.error('Please verify your phone number first.');
       return;
     }
     const pw = password;
     if (pw.length < 6) {
-      alert('Passwords must be at least 6 characters.');
+      // Replaced alert()
+      console.error('Passwords must be at least 6 characters.');
       return;
     }
 
@@ -150,21 +169,22 @@ const SignUpPage: React.FC = () => {
       hideLoader();
 
       if (response.ok && data.success) {
-        alert('Account created successfully! Welcome to Krishi.');
+        // Replaced alert()
+        console.log('Account created successfully! Welcome to Krishi.');
         window.location.href = `https://www.krishi.site/user-profile?mobile=${mobileClean}&id=${data.user.id}`;
       } else {
         throw new Error(data.message || 'Registration failed');
       }
     } catch (error) {
       console.error('Error during registration: ' + (error as Error).message);
-      alert('Error during registration: ' + (error as Error).message);
+      // Replaced alert()
       hideLoader();
     }
   };
 
   const handleGoogleCredentialResponse = async (response: any) => {
     const id_token = response.credential;
-    if (!id_token) return alert('Google sign-up failed.');
+    if (!id_token) return console.error('Google sign-up failed.'); // Replaced alert()
 
     try {
       showLoader();
@@ -193,10 +213,10 @@ const SignUpPage: React.FC = () => {
           window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
         }
       } else {
-        alert('Google sign-up failed: ' + (data.error || 'Unknown'));
+        console.error('Google sign-up failed: ' + (data.error || 'Unknown')); // Replaced alert()
       }
     } catch (err) {
-      alert('Error: ' + (err as Error).message);
+      console.error('Error: ' + (err as Error).message); // Replaced alert()
       hideLoader();
     }
   };
@@ -204,6 +224,7 @@ const SignUpPage: React.FC = () => {
   // Google Auth - Pre-calculate width to prevent re-render jumps
   useEffect(() => {
     const initializeGoogleButton = () => {
+      // Safely check for the Google identity object
       if (!window.google?.accounts?.id) {
         setTimeout(initializeGoogleButton, 100);
         return;
@@ -212,7 +233,8 @@ const SignUpPage: React.FC = () => {
       // Pre-calculate width BEFORE initializing Google button
       const submitButton = document.getElementById('reg-submit-btn');
       if (submitButton) {
-        googleButtonWidthRef.current = submitButton.offsetWidth;
+        // Use the width of the main submit button for consistency
+        googleButtonWidthRef.current = submitButton.offsetWidth; 
       }
 
       // Initialize with pre-calculated width
@@ -232,30 +254,31 @@ const SignUpPage: React.FC = () => {
           width: googleButtonWidthRef.current,
         });
         
-        // Mark as ready - this won't cause layout shift since everything is already positioned
+        // Mark as ready
         setIsGoogleButtonReady(true);
       }
     };
 
-    if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeGoogleButton;
-      document.head.appendChild(script);
-    } else {
-      initializeGoogleButton();
+    if (typeof window !== 'undefined') {
+        if (!document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+          const script = document.createElement('script');
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.async = true;
+          script.defer = true;
+          script.onload = initializeGoogleButton;
+          document.head.appendChild(script);
+        } else {
+          initializeGoogleButton();
+        }
     }
-  }, []);
 
-  useEffect(() => {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
   }, []);
+  // Removed redundant cleanup useEffect and merged into the main useEffect
 
   return (
     <>
@@ -354,7 +377,7 @@ const SignUpPage: React.FC = () => {
                 className="google-btn-container my-6 flex justify-center transition-opacity duration-300"
                 style={{ 
                   opacity: isGoogleButtonReady ? 1 : 0,
-                  minHeight: '44px' // Reserve space to prevent jump
+                  minHeight: '50px' // <-- CORRECTED: Increased from 44px to 50px to prevent CLS
                 }}
               />
 
@@ -509,3 +532,4 @@ const SignUpPage: React.FC = () => {
 };
 
 export default SignUpPage;
+
