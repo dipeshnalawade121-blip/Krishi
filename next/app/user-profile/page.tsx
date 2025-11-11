@@ -1,11 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js'; // Assuming Supabase is installed via npm
-
-const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { useSearchParams } from 'next/navigation';
 
 const BACKEND_URL = 'https://api.krishi.site';
 const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
@@ -28,7 +24,6 @@ const UserProfilePage: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [errorModal, setErrorModal] = useState<string[]>([]);
   const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [signupMethod, setSignupMethod] = useState<'mobile' | 'google'>('mobile');
   const [googleId, setGoogleId] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -87,7 +82,7 @@ const UserProfilePage: React.FC = () => {
 
   const checkFormValidity = () => {
     const isBaseValid = userName.trim() && email.trim();
-    const passwordValid = password.length >= 8;
+    const passwordValid = password.length >= 8 || signupMethod === 'google'; // Skip pw for Google if not needed
     const mobileValid = mobileVerified;
     const canSave = isBaseValid && passwordValid && mobileValid;
     setSaveDisabled(!canSave);
@@ -197,6 +192,7 @@ const UserProfilePage: React.FC = () => {
       if (res.ok && data.success) {
         setUserName(data.user.user_name || userName);
         setEmail(data.user.email || email);
+        // Hide Google section after linking
         displayStatus('Google account linked and profile updated!', 'success');
         checkFormValidity();
       } else {
@@ -285,15 +281,16 @@ const UserProfilePage: React.FC = () => {
           setMobile(user.mobile || '');
           setMobileVerified(!!user.mobile);
 
-          // Handle signup flows
+          // Handle signup flows (e.g., lock fields for Google)
           if (signupMethod === 'google' || googleId) {
-            // Lock name and email for Google
-            // In React, we can disable inputs or use readOnly
+            // Fields are readOnly via props in JSX
           } else if (signupMethod === 'mobile') {
-            // Adjustments for mobile signup
+            // Mobile is pre-verified/locked
+            setMobileVerified(true);
           }
 
           checkFormValidity();
+          displayStatus('Profile ready!', 'success');
         } else {
           throw new Error(data.error || 'User profile not found');
         }
@@ -335,7 +332,7 @@ const UserProfilePage: React.FC = () => {
     if (!mobileVerified) {
       errors.push('Mobile number must be verified via OTP.');
     }
-    if (password.length < 8) {
+    if (password.length < 8 && signupMethod !== 'google') {
       errors.push('Password must be at least 8 characters.');
     }
     return errors;
@@ -552,10 +549,12 @@ const UserProfilePage: React.FC = () => {
                 </div>
 
                 {/* Google Link Section */}
-                <div className={`google-link-section my-6 p-5 bg-slate-800/30 rounded-[12px] border border-white/5 ${isGoogleButtonReady ? 'block' : 'hidden'}`}>
-                  <div className="google-link-title text-sm font-semibold text-[#94a3b8] mb-3 text-center">Link Google Account</div>
-                  <div ref={googleButtonContainerRef} className="google-btn-container flex justify-center" style={{ height: '50px' }} />
-                </div>
+                {signupMethod !== 'google' && (
+                  <div className={`google-link-section my-6 p-5 bg-slate-800/30 rounded-[12px] border border-white/5 ${isGoogleButtonReady ? 'block' : 'hidden'}`}>
+                    <div className="google-link-title text-sm font-semibold text-[#94a3b8] mb-3 text-center">Link Google Account</div>
+                    <div ref={googleButtonContainerRef} className="google-btn-container flex justify-center" style={{ height: '50px' }} />
+                  </div>
+                )}
 
                 {/* Divider */}
                 <div className="divider flex items-center my-6 gap-4">
@@ -623,32 +622,34 @@ const UserProfilePage: React.FC = () => {
                 </div>
 
                 {/* Password */}
-                <div className="form-group mb-6">
-                  <label htmlFor="password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                    Password
-                  </label>
-                  <div className="password-container relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      id="password"
-                      className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 pr-10 placeholder:text-[#64748b]"
-                      placeholder="Create a secure password"
-                      minLength={8}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="toggle-password absolute right-4 top-1/2 -translate-y-1/2 bg-none border-none text-[#94a3b8] hover:text-white transition-colors duration-200 cursor-pointer"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d={showPassword ? 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z' : 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68'} />
-                      </svg>
-                    </button>
+                {signupMethod !== 'mobile' && (
+                  <div className="form-group mb-6">
+                    <label htmlFor="password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                      Password
+                    </label>
+                    <div className="password-container relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        id="password"
+                        className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 pr-10 placeholder:text-[#64748b]"
+                        placeholder="Create a secure password"
+                        minLength={8}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="toggle-password absolute right-4 top-1/2 -translate-y-1/2 bg-none border-none text-[#94a3b8] hover:text-white transition-colors duration-200 cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d={showPassword ? 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z' : 'M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68'} />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Save Button */}
                 <button
