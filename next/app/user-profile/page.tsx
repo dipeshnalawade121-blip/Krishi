@@ -33,6 +33,12 @@ const CompleteProfilePage: React.FC = () => {
   const [userNameLocked, setUserNameLocked] = useState<boolean>(false);
   const [emailLocked, setEmailLocked] = useState<boolean>(false);
   const [mobileLocked, setMobileLocked] = useState<boolean>(false);
+  const [showGoogleSection, setShowGoogleSection] = useState<boolean>(true);
+  const [showNameField, setShowNameField] = useState<boolean>(true);
+  const [showEmailField, setShowEmailField] = useState<boolean>(true);
+  const [showMobileSection, setShowMobileSection] = useState<boolean>(true);
+  const [showPasswordField, setShowPasswordField] = useState<boolean>(true);
+  const [passwordRequired, setPasswordRequired] = useState<boolean>(true);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
@@ -50,6 +56,24 @@ const CompleteProfilePage: React.FC = () => {
     setUserId(urlUserId);
     setGoogleId(urlGoogleId);
     setSignupMethod(urlMethod as 'mobile' | 'google');
+    
+    // Set initial visibility based on signup method
+    if (urlMethod === 'google' || urlGoogleId) {
+      // Google signup - show name, email, mobile, password
+      setShowNameField(true);
+      setShowEmailField(true);
+      setShowMobileSection(true);
+      setShowPasswordField(true);
+      setShowGoogleSection(true);
+    } else if (urlMethod === 'mobile') {
+      // Mobile signup - hide name, email, password; show mobile only
+      setShowNameField(false);
+      setShowEmailField(false);
+      setShowMobileSection(true);
+      setShowPasswordField(false);
+      setShowGoogleSection(true);
+      setPasswordRequired(false);
+    }
   }, [urlMobile, urlUserId, urlGoogleId, urlMethod]);
 
   const showLoader = () => setLoading(true);
@@ -87,9 +111,9 @@ const CompleteProfilePage: React.FC = () => {
   };
 
   const checkFormValidity = () => {
-    const isBaseValid = userName.trim() && email.trim();
-    const passwordValid = password.length >= 8 || signupMethod === 'google';
-    const mobileValid = mobileVerified;
+    const isBaseValid = (!showNameField || userName.trim()) && (!showEmailField || email.trim());
+    const passwordValid = !passwordRequired || password.length >= 8;
+    const mobileValid = !showMobileSection || mobileVerified;
     const canSave = isBaseValid && passwordValid && mobileValid;
     setSaveDisabled(!canSave);
   };
@@ -201,6 +225,15 @@ const CompleteProfilePage: React.FC = () => {
         setEmail(data.user.email || email);
         setUserNameLocked(true);
         setEmailLocked(true);
+        setShowGoogleSection(false); // Hide Google section after linking
+        
+        // For Google signup, force mobile verification
+        if (!mobileVerified) {
+          setMobileLocked(false);
+          setSendOtpDisabled(false);
+          setMobileVerified(false);
+        }
+        
         displayStatus('Google account linked and profile updated!', 'success');
         checkFormValidity();
       } else {
@@ -260,17 +293,17 @@ const CompleteProfilePage: React.FC = () => {
   const validateForm = () => {
     const errors: string[] = [];
     
-    if (!userNameLocked && !userName.trim()) errors.push("User Name is required.");
-    if (!emailLocked && !email.trim()) errors.push("User Email is required.");
+    if (showNameField && !userNameLocked && !userName.trim()) errors.push("User Name is required.");
+    if (showEmailField && !emailLocked && !email.trim()) errors.push("User Email is required.");
     
-    if (!emailLocked && email.trim()) {
+    if (showEmailField && !emailLocked && email.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.trim())) {
         errors.push("Please enter a valid email address.");
       }
     }
     
-    if (!mobileLocked) {
+    if (showMobileSection && !mobileLocked) {
       if (!mobile.trim() || mobile.length !== 10) {
         errors.push("Valid 10-digit mobile number is required.");
       }
@@ -279,7 +312,7 @@ const CompleteProfilePage: React.FC = () => {
       }
     }
     
-    if (password.length < 8) {
+    if (passwordRequired && password.length < 8) {
       errors.push("Password must be at least 8 characters.");
     }
 
@@ -301,7 +334,7 @@ const CompleteProfilePage: React.FC = () => {
       user_name: userName.trim(),
       email: email.trim(),
       mobile: mobileVerified ? mobile : undefined,
-      password: password,
+      password: passwordRequired ? password : undefined,
     };
 
     try {
@@ -380,12 +413,39 @@ const CompleteProfilePage: React.FC = () => {
         setMobile(user.mobile || '');
         setMobileVerified(!!user.mobile);
         
+        // Handle different signup flows based on URL params and existing data
         if (signupMethod === 'google' || googleId) {
+          // Google signup flow
           setUserNameLocked(true);
           setEmailLocked(true);
+          setShowGoogleSection(false); // Hide Google button if already linked
+          
+          // Show all sections for Google users
+          setShowNameField(true);
+          setShowEmailField(true);
+          setShowMobileSection(true);
+          setShowPasswordField(true);
+          setPasswordRequired(true);
+          
+          // Force mobile verification for Google users if not already verified
+          if (!user.mobile) {
+            setMobileLocked(false);
+            setMobileVerified(false);
+          } else {
+            setMobileLocked(true);
+          }
         } else if (signupMethod === 'mobile') {
+          // Mobile signup flow
+          setShowNameField(false);
+          setShowEmailField(false);
+          setShowMobileSection(true);
+          setShowPasswordField(false);
+          setPasswordRequired(false);
+          
+          // Lock mobile for mobile signup users (already verified during signup)
           setMobileLocked(true);
           setMobileVerified(true);
+          setSendOtpDisabled(true);
         }
 
         checkFormValidity();
@@ -403,7 +463,7 @@ const CompleteProfilePage: React.FC = () => {
   // Check form validity on changes
   useEffect(() => {
     checkFormValidity();
-  }, [userName, email, mobile, password, mobileVerified]);
+  }, [userName, email, mobile, password, mobileVerified, showNameField, showEmailField, showMobileSection, passwordRequired]);
 
   // Cleanup interval on unmount
   useEffect(() => {
@@ -548,110 +608,120 @@ const CompleteProfilePage: React.FC = () => {
 
               {/* Profile Form */}
               <form onSubmit={handleSubmit}>
-                {/* User Name */}
-                <div className="form-group mb-6">
-                  <label htmlFor="userName" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="userName"
-                    className={`input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
-                      userNameLocked ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                    placeholder="Enter your full name"
-                    maxLength={50}
-                    required
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    readOnly={userNameLocked}
-                  />
-                </div>
-
-                {/* User Email */}
-                <div className="form-group mb-6">
-                  <label htmlFor="email" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    className={`input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
-                      emailLocked ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                    placeholder="your.email@example.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    readOnly={emailLocked}
-                  />
-                </div>
-
-                {/* Google Link Section */}
-                <div className="google-link-section my-6 p-5 bg-[#1e293b]/30 rounded-[12px] border border-white/5">
-                  <div className="google-link-title text-sm font-semibold text-[#94a3b8] mb-3 text-center">
-                    Link Google Account
-                  </div>
-                  <div className="google-btn-container flex justify-center">
-                    <div 
-                      id="google-link-btn"
-                      ref={googleButtonContainerRef}
-                      className="transition-opacity duration-300"
-                      style={{ opacity: isGoogleButtonReady ? 1 : 0 }}
-                    />
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="divider flex items-center my-6 gap-4">
-                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                  <span className="divider-text text-sm text-[#64748b]">or continue with</span>
-                  <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
-                </div>
-
-                {/* Mobile Number */}
-                <div className="form-group mb-6">
-                  <label htmlFor="mobileNumber" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                    Mobile Number
-                    <span className={`status-indicator inline-flex items-center gap-1.5 text-xs font-semibold ml-2 ${
-                      mobileVerified ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {mobileVerified ? 'Verified' : 'Unverified'}
-                    </span>
-                  </label>
-                  <div className="mobile-otp-row flex gap-3">
+                {/* User Name - Conditionally shown */}
+                {showNameField && (
+                  <div className="form-group mb-6">
+                    <label htmlFor="userName" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                      Full Name
+                    </label>
                     <input
-                      type="tel"
-                      id="mobileNumber"
-                      className={`input-field mobile-input flex-1 bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
-                        mobileLocked ? 'opacity-50 cursor-not-allowed' : ''
+                      type="text"
+                      id="userName"
+                      className={`input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
+                        userNameLocked ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
-                      placeholder="10-digit mobile number"
-                      maxLength={10}
-                      required
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, ''))}
-                      readOnly={mobileLocked}
+                      placeholder="Enter your full name"
+                      maxLength={50}
+                      required={showNameField}
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                      readOnly={userNameLocked}
                     />
-                    <button
-                      type="button"
-                      onClick={handleSendOtp}
-                      disabled={sendOtpDisabled || mobileLocked}
-                      className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
-                        countdown > 0 
-                          ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 cursor-not-allowed' 
-                          : mobileLocked
-                          ? 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
-                          : 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
-                      }`}
-                    >
-                      {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Send OTP'}
-                    </button>
                   </div>
-                </div>
+                )}
+
+                {/* User Email - Conditionally shown */}
+                {showEmailField && (
+                  <div className="form-group mb-6">
+                    <label htmlFor="email" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      className={`input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
+                        emailLocked ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                      placeholder="your.email@example.com"
+                      required={showEmailField}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      readOnly={emailLocked}
+                    />
+                  </div>
+                )}
+
+                {/* Google Link Section - Conditionally shown */}
+                {showGoogleSection && (
+                  <div className="google-link-section my-6 p-5 bg-[#1e293b]/30 rounded-[12px] border border-white/5">
+                    <div className="google-link-title text-sm font-semibold text-[#94a3b8] mb-3 text-center">
+                      Link Google Account
+                    </div>
+                    <div className="google-btn-container flex justify-center">
+                      <div 
+                        id="google-link-btn"
+                        ref={googleButtonContainerRef}
+                        className="transition-opacity duration-300"
+                        style={{ opacity: isGoogleButtonReady ? 1 : 0 }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Divider - Only show if both Google section and mobile section are visible */}
+                {(showGoogleSection && showMobileSection) && (
+                  <div className="divider flex items-center my-6 gap-4">
+                    <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                    <span className="divider-text text-sm text-[#64748b]">or continue with</span>
+                    <div className="divider-line flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#334155] to-transparent" />
+                  </div>
+                )}
+
+                {/* Mobile Number - Conditionally shown */}
+                {showMobileSection && (
+                  <div className="form-group mb-6">
+                    <label htmlFor="mobileNumber" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                      Mobile Number
+                      <span className={`status-indicator inline-flex items-center gap-1.5 text-xs font-semibold ml-2 ${
+                        mobileVerified ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        {mobileVerified ? 'Verified' : 'Unverified'}
+                      </span>
+                    </label>
+                    <div className="mobile-otp-row flex gap-3">
+                      <input
+                        type="tel"
+                        id="mobileNumber"
+                        className={`input-field mobile-input flex-1 bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
+                          mobileLocked ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        placeholder="10-digit mobile number"
+                        maxLength={10}
+                        required={showMobileSection}
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, ''))}
+                        readOnly={mobileLocked}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={sendOtpDisabled || mobileLocked}
+                        className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
+                          countdown > 0 
+                            ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 cursor-not-allowed' 
+                            : mobileLocked
+                            ? 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
+                            : 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
+                        }`}
+                      >
+                        {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Send OTP'}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* OTP Section */}
-                {otpSectionActive && (
+                {otpSectionActive && showMobileSection && (
                   <div className="otp-section form-group mb-6 animate-[fadeIn_0.5s_ease-out]">
                     <label htmlFor="otp-input" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                       Enter OTP
@@ -685,40 +755,42 @@ const CompleteProfilePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Password */}
-                <div className="form-group mb-6">
-                  <label htmlFor="password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                    Password
-                  </label>
-                  <div className="password-container relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] pr-12"
-                      placeholder="Create a secure password"
-                      minLength={8}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="toggle-password absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-[#94a3b8] hover:text-white transition-colors duration-200 cursor-pointer"
-                    >
-                      {showPassword ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                        </svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg>
-                      )}
-                    </button>
+                {/* Password - Conditionally shown */}
+                {showPasswordField && (
+                  <div className="form-group mb-6">
+                    <label htmlFor="password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+                      Password
+                    </label>
+                    <div className="password-container relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] pr-12"
+                        placeholder="Create a secure password"
+                        minLength={8}
+                        required={passwordRequired}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="toggle-password absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-[#94a3b8] hover:text-white transition-colors duration-200 cursor-pointer"
+                      >
+                        {showPassword ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Save Button */}
                 <button
