@@ -314,14 +314,14 @@ const SignUpPage: React.FC = () => {
 
         <div className="signup-container relative z-30 w-full max-w-[480px] mx-auto">
           {/* Top Link */}
-          <div className="text-center mb-6 animate-in">
+          {/*<div className="text-center mb-6 animate-in">
             <a 
               href="https://www.krishi.site/login" 
               className="text-blue-400 hover:text-blue-300 transition-colors duration-200 no-underline"
             >
               Already have an account? <span className="font-semibold">Sign in</span> →
             </a>
-          </div>
+          </div>*/}
 
           <div className="signup-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] animate-in delay-100">
             <div className="signup-content relative z-[2]">
@@ -472,6 +472,14 @@ const SignUpPage: React.FC = () => {
             </div>
           </div>
 
+          <div class="links animate-in delay-400">
+    <p class="link-text">
+        Already have an account? 
+        <a href="https://www.krishi.site/login" class="link">Sign in →</a>
+    </p>
+          </div> 
+            
+            
           {/* Footer Links */}
           <div className="footer-links flex justify-center gap-6 mt-8 animate-in delay-400">
             <a href="#" className="footer-link text-xs text-[#64748b] no-underline hover:text-[#94a3b8] transition-colors duration-200">Terms</a>
