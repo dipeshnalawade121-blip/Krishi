@@ -17,6 +17,11 @@ const SignUpPage: React.FC = () => {
   const [verifyOtpDisabled, setVerifyOtpDisabled] = useState<boolean>(true);
   const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
   const [isGoogleButtonReady, setIsGoogleButtonReady] = useState<boolean>(false);
+  const [buttonState, setButtonState] = useState<'idle' | 'loading' | 'done'>('idle');
+const [isOtpInvalid, setIsOtpInvalid] = useState(false);
+const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | ''>('');
+const [successScreen, setSuccessScreen] = useState(false);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
@@ -60,6 +65,7 @@ const SignUpPage: React.FC = () => {
 
     try {
       showLoader();
+      setButtonState('loading');
       const response = await fetch(`${BACKEND_URL}/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -115,7 +121,8 @@ const SignUpPage: React.FC = () => {
         setSubmitDisabled(false);
         console.log('Phone number successfully verified.');
       } else {
-        throw new Error(data.message || 'Invalid OTP');
+        setIsOtpInvalid(true);
+throw new Error(data.message || 'Invalid OTP');
       }
     } catch (error) {
       console.error('Error verifying OTP: ' + (error as Error).message);
@@ -124,7 +131,20 @@ const SignUpPage: React.FC = () => {
       hideLoader();
     }
   };
+  useEffect(() => {
+  if (otpSectionActive && !verified) {
+    document.getElementById('otp-0')?.focus();
+  } else if (verified) {
+    document.getElementById('reg-password')?.focus();
+  }
+}, [otpSectionActive, verified]);
 
+  const checkPasswordStrength = (pw: string) => {
+  if (pw.length < 6) return 'weak';
+  if (/[A-Z]/.test(pw) && /[0-9]/.test(pw)) return 'strong';
+  return 'medium';
+};
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!verified) {
@@ -150,7 +170,10 @@ const SignUpPage: React.FC = () => {
 
       if (response.ok && data.success) {
         console.log('Account created successfully! Welcome to Krishi.');
-        window.location.href = `https://www.krishi.site/user-profile?mobile=${mobileClean}&id=${data.user.id}`;
+        setSuccessScreen(true);
+setTimeout(() => {
+  window.location.href = `https://www.krishi.site/user-profile?mobile=${mobileClean}&id=${data.user.id}`;
+}, 1500);
       } else {
         throw new Error(data.message || 'Registration failed');
       }
@@ -290,6 +313,22 @@ const SignUpPage: React.FC = () => {
             .signup-title { font-size: 24px !important; }
             .mobile-otp-row { flex-direction: column !important; }
           }
+
+          @keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
         ` }} />
 
         {/* Background Effects */}
@@ -359,15 +398,20 @@ const SignUpPage: React.FC = () => {
                   </label>
                   <div className="mobile-otp-row flex gap-3">
                     <input
-                      type="tel"
-                      id="reg-mobile"
-                      className="input-field flex-1 w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
-                      placeholder="Enter your mobile number"
-                      maxLength={10}
-                      required
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                    />
+  type="tel"
+  id="reg-mobile"
+  className={`input-field flex-1 w-full bg-[#0D1117] border ${
+    mobile.length !== 10 && mobile.length > 0 ? 'border-red-500/50' : 'border-white/10'
+  } rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]`}
+  placeholder="Enter your mobile number"
+  maxLength={10}
+  required
+  value={mobile}
+  onChange={(e) => setMobile(e.target.value)}
+/>
+{mobile.length !== 10 && mobile.length > 0 && (
+  <p className="text-red-400 text-xs mt-1">Enter a valid 10-digit number</p>
+)}
                     <button
                       type="button"
                       id="reg-send-otp"
@@ -381,7 +425,11 @@ const SignUpPage: React.FC = () => {
                       disabled={sendOtpDisabled}
                       onClick={handleSendOtp}
                     >
-                      {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Get OTP'}
+                      {buttonState === 'loading'
+  ? 'Sending...'
+  : countdown > 0
+  ? `OTP sent! ${formatTime(countdown)}`
+  : 'Get OTP'}
                     </button>
                   </div>
                 </div>
@@ -391,33 +439,50 @@ const SignUpPage: React.FC = () => {
                   <label htmlFor="reg-otp" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                     Enter OTP
                   </label>
-                  <div className="mobile-otp-row flex gap-3">
-                    <input
-                      type="number"
-                      id="reg-otp"
-                      className="input-field flex-1 w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] disabled:opacity-50 disabled:cursor-not-allowed"
-                      placeholder="Enter 6-digit OTP"
-                      maxLength={6}
-                      disabled={!otpSectionActive || verified}
-                      value={otp}
-                      onChange={handleOtpInput}
-                    />
-                    <button
-                      type="button"
-                      id="reg-verify-btn"
-                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
-                        verifyOtpDisabled || verified
-                          ? 'opacity-50 cursor-not-allowed'
-                          : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
-                      } ${
-                        verified ? 'bg-green-500/20 border-green-500/50 text-green-400' : ''
-                      }`}
-                      disabled={verifyOtpDisabled || verified}
-                      onClick={handleVerifyOtp}
-                    >
-                      {verified ? 'Verified ✓' : 'Verify OTP'}
-                    </button>
-                  </div>
+                  <div className="mobile-otp-row flex gap-3 items-center">
+  <div
+    className={`flex gap-2 justify-between flex-1 ${isOtpInvalid ? 'animate-[shake_0.2s_ease-in-out]' : ''}`}
+  >
+    {otpDigits.map((digit, idx) => (
+      <input
+        key={idx}
+        type="text"
+        inputMode="numeric"
+        maxLength={1}
+        id={`otp-${idx}`}
+        className="w-10 h-12 text-center bg-[#0D1117] border border-white/10 rounded-[10px] text-lg text-white focus:outline-none focus:border-[#9ef87a]/50 focus:ring-1 focus:ring-[#9ef87a]/20"
+        value={digit}
+        onChange={(e) => {
+          const val = e.target.value.replace(/\D/g, '');
+          const newDigits = [...otpDigits];
+          newDigits[idx] = val;
+          setOtpDigits(newDigits);
+          setOtp(newDigits.join(''));
+          if (val && idx < 5) {
+            document.getElementById(`otp-${idx + 1}`)?.focus();
+          }
+        }}
+        onFocus={() => setIsOtpInvalid(false)}
+      />
+    ))}
+  </div>
+
+  <button
+    type="button"
+    id="reg-verify-btn"
+    className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
+      verifyOtpDisabled || verified
+        ? 'opacity-50 cursor-not-allowed'
+        : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
+    } ${
+      verified ? 'bg-green-500/20 border-green-500/50 text-green-400' : ''
+    }`}
+    disabled={verifyOtpDisabled || verified}
+    onClick={handleVerifyOtp}
+  >
+    {verified ? 'Verified ✓' : 'Verify OTP'}
+  </button>
+</div>
                 </div>
 
                 {/* Password */}
@@ -432,8 +497,24 @@ const SignUpPage: React.FC = () => {
                     placeholder="Create a secure password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    
+                    onChange={(e) => {
+  const val = e.target.value;
+  setPassword(val);
+  setPasswordStrength(checkPasswordStrength(val));
+}}
                   />
+                  <div
+  className={`h-1 rounded-full mt-2 transition-all ${
+    passwordStrength === 'weak'
+      ? 'bg-red-500/60'
+      : passwordStrength === 'medium'
+      ? 'bg-yellow-400/60'
+      : passwordStrength === 'strong'
+      ? 'bg-green-500/60'
+      : 'bg-transparent'
+  }`}
+/>
                   <p className="helper-text text-sm text-[#94a3b8] mt-2">Password should be at least 6 characters</p>
                 </div>
                 
@@ -473,6 +554,15 @@ const SignUpPage: React.FC = () => {
         </div>
       </div>
 
+      {successScreen && (
+  <div className="fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-[10000] text-green-400 animate-fadeIn">
+    <svg className="w-16 h-16 text-green-400 mb-4 animate-[pop_0.3s_ease]" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    <p className="text-lg font-semibold">Account created successfully!</p>
+    <p className="text-sm text-[#a3e9bb] mt-2">Redirecting to your profile...</p>
+  </div>
+)}
       {/* Loader Overlay */}
       {loading && (
         <div
