@@ -706,86 +706,87 @@ const CompleteProfilePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Mobile Number - Only shown for Google signup or mobile signup after Google linking */}
-                {showMobileSection && (
-                  <div className="form-group mb-6">
-                    <label htmlFor="mobileNumber" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                      Mobile Number
-                      <span className={`status-indicator inline-flex items-center gap-1.5 text-xs font-semibold ml-2 ${
-                        mobileVerified ? 'text-green-400' : 'text-red-400'
-                      }`}>
-                        {mobileVerified ? 'Verified' : 'Unverified'}
-                      </span>
-                    </label>
-                    <div className="mobile-otp-row flex gap-3 md:flex-row flex-col">
-                      <input
-                        type="tel"
-                        id="mobileNumber"
-                        className={`input-field mobile-input w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
-                          mobileLocked ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        placeholder="10-digit mobile number"
-                        maxLength={10}
-                        required={showMobileSection}
-                        value={mobile}
-                        onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, ''))}
-                        readOnly={mobileLocked}
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSendOtp}
-                        disabled={sendOtpDisabled || mobileLocked}
-                        className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap md:w-auto w-full ${
-                          countdown > 0 
-                            ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 cursor-not-allowed' 
-                            : mobileLocked
-                            ? 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
-                            : 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
-                        }`}
-                      >
-                        {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Send OTP'}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* Mobile & OTP Combined Section */}
+{showMobileSection && (
+  <>
+    {/* MOBILE INPUT */}
+    <div className="form-group mb-6">
+      <label htmlFor="mobileNumber" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+        Mobile Number
+        <span className={`status-indicator inline-flex items-center gap-1.5 text-xs font-semibold ml-2 ${
+          mobileVerified ? 'text-green-400' : 'text-red-400'
+        }`}>
+          {mobileVerified ? 'Verified' : 'Unverified'}
+        </span>
+      </label>
 
-                {/* OTP Section */}
-                {otpSectionActive && showMobileSection && (
-                  <div className="otp-section form-group mb-6 animate-[fadeIn_0.5s_ease-out]">
-                    <label htmlFor="otp-input" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                      Enter OTP
-                    </label>
-                    <div className="mobile-otp-row flex gap-3 md:flex-row flex-col">
-                      <input
-                        type="text"
-                        id="otp-input"
-                        className="input-field mobile-input w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
-                        placeholder="Enter 6-digit OTP"
-                        maxLength={6}
-                        value={otp}
-                        onChange={handleOtpInput}
-                        disabled={mobileVerified}
-                      />
-                      {/* Only show Send OTP button if not verified */}
-{!mobileVerified && (
-  <button
-    type="button"
-    onClick={handleSendOtp}
-    disabled={sendOtpDisabled || mobileLocked}
-    className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap md:w-auto w-full ${
-      countdown > 0
-        ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 cursor-not-allowed'
-        : mobileLocked
-        ? 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
-        : 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
-    }`}
-  >
-    {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Send OTP'}
-  </button>
+      <div className="flex flex-col gap-3">
+        <input
+          type="tel"
+          id="mobileNumber"
+          className={`w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] ${
+            mobileLocked ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          placeholder="10-digit mobile number"
+          maxLength={10}
+          required={showMobileSection}
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value.replace(/[^0-9]/g, ''))}
+          readOnly={mobileLocked}
+        />
+
+        {/* Only show Send OTP button if not verified and OTP not active */}
+        {!mobileVerified && !otpSectionActive && (
+          <button
+            type="button"
+            onClick={handleSendOtp}
+            disabled={sendOtpDisabled}
+            className="px-5 py-4 rounded-[12px] bg-[#1e293b] border border-white/10 text-sm font-semibold text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30 transition-all md:w-auto w-full"
+          >
+            Send OTP
+          </button>
+        )}
+      </div>
+    </div>
+
+    {/* OTP SECTION */}
+    {otpSectionActive && !mobileVerified && (
+      <div className="otp-section form-group mb-6 animate-[fadeIn_0.5s_ease-out]">
+        <label htmlFor="otp-input" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+          Enter OTP
+        </label>
+
+        <div className="mobile-otp-row flex gap-3 md:flex-row flex-col">
+          <input
+            type="text"
+            id="otp-input"
+            className="input-field mobile-input w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+            placeholder="Enter 6-digit OTP"
+            maxLength={6}
+            value={otp}
+            onChange={handleOtpInput}
+            disabled={mobileVerified}
+          />
+
+          {/* Verify Button with countdown */}
+          <button
+            type="button"
+            onClick={handleVerifyOtp}
+            disabled={verifyOtpDisabled}
+            className={`px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 md:w-auto w-full ${
+              verifyOtpDisabled
+                ? 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
+                : 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
+            }`}
+          >
+            {countdown > 0 ? `Verify OTP (${formatTime(countdown)})` : 'Verify OTP'}
+          </button>
+        </div>
+      </div>
+    )}
+  </>
 )}
-                    </div>
-                  </div>
-                )}
+                
 
                 {/* Password - Only shown for Google signup or mobile signup after Google linking */}
                 {showPasswordField && (
