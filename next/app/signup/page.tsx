@@ -121,11 +121,14 @@ const SignUpPage: React.FC = () => {
         console.log('Phone number successfully verified.');
       } else {
         setIsOtpInvalid(true);
+        setOtpDigits(['', '', '', '', '', '']);
+        setOtp('');
         setButtonState('idle');
         throw new Error(data.message || 'Invalid OTP');
       }
     } catch (error) {
       setOtp('');
+      setOtpDigits(['', '', '', '', '', '']);
       setVerifyOtpDisabled(true);
       setButtonState('idle');
       hideLoader();
@@ -430,6 +433,9 @@ const SignUpPage: React.FC = () => {
                   {mobile.length !== 10 && mobile.length > 0 && !verified && (
                     <p className="text-red-400 text-xs mt-1">Enter a valid 10-digit number</p>
                   )}
+                  {verified && (
+                    <p className="text-green-400 text-xs mt-1">Verified ✓</p>
+                  )}
                 </div>
                 
                 {/* OTP Input & Verify */}
@@ -465,6 +471,12 @@ const SignUpPage: React.FC = () => {
                               document.getElementById(`otp-${idx + 1}`)?.focus();
                             }
                           }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Backspace' && !digit && idx > 0) {
+                              e.preventDefault();
+                              document.getElementById(`otp-${idx - 1}`)?.focus();
+                            }
+                          }}
                           id={`otp-${idx}`}
                           onFocus={() => setIsOtpInvalid(false)}
                         />
@@ -490,6 +502,9 @@ const SignUpPage: React.FC = () => {
                         : 'Verify OTP'}
                     </button>
                   </div>
+                  {isOtpInvalid && (
+                    <p className="text-red-400 text-xs mt-1">Enter correct OTP</p>
+                  )}
                 </div>
 
                 {/* Password */}
