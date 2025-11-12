@@ -684,15 +684,16 @@ const CompleteProfilePage: React.FC = () => {
                     <div className="google-link-title text-sm font-semibold text-[#94a3b8] mb-3 text-center">
                       Link Google Account
                     </div>
-                    <div className="google-btn-container flex justify-center">
-                      <div 
-                        id="google-link-btn"
-                        ref={googleButtonContainerRef}
-                        className="transition-opacity duration-300"
-                        style={{ opacity: isGoogleButtonReady ? 1 : 0 }} 
-                        
-                      />
-                    </div>
+                    <div className="google-btn-container my-6 flex justify-center transition-opacity duration-300">
+  <div 
+    id="google-link-btn"
+    ref={googleButtonContainerRef}
+    style={{ 
+      opacity: isGoogleButtonReady ? 1 : 0,
+      height: '50px' // <-- THE FINAL CLS FIX: Force exact height
+    }}
+  />
+</div>
                   </div>
                 )}
 
