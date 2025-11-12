@@ -343,57 +343,7 @@ const ShopProfilePage: React.FC = () => {
             -moz-osx-font-smoothing: grayscale;
           }
 
-          @keyframes sunrayPulse {
-            0%, 100% { opacity: 0.95; }
-            50% { opacity: 0.85; }
-          }
-
-          @keyframes godRays {
-            0% {
-              transform: translate(-30%, -30%) rotate(0deg);
-              opacity: 0.4;
-            }
-            25% {
-              transform: translate(-25%, -25%) rotate(5deg);
-              opacity: 0.6;
-            }
-            50% {
-              transform: translate(-30%, -30%) rotate(10deg);
-              opacity: 0.4;
-            }
-            75% {
-              transform: translate(-25%, -25%) rotate(5deg);
-              opacity: 0.6;
-            }
-            100% {
-              transform: translate(-30%, -30%) rotate(0deg);
-              opacity: 0.4;
-            }
-          }
-
-          @keyframes rotation { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-          }
-
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(40px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
-          .sunray-effect {
-            animation: sunrayPulse 10s ease-in-out infinite alternate;
-          }
-
-          .god-rays {
-            animation: godRays 15s ease-in-out infinite;
-          }
+          
 
           .animate-in {
             animation: fadeInUp 0.8s ease-out forwards;
@@ -412,25 +362,7 @@ const ShopProfilePage: React.FC = () => {
         ` }} />
 
         {/* Background Effects */}
-        <div 
-          className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
-          style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
-          }}
-        />
-        <div 
-          className="sunray-effect fixed inset-0 pointer-events-none z-10"
-          style={{
-            background: 'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
-          }}
-        />
-        <div 
-          className="god-rays fixed top-0 left-0 w-[200%] h-[200%] pointer-events-none z-20"
-          style={{
-            background: 'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
-            mixBlendMode: 'overlay' as const,
-          }}
-        />
+        
 
         <div className="shop-profile-container relative z-30 w-full max-w-[520px] mx-auto">
           <div className="shop-profile-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
