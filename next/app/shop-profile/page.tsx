@@ -4,24 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-// Types for Geolocation (TS Fix)
-interface GeolocationPosition { 
-  coords: { latitude: number; longitude: number; accuracy: number }; 
-}
-interface GeolocationPositionError { 
-  code: number; 
-  message: string; 
-}
-
-// Global Window Declaration for Mapbox (TS Fix)
-declare global { 
-  interface Window { 
-    mapboxgl?: any; 
-  } 
-}
-
 const BACKEND_URL = 'https://api.krishi.site';
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoiZGlwZXNoNjM2NiIsImEiOiJjbWhraTZ1ZGgwYTFxMmlzYzdxcGlibzJnIn0.B62FIHq1WSsXbl_xcag-QA';
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGlwZXNoNjM2NiIsImEiOiJjbWhraTZ1ZGgwYTFxMmlzYzdxcGlibzJnIn0.B62FIHq1WSsXbl_xcag-QA';
 
 const ShopProfilePage: React.FC = () => {
   // Form states
@@ -35,7 +19,6 @@ const ShopProfilePage: React.FC = () => {
   const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
   const [map, setMap] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
-  const [success, setSuccess] = useState<boolean>(false);
 
   // URL params
   const searchParams = useSearchParams();
@@ -61,11 +44,9 @@ const ShopProfilePage: React.FC = () => {
   };
 
   const checkFormValidity = () => {
-    const nameLen = shopName.trim().length;
-    const addrLen = shopAddress.trim().length;
-    const isValid = nameLen >= 3 && nameLen <= 30 &&
+    const isValid = shopName.trim() && 
                    shopNumber.length === 10 && 
-                   addrLen >= 10 && addrLen <= 200;
+                   shopAddress.trim();
     setSaveDisabled(!isValid);
   };
 
@@ -79,19 +60,15 @@ const ShopProfilePage: React.FC = () => {
 
   const validateForm = () => {
     const errors: string[] = [];
-    const nameLen = shopName.trim().length;
-    const addrLen = shopAddress.trim().length;
-    if (!shopName.trim() || nameLen < 3) errors.push("Shop Name required (min 3 chars).");
-    else if (nameLen > 30) errors.push("Shop Name max 30 chars.");
+    if (!shopName.trim()) errors.push("Shop Name is required.");
     if (!shopNumber || shopNumber.length !== 10) {
       errors.push("Valid 10-digit shop contact number is required.");
     }
-    if (!shopAddress.trim() || addrLen < 10) errors.push("Shop Address required (min 10 chars).");
-    else if (addrLen > 200) errors.push("Address max 200 chars.");
+    if (!shopAddress.trim()) errors.push("Shop Address is required.");
     return errors;
   };
 
-  // Mapbox Functions (Reverted to original script load for build compat)
+  // Mapbox Functions
   const initMap = async () => {
     if (typeof window === 'undefined' || !(window as any).mapboxgl) return;
 
@@ -112,24 +89,54 @@ const ShopProfilePage: React.FC = () => {
 
     newMap.addControl(new mapboxgl.NavigationControl());
 
-    // Wait until map fully loads
+    // Wait until map fully loads before geolocation
     newMap.on('load', () => {
-      console.log('🗺️ Map fully loaded');
+      console.log('🗺️ Map fully loaded, requesting location...');
+
+      if (navigator.geolocation) {
+        const success = (position: GeolocationPosition) => {
+          const userLng = position.coords.longitude;
+          const userLat = position.coords.latitude;
+          console.log('✅ Got location:', userLat, userLng, 'accuracy ±', position.coords.accuracy, 'm');
+
+          newMap.flyTo({ center: [userLng, userLat], zoom: 14 });
+          const newMarker = new mapboxgl.Marker({ color: "#10B981" })
+            .setLngLat([userLng, userLat])
+            .addTo(newMap);
+          setMarker(newMarker);
+
+          displayStatus('Location found! Adjust marker near your shop.', 'success');
+        };
+
+        const error = (err: GeolocationPositionError) => {
+          console.warn('⚠️ Location error:', err);
+          displayStatus('Could not access location. Please click on map to set shop.', 'error');
+        };
+
+        // Try high accuracy first, fallback to low accuracy if it fails
+        navigator.geolocation.getCurrentPosition(
+          success,
+          (err) => {
+            console.warn('High accuracy failed, retrying low accuracy...');
+            navigator.geolocation.getCurrentPosition(success, error, {
+              enableHighAccuracy: false,
+              timeout: 30000
+            });
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      } else {
+        displayStatus('Geolocation not supported on this device.', 'error');
+      }
     });
 
-    // Handle manual map click to set shop position (with color fix & bounds clamp)
+    // Handle manual map click to set shop position
     newMap.on('click', async (e: any) => {
-      let coords = e.lngLat;
-      let { lng, lat } = coords;
-      // Clamp to India bounds (Bug Fix)
-      const clampedLng = Math.max(68, Math.min(98, lng));
-      const clampedLat = Math.max(6, Math.min(38, lat));
-      if (marker && typeof marker.remove === 'function') marker.remove();
-      const newMarker = new mapboxgl.Marker({ color: "#10B981" })
-        .setLngLat([clampedLng, clampedLat])
-        .addTo(newMap);
+      const coords = e.lngLat;
+      if (marker) marker.remove();
+      const newMarker = new mapboxgl.Marker().setLngLat(coords).addTo(newMap);
       setMarker(newMarker);
-      const address = await reverseGeocode(clampedLng, clampedLat);
+      const address = await reverseGeocode(coords.lng, coords.lat);
       setShopAddress(address);
       checkFormValidity();
       displayStatus('Shop location selected!', 'success');
@@ -167,13 +174,9 @@ const ShopProfilePage: React.FC = () => {
       const data = await res.json();
       if (data.features.length > 0) {
         const coords = data.features[0].center;
-        // Clamp coords
-        const clampedLng = Math.max(68, Math.min(98, coords[0]));
-        const clampedLat = Math.max(6, Math.min(38, coords[1]));
-        map.flyTo({ center: [clampedLng, clampedLat], zoom: 15 });
+        map.flyTo({ center: coords, zoom: 15 });
         if (marker) marker.remove();
-        const mapboxgl = (window as any).mapboxgl;
-        const newMarker = new mapboxgl.Marker({ color: "#10B981" }).setLngLat([clampedLng, clampedLat]).addTo(map);
+        const newMarker = new (window as any).mapboxgl.Marker().setLngLat(coords).addTo(map);
         setMarker(newMarker);
       }
     } catch (err) {
@@ -181,47 +184,6 @@ const ShopProfilePage: React.FC = () => {
     }
   };
 
-  // Optimistic Location (with checks)
-  const handleFindMyLocation = () => {
-    if (!map || typeof window === 'undefined' || !(window as any).mapboxgl) {
-      displayStatus('Map not loaded. Refresh.', 'error');
-      return;
-    }
-    const mapboxgl = (window as any).mapboxgl;
-    displayStatus('Detecting location...', 'info');
-    const optimisticCenter = [78.9629, 20.5937]; // Default India
-    map.flyTo({ center: optimisticCenter, zoom: 14 });
-    if (marker) marker.remove();
-    const tempMarker = new mapboxgl.Marker({ color: "#10B981" })
-      .setLngLat(optimisticCenter)
-      .addTo(map);
-    setMarker(tempMarker);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos: GeolocationPosition) => {
-          const { longitude, latitude } = pos.coords;
-          const clampedLng = Math.max(68, Math.min(98, longitude));
-          const clampedLat = Math.max(6, Math.min(38, latitude));
-          if (marker) marker.remove();
-          const newMarker = new mapboxgl.Marker({ color: "#10B981" })
-            .setLngLat([clampedLng, clampedLat])
-            .addTo(map);
-          setMarker(newMarker);
-          map.flyTo({ center: [clampedLng, clampedLat], zoom: 14 });
-          displayStatus('Location found! Adjust if needed.', 'success');
-        },
-        (err: GeolocationPositionError) => {
-          setMarker(null); // Rollback optimistic
-          displayStatus('Could not fetch location. Allow permission.', 'error');
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    } else {
-      displayStatus('Geolocation not supported.', 'error');
-    }
-  };
-
-  // Client-side Submit (Reverted for build; Server Action needs separate file)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors = validateForm();
@@ -265,25 +227,21 @@ const ShopProfilePage: React.FC = () => {
       }
 
       if (data.success) {
-        hideLoader(); // Fix timing
         displayStatus('Shop profile saved successfully! Redirecting...', 'success');
-        setSuccess(true);
         const redirectId = data.user?.id || userId;
         
-        // Encoded Redirect (Bug Fix)
-        const params = new URLSearchParams();
-        if (urlGoogleId) params.set('google_id', urlGoogleId);
-        params.set('id', redirectId);
         setTimeout(() => {
-          window.location.href = `https://www.krishi.site/dashboard1?${params.toString()}`;
+          const googleParam = urlGoogleId ? `google_id=${urlGoogleId}&` : '';
+          window.location.href = `https://www.krishi.site/dashboard1?${googleParam}id=${redirectId}`;
         }, 1200);
       } else {
         throw new Error(data.error || 'Shop profile save failed');
       }
     } catch (error) {
-      hideLoader();
       console.error("Error updating shop profile:", error);
       displayStatus('Error updating shop profile: ' + (error as Error).message, 'error');
+    } finally {
+      hideLoader();
     }
   };
 
@@ -291,6 +249,7 @@ const ShopProfilePage: React.FC = () => {
   const loadProfile = async () => {
     if (!userId || userId === 'Loading...') return;
 
+    showLoader();
     const payload = { id: userId };
 
     try {
@@ -326,6 +285,7 @@ const ShopProfilePage: React.FC = () => {
       console.error("Error loading shop profile:", error);
       displayStatus('Failed to load shop profile: ' + (error as Error).message, 'error');
     }
+    hideLoader();
   };
 
   // Initialize Mapbox
@@ -358,33 +318,12 @@ const ShopProfilePage: React.FC = () => {
     };
 
     loadMapbox();
-
-    // Cleanup on unmount
-    return () => {
-      if (map) {
-        map.remove();
-      }
-    };
   }, []);
 
   // Check form validity on changes
   useEffect(() => {
     checkFormValidity();
   }, [shopName, shopNumber, shopAddress]);
-
-  // Auto-focus
-  useEffect(() => {
-    if (!shopName.trim()) {
-      document.getElementById('shopName')?.focus();
-    } else if (shopName.trim() && !shopAddress.trim()) {
-      document.getElementById('shopAddress')?.focus();
-    }
-  }, [errorModal, shopName, shopAddress]);
-
-  // Success Reset (Bug Fix)
-  useEffect(() => {
-    return () => setSuccess(false);
-  }, []);
 
   const handleShopNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
@@ -404,6 +343,8 @@ const ShopProfilePage: React.FC = () => {
             -moz-osx-font-smoothing: grayscale;
           }
 
+          
+
           .animate-in {
             animation: fadeInUp 0.8s ease-out forwards;
             opacity: 0;
@@ -418,42 +359,13 @@ const ShopProfilePage: React.FC = () => {
             .shop-profile-card { padding: 32px 24px !important; }
             .shop-profile-title { font-size: 20px !important; }
           }
-
-          @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-          }
-
-          .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out forwards;
-          }
-
-          @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-          }
-
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-          }
         ` }} />
 
+        {/* Background Effects */}
+        
+
         <div className="shop-profile-container relative z-30 w-full max-w-[520px] mx-auto">
-          <div className="shop-profile-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)] animate-in">
+          <div className="shop-profile-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
             <div className="shop-profile-content relative z-[2]">
               {/* Header */}
               <div className="shop-profile-header flex items-center justify-center mb-8 gap-3">
@@ -475,14 +387,6 @@ const ShopProfilePage: React.FC = () => {
               {/* Title */}
               <h1 className="shop-profile-title text-center text-[24px] font-bold text-white mb-2">Shop Profile Setup</h1>
               <p className="shop-profile-subtitle text-center text-base text-[#94a3b8] mb-8">Complete your shop details to get started</p>
-              <p className="text-center text-sm text-[#64748b] mb-4">
-                Step 2 of 2 — Complete your shop details
-              </p>
-
-              {/* ARIA Live Region */}
-              <div aria-live="polite" role="status" className="sr-only">
-                {statusMessage?.text || 'Form ready for input.'}
-              </div>
 
               {/* Status Message */}
               {statusMessage && (
@@ -505,21 +409,13 @@ const ShopProfilePage: React.FC = () => {
                   <input
                     type="text"
                     id="shopName"
-                    minLength={3}
-                    maxLength={30}
-                    placeholder="e.g., GreenField Agro Mart"
                     className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+                    placeholder="Enter your shop name"
+                    maxLength={100}
                     required
                     value={shopName}
                     onChange={(e) => setShopName(e.target.value)}
                   />
-                  {!shopName.trim() && <p className="text-red-400 text-xs mt-1">Shop Name required (min 3 chars)</p>}
-                  {shopName.length > 0 && shopName.length < 3 && (
-                    <p className="text-red-400 text-xs mt-1">Name too short (min 3 chars)</p>
-                  )}
-                  {shopName.length >= 3 && shopName.length <= 30 && (
-                    <p className="text-green-400 text-xs mt-1">✓ Looks good</p>
-                  )}
                 </div>
 
                 {/* Shop Contact Number */}
@@ -542,12 +438,6 @@ const ShopProfilePage: React.FC = () => {
                       onChange={handleShopNumberChange}
                     />
                   </div>
-                  {shopNumber.length > 0 && shopNumber.length !== 10 && (
-                    <p className="text-red-400 text-xs mt-1">Needs exactly 10 digits</p>
-                  )}
-                  {shopNumber.length === 10 && (
-                    <p className="text-green-400 text-xs mt-1">✓ Valid number</p>
-                  )}
                 </div>
 
                 {/* Shop Address */}
@@ -558,46 +448,21 @@ const ShopProfilePage: React.FC = () => {
                   <textarea
                     id="shopAddress"
                     className="input-field textarea-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] min-h-[100px] resize-vertical"
-                    placeholder="e.g., Near Krishi Market, Main Road, Kolhapur - 416001"
+                    placeholder="Full shop address (street, city, pincode, etc.)"
                     rows={3}
-                    maxLength={200}
+                    maxLength={500}
                     required
                     value={shopAddress}
                     onChange={(e) => setShopAddress(e.target.value)}
                   />
-                  {!shopAddress.trim() && <p className="text-red-400 text-xs mt-1">Address required (min 10 chars)</p>}
-                  {shopAddress.length > 0 && shopAddress.length < 10 && (
-                    <p className="text-red-400 text-xs mt-1">Please enter a full address</p>
-                  )}
-                  {shopAddress.length >= 10 && shopAddress.length <= 200 && (
-                    <p className="text-green-400 text-xs mt-1">✓ Address looks valid</p>
-                  )}
                   
                   {/* Map Container */}
                   <div className="map-container mt-4 rounded-[12px] overflow-hidden border border-white/10">
-                    {!map ? (
-                      <div className="h-[200px] w-full flex items-center justify-center bg-[#0D1117]/60 text-[#64748b] rounded-[12px] border border-white/10 animate-pulse">
-                        Loading map...
-                      </div>
-                    ) : (
-                      <div id="map" className="h-[200px] w-full" aria-label="Shop location map" />
-                    )}
+                    <div id="map" className="h-[200px] w-full" />
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleFindMyLocation}
-                    className="mt-3 w-full bg-slate-800/60 hover:bg-slate-800/80 border border-white/10 rounded-[12px] px-4 py-3 text-sm font-semibold text-white transition-all duration-300"
-                  >
-                    📍 Find My Location
-                  </button>
                   <p className="map-instructions text-xs text-[#94a3b8] mt-2 text-center">
                     Click on the map to set your shop location
                   </p>
-                  {shopAddress && (
-                    <p className="text-xs text-center text-[#9ef87a] mt-2">
-                      📍 {shopAddress}
-                    </p>
-                  )}
                 </div>
 
                 {/* Save Button */}
@@ -607,14 +472,7 @@ const ShopProfilePage: React.FC = () => {
                   className="save-button w-full bg-gradient-to-br from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] hover:from-[#aefc90] hover:to-[#00b066] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(0,158,87,0.6)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-[0_4px_15px_rgba(0,158,87,0.4)]"
                   disabled={saveDisabled || loading}
                 >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-1">
-                      <span className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:-0.2s]" />
-                      <span className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:-0.1s]" />
-                      <span className="w-2 h-2 bg-white rounded-full animate-bounce" />
-                      <span>Saving...</span>
-                    </span>
-                  ) : 'Save Shop Profile'}
+                  {loading ? 'Saving...' : 'Save Shop Profile'}
                 </button>
               </form>
 
@@ -627,17 +485,10 @@ const ShopProfilePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Success Overlay */}
-      {success && (
-        <div className="fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-[9999] text-green-400 text-lg font-semibold animate-fadeIn">
-          ✅ Shop Profile Saved!<br />Redirecting to dashboard...
-        </div>
-      )}
-
       {/* Error Modal */}
       {errorModal.length > 0 && (
         <div className="modal-backdrop fixed inset-0 bg-black/80 flex justify-center items-center z-50">
-          <div className={`modal-content bg-[#0f172a]/90 backdrop-blur-xl border border-white/10 rounded-[16px] p-6 w-[90%] max-w-[400px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] animate-[shake_0.3s_ease-in-out]`}>
+          <div className="modal-content bg-[#0f172a]/90 backdrop-blur-xl border border-white/10 rounded-[16px] p-6 w-[90%] max-w-[400px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
             <div className="modal-header flex items-center gap-3 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
