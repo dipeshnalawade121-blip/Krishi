@@ -186,7 +186,11 @@ const ShopProfilePage: React.FC = () => {
   };
 
   const handleFindMyLocation = () => {
-    if (!map) return;
+    if (!map || typeof window === 'undefined' || !(window as any).mapboxgl) {
+      displayStatus('Mapbox not loaded. Please refresh.', 'error');
+      return;
+    }
+    const mapboxgl = (window as any).mapboxgl;
     displayStatus('Detecting your location...', 'info');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
