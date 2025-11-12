@@ -293,7 +293,7 @@ const SignUpPage: React.FC = () => {
         ` }} />
 
         {/* Background Effects */}
-        <div 
+        {/*    <div 
           className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
           style={{
             backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
@@ -312,7 +312,7 @@ const SignUpPage: React.FC = () => {
             mixBlendMode: 'overlay' as const,
           }}
         />
-
+*/}
         <div className="signup-container relative z-30 w-full max-w-[480px] mx-auto">
           {/* Top Link */}
           <div className="text-center mb-6">
