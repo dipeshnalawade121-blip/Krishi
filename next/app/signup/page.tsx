@@ -23,6 +23,7 @@ const SignUpPage: React.FC = () => {
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | ''>('');
   const [successScreen, setSuccessScreen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showStrengthTooltip, setShowStrengthTooltip] = useState(false);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
@@ -139,6 +140,19 @@ const SignUpPage: React.FC = () => {
     if (pw.length < 6) return 'weak';
     if (/[A-Z]/.test(pw) && /[0-9]/.test(pw)) return 'strong';
     return 'medium';
+  };
+
+  const getPasswordStrengthTooltip = () => {
+    switch (passwordStrength) {
+      case 'weak':
+        return 'Weak: At least 6 characters required.';
+      case 'medium':
+        return 'Medium: Add uppercase letters and numbers for stronger security.';
+      case 'strong':
+        return 'Strong: Highly secure! This resists common attacks.';
+      default:
+        return '';
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -434,7 +448,12 @@ const SignUpPage: React.FC = () => {
                     <p className="text-red-400 text-xs mt-1">Enter a valid 10-digit number</p>
                   )}
                   {verified && (
-                    <p className="text-green-400 text-xs mt-1">Verified ✓</p>
+                    <p className="text-green-400 text-xs mt-1 flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Verified
+                    </p>
                   )}
                 </div>
                 
@@ -544,17 +563,26 @@ const SignUpPage: React.FC = () => {
                       )}
                     </button>
                   </div>
-                  <div
-                    className={`h-1 rounded-full mt-2 transition-all ${
-                      passwordStrength === 'weak'
-                        ? 'bg-red-500/60'
-                        : passwordStrength === 'medium'
-                        ? 'bg-yellow-400/60'
-                        : passwordStrength === 'strong'
-                        ? 'bg-green-500/60'
-                        : 'bg-transparent'
-                    }`}
-                  />
+                  <div className="relative">
+                    <div
+                      className={`h-1 rounded-full mt-2 transition-all cursor-help relative group ${
+                        passwordStrength === 'weak'
+                          ? 'bg-red-500/60'
+                          : passwordStrength === 'medium'
+                          ? 'bg-yellow-400/60'
+                          : passwordStrength === 'strong'
+                          ? 'bg-green-500/60'
+                          : 'bg-transparent'
+                      }`}
+                      onMouseEnter={() => setShowStrengthTooltip(true)}
+                      onMouseLeave={() => setShowStrengthTooltip(false)}
+                    />
+                    {showStrengthTooltip && passwordStrength && (
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-xs text-white shadow-lg z-10 min-w-[200px] whitespace-nowrap">
+                        {getPasswordStrengthTooltip()}
+                      </div>
+                    )}
+                  </div>
                   <p className="helper-text text-sm text-[#94a3b8] mt-2">Password should be at least 6 characters</p>
                 </div>
                 
