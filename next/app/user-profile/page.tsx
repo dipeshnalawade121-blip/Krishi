@@ -609,8 +609,9 @@ const CompleteProfilePage: React.FC = () => {
 
         {/* Background Effects */}
         {/* 🚀 Flicker-Proof Background Wrapper */}
-<div className="bg-fixed-wrapper fixed inset-0 z-0 overflow-hidden bg-[#0e0e0e] will-change-transform [transform:translateZ(0)] [backface-visibility:hidden]">
-  {/* Grid Pattern */}
+        {/* 
+        <div className="bg-fixed-wrapper fixed inset-0 z-0 overflow-hidden bg-[#0e0e0e] will-change-transform [transform:translateZ(0)] [backface-visibility:hidden]">
+  {/* Grid Pattern 
   <div
     className="absolute inset-0 opacity-50 pointer-events-none bg-[length:100px_100px] [transform:translateZ(0)]"
     style={{
@@ -619,7 +620,7 @@ const CompleteProfilePage: React.FC = () => {
     }}
   />
 
-  {/* Sunray Glow */}
+  {/* Sunray Glow 
   <div
     className="absolute inset-0 pointer-events-none [transform:translateZ(0)]"
     style={{
@@ -629,7 +630,7 @@ const CompleteProfilePage: React.FC = () => {
     }}
   />
 
-  {/* God Rays */}
+  {/* God Rays 
   <div
     className="absolute top-0 left-0 w-[200%] h-[200%] pointer-events-none [transform:translateZ(0)]"
     style={{
@@ -640,6 +641,7 @@ const CompleteProfilePage: React.FC = () => {
     }}
   />
 </div>
+      */}
 
 
         <div className="profile-container relative z-30 w-full max-w-[500px] mx-auto">
