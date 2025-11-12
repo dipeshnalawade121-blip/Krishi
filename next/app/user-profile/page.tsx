@@ -689,7 +689,10 @@ const CompleteProfilePage: React.FC = () => {
                         id="google-link-btn"
                         ref={googleButtonContainerRef}
                         className="transition-opacity duration-300"
-                        style={{ opacity: isGoogleButtonReady ? 1 : 0 }}
+                        {/* style={{ opacity: isGoogleButtonReady ? 1 : 0 }} */}
+                        style={{ opacity: isGoogleButtonReady ? 1 : 0,
+                                height: '50px' // <-- THE FINAL CLS FIX: Force exact height
+                }}
                       />
                     </div>
                   </div>
