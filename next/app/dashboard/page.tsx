@@ -196,15 +196,23 @@ const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory 
 // --- Add Product Page ---
 
 const renderAddProductPage = (setView: (view: string) => void) => {
-  const [product, setProduct] = useState({
-    name: '',
-    mrp: '',
-    sellingPrice: '',
-    description: '',
-    usage: '',
-    categories: [],
-    photo: null,
-  });
+  const [product, setProduct] = useState<{
+  name: string;
+  mrp: string;
+  sellingPrice: string;
+  description: string;
+  usage: string;
+  categories: string[];  // Explicitly type as string[] to allow additions
+  photo: null;
+}>({
+  name: '',
+  mrp: '',
+  sellingPrice: '',
+  description: '',
+  usage: '',
+  categories: [],
+  photo: null,
+});
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
