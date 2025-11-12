@@ -586,28 +586,61 @@ const CompleteProfilePage: React.FC = () => {
             .mobile-otp-row { flex-direction: column !important; }
             .otp-button { width: 100% !important; margin-top: 8px !important; }
           }
+
+
+          html, body {
+  height: 100%;
+  min-height: 100%;
+  background-color: #0e0e0e;
+  overflow-x: hidden;
+  overscroll-behavior: none; /* prevent mobile flicker */
+}
+
+/* Optional - make sure these layers stay GPU locked */
+.bg-fixed-wrapper > * {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+
+          
         ` }} />
 
         {/* Background Effects */}
-        <div 
-          className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
-          style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
-          }}
-        />
-        <div 
-          className="sunray-effect fixed inset-0 pointer-events-none z-10"
-          style={{
-            background: 'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
-          }}
-        />
-        <div 
-          className="god-rays fixed top-0 left-0 w-[200%] h-[200%] pointer-events-none z-20"
-          style={{
-            background: 'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
-            mixBlendMode: 'overlay' as const,
-          }}
-        />
+        {/* 🚀 Flicker-Proof Background Wrapper */}
+<div className="bg-fixed-wrapper fixed inset-0 z-0 overflow-hidden bg-[#0e0e0e] will-change-transform [transform:translateZ(0)] [backface-visibility:hidden]">
+  {/* Grid Pattern */}
+  <div
+    className="absolute inset-0 opacity-50 pointer-events-none bg-[length:100px_100px] [transform:translateZ(0)]"
+    style={{
+      backgroundImage:
+        'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
+    }}
+  />
+
+  {/* Sunray Glow */}
+  <div
+    className="absolute inset-0 pointer-events-none [transform:translateZ(0)]"
+    style={{
+      background:
+        'radial-gradient(circle at top center, rgba(20,20,20,0.5) 0%, rgba(7,7,7,1) 70%)',
+      animation: 'sunrayPulse 10s ease-in-out infinite alternate',
+    }}
+  />
+
+  {/* God Rays */}
+  <div
+    className="absolute top-0 left-0 w-[200%] h-[200%] pointer-events-none [transform:translateZ(0)]"
+    style={{
+      background:
+        'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
+      mixBlendMode: 'overlay',
+      animation: 'godRays 15s ease-in-out infinite',
+    }}
+  />
+</div>
+
 
         <div className="profile-container relative z-30 w-full max-w-[500px] mx-auto">
           <div className="profile-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
