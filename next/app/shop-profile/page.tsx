@@ -24,6 +24,16 @@ const ShopProfilePage: React.FC = () => {
   const searchParams = useSearchParams();
   const urlUserId = searchParams.get('id') || '';
   const urlGoogleId = searchParams.get('google_id') || '';
+  
+  // Smoothly scroll input into view when focused (for mobile UX)
+const handleFocus = (e: React.FocusEvent<HTMLElement>) => {
+  setTimeout(() => {
+    e.target.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  }, 300); // wait for keyboard animation
+};
 
   useEffect(() => {
     setUserId(urlUserId);
@@ -429,6 +439,7 @@ const ShopProfilePage: React.FC = () => {
     required
     value={shopName}
     onChange={(e) => setShopName(e.target.value)}
+    onFocus={handleFocus}
   />
   <p className="text-xs text-[#64748b] mt-1 text-right">
     {shopName.length}/30
@@ -454,6 +465,7 @@ const ShopProfilePage: React.FC = () => {
                       required
                       value={shopNumber}
                       onChange={handleShopNumberChange}
+                      onFocus={handleFocus}
                     />
                   </div>
                 </div>
@@ -472,6 +484,7 @@ const ShopProfilePage: React.FC = () => {
     required
     value={shopAddress}
     onChange={(e) => setShopAddress(e.target.value)}
+    onFocus={handleFocus}
   />
   <p className="text-xs text-[#64748b] mt-1 text-right">
     {shopAddress.length}/200
