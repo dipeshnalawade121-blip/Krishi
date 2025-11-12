@@ -766,20 +766,23 @@ const CompleteProfilePage: React.FC = () => {
                         onChange={handleOtpInput}
                         disabled={mobileVerified}
                       />
-                      <button
-                        type="button"
-                        onClick={handleVerifyOtp}
-                        disabled={verifyOtpDisabled || mobileVerified}
-                        className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap md:w-auto w-full ${
-                          mobileVerified
-                            ? 'bg-green-500/20 border-green-500/50 text-green-400 cursor-not-allowed'
-                            : !verifyOtpDisabled
-                            ? 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
-                            : 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        {mobileVerified ? 'Verified ✓' : 'Verify'}
-                      </button>
+                      {/* Only show Send OTP button if not verified */}
+{!mobileVerified && (
+  <button
+    type="button"
+    onClick={handleSendOtp}
+    disabled={sendOtpDisabled || mobileLocked}
+    className={`otp-button px-5 py-4 rounded-[12px] border text-sm font-semibold transition-all duration-300 whitespace-nowrap md:w-auto w-full ${
+      countdown > 0
+        ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 cursor-not-allowed'
+        : mobileLocked
+        ? 'bg-gray-500/20 border-gray-500/50 text-gray-400 cursor-not-allowed'
+        : 'bg-[#1e293b] border-white/10 text-white hover:bg-[#1e293b]/80 hover:border-[#9ef87a]/30'
+    }`}
+  >
+    {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Send OTP'}
+  </button>
+)}
                     </div>
                   </div>
                 )}
