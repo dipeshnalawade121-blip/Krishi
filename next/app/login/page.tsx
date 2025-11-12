@@ -240,25 +240,7 @@ const SignInPage: React.FC = () => {
         ` }} />
 
         {/* Background Effects */}
-        <div 
-          className="bg-pattern fixed inset-0 opacity-50 pointer-events-none bg-[length:100px_100px]"
-          style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)'
-          }}
-        />
-        <div 
-          className="sunray-effect fixed inset-0 pointer-events-none z-10"
-          style={{
-            background: 'radial-gradient(circle at top center, rgba(20, 20, 20, 0.5) 0%, rgba(7, 7, 7, 1) 70%)',
-          }}
-        />
-        <div 
-          className="god-rays fixed top-0 left-0 w-[200%] h-[200%] pointer-events-none z-20"
-          style={{
-            background: 'radial-gradient(ellipse at 0% 0%, rgba(158,248,122,0.2) 0%, rgba(0,158,87,0.1) 30%, transparent 70%), linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 45%, transparent 55%)',
-            mixBlendMode: 'overlay' as const,
-          }}
-        />
+        
 
         <div className="login-container relative z-30 w-full max-w-[420px] mx-auto">
           <div className="login-card bg-gradient-to-br from-[#101114] to-[#08090C] rounded-[24px] border border-white/5 p-[40px_32px] relative overflow-hidden mb-6 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
