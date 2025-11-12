@@ -19,7 +19,7 @@ const VIEWS = {
 // --- Custom Components ---
 
 // Button component for primary actions (Add, Save)
-const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }) => (
+const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }: { children: React.ReactNode; onClick?: () => void; icon?: React.ComponentType<{ className?: string }>; disabled?: boolean }) => (
   <button 
     className={`w-full flex items-center justify-center p-3 rounded-xl font-semibold transition duration-150 ${
       disabled 
@@ -35,7 +35,7 @@ const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }) => (
 );
 
 // Input Field Component
-const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name }) => (
+const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name }: { label: string; placeholder: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-indigo-500 transition duration-150">
@@ -55,7 +55,7 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
 );
 
 // Textarea Component
-const FormTextarea = ({ label, placeholder, value, onChange, name }) => (
+const FormTextarea = ({ label, placeholder, value, onChange, name }: { label: string; placeholder: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; name?: string }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     <textarea
@@ -69,64 +69,24 @@ const FormTextarea = ({ label, placeholder, value, onChange, name }) => (
   </div>
 );
 
-// --- Modal Component for Category Selection ---
-const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory }) => {
-  const categories = [
-    'Crop Nutrition',
-    'Crop Protection',
-    'Seeds',
-    'Hardware'
-  ];
-
-  if (!isVisible) return null;
-
-  return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm">
-        <div className="p-5 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900">Select Categories</h3>
-        </div>
-        <div className="p-5 space-y-2">
-          {categories.map((category) => (
-            <div key={category} className="flex items-center justify-between">
-              <label className="text-gray-700 text-sm font-medium">{category}</label>
-              <input 
-                type="checkbox" 
-                checked={selectedCategories.includes(category)}
-                onChange={() => toggleCategory(category)}
-                className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              />
-            </div>
-          ))}
-        </div>
-        <div className="p-5 border-t border-gray-200">
-          <PrimaryButton onClick={onClose} icon={Check}>
-            Done
-          </PrimaryButton>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // --- Page View Functions ---
 
-// Renders the main dashboard view
-const DashboardView = ({ setView }) => {
-  const ActionLink = ({ name, icon: Icon, targetView }) => (
+// Renders the main dashboard view from the previous iteration
+const renderDashboard = (setView: (view: string) => void) => {
+  const ActionLink = ({ name, icon: Icon, targetView }: { name: string; icon: React.ComponentType<{ className?: string }>; targetView: string }) => (
     <button 
       className="flex items-center justify-between w-full p-4 bg-white hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition duration-150"
       onClick={() => setView(targetView)}
     >
       <div className="flex items-center">
-        <Icon className="w-5 h-5 mr-3 text-gray-700" />
+        <Icon className={`w-5 h-5 mr-3 text-gray-700`} />
         <span className="text-sm font-medium text-gray-800">{name}</span>
       </div>
       <ArrowUpRight className="w-4 h-4 text-gray-400 transform rotate-45" />
     </button>
   );
 
-  const MetricCard = ({ title, value, icon: Icon }) => (
+  const MetricCard = ({ title, value, icon: Icon }: { title: string; value: string; icon: React.ComponentType<{ className?: string }> }) => (
     <div className="p-5 bg-indigo-500 rounded-xl shadow-lg text-white flex items-center justify-between">
       <div>
         <p className="text-lg font-semibold opacity-90">{title}</p>
@@ -191,8 +151,50 @@ const DashboardView = ({ setView }) => {
   );
 };
 
+// --- Modal Component for Category Selection ---
+
+const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory }: { isVisible: boolean; onClose: () => void; selectedCategories: string[]; toggleCategory: (category: string) => void }) => {
+  const categories = [
+    'Crop Nutrition',
+    'Crop Protection',
+    'Seeds',
+    'Hardware'
+  ];
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm">
+        <div className="p-5 border-b border-gray-200">
+          <h3 className="text-lg font-bold text-gray-900">Select Categories</h3>
+        </div>
+        <div className="p-5 space-y-2">
+          {categories.map((category) => (
+            <div key={category} className="flex items-center justify-between">
+              <label className="text-gray-700 text-sm font-medium">{category}</label>
+              <input 
+                type="checkbox" 
+                checked={selectedCategories.includes(category)}
+                onChange={() => toggleCategory(category)}
+                className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="p-5 border-t border-gray-200">
+          <PrimaryButton onClick={onClose} icon={Check}>
+            Done
+          </PrimaryButton>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- Add Product Page ---
-const AddProductView = ({ setView }) => {
+
+const renderAddProductPage = (setView: (view: string) => void) => {
   const [product, setProduct] = useState({
     name: '',
     mrp: '',
@@ -341,7 +343,8 @@ const AddProductView = ({ setView }) => {
 };
 
 // --- Products List Page ---
-const ProductsView = ({ setView }) => (
+
+const renderProductListPage = (setView: (view: string) => void) => (
   <>
     {/* Header: Return Arrow, Title, Add Product Button */}
     <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10 shadow-sm">
@@ -372,8 +375,9 @@ const ProductsView = ({ setView }) => (
   </>
 );
 
-// --- Banner Pages ---
-const BannersView = ({ setView }) => (
+// --- Banner Pages (Reusing Product Logic) ---
+
+const renderBannerListPage = (setView: (view: string) => void) => (
   <>
     <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10 shadow-sm">
       <button 
@@ -401,21 +405,13 @@ const BannersView = ({ setView }) => (
   </>
 );
 
-const AddBannerView = ({ setView }) => {
-  const [banner, setBanner] = useState({
-    title: '',
-    destinationUrl: '',
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setBanner(prev => ({ ...prev, [name]: value }));
-  };
-
+const renderAddBannerPage = (setView: (view: string) => void) => {
   const handleSave = () => {
-    console.log('Banner saved!', banner);
+    console.log('Banner saved!');
     setView(VIEWS.BANNERS);
   };
+
+  const handleChange = () => {}; // Placeholder
     
   return (
     <>
@@ -435,8 +431,7 @@ const AddBannerView = ({ setView }) => {
             label="Banner Title"
             placeholder="e.g., Monsoon Sale 2024"
             icon={BookOpen}
-            name="title"
-            value={banner.title}
+            value=""
             onChange={handleChange}
           />
           <div className="mb-4">
@@ -450,8 +445,7 @@ const AddBannerView = ({ setView }) => {
             label="Destination URL"
             placeholder="https://yourshop.com/deals"
             icon={Globe}
-            name="destinationUrl"
-            value={banner.destinationUrl}
+            value=""
             onChange={handleChange}
           />
         </div>
@@ -466,29 +460,31 @@ const AddBannerView = ({ setView }) => {
   );
 };
 
-// --- Main Dashboard Component ---
-const Dashboard = () => {
+// --- Main Application Component ---
+
+const DashboardPage: React.FC = () => {
+  // Use state to manage which view is currently displayed
   const [currentView, setCurrentView] = useState(VIEWS.DASHBOARD);
 
   const renderContent = () => {
     switch (currentView) {
       case VIEWS.PRODUCTS:
-        return <ProductsView setView={setCurrentView} />;
+        return renderProductListPage(setCurrentView);
       case VIEWS.ADD_PRODUCT:
-        return <AddProductView setView={setCurrentView} />;
+        return renderAddProductPage(setCurrentView);
       case VIEWS.BANNERS:
-        return <BannersView setView={setCurrentView} />;
+        return renderBannerListPage(setCurrentView);
       case VIEWS.ADD_BANNER:
-        return <AddBannerView setView={setCurrentView} />;
+        return renderAddBannerPage(setCurrentView);
       case VIEWS.DASHBOARD:
       default:
-        return <DashboardView setView={setCurrentView} />;
+        return renderDashboard(setCurrentView);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center p-0 font-sans antialiased">
-      {/* Dashboard Container */}
+      {/* Dashboard Container (Max width for "App" feel, full width on small screens) */}
       <div className="w-full max-w-sm bg-white shadow-2xl overflow-hidden md:rounded-2xl">
         {renderContent()}
       </div>
@@ -496,4 +492,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;
