@@ -19,6 +19,7 @@ const ShopProfilePage: React.FC = () => {
   const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
   const [map, setMap] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
+  const [success, setSuccess] = useState<boolean>(false);
 
   // URL params
   const searchParams = useSearchParams();
@@ -44,9 +45,9 @@ const ShopProfilePage: React.FC = () => {
   };
 
   const checkFormValidity = () => {
-    const isValid = shopName.trim() && 
+    const isValid = shopName.trim().length >= 3 && 
                    shopNumber.length === 10 && 
-                   shopAddress.trim();
+                   shopAddress.trim().length >= 10;
     setSaveDisabled(!isValid);
   };
 
@@ -60,11 +61,11 @@ const ShopProfilePage: React.FC = () => {
 
   const validateForm = () => {
     const errors: string[] = [];
-    if (!shopName.trim()) errors.push("Shop Name is required.");
+    if (!shopName.trim() || shopName.trim().length < 3) errors.push("Shop Name is required and min 3 chars.");
     if (!shopNumber || shopNumber.length !== 10) {
       errors.push("Valid 10-digit shop contact number is required.");
     }
-    if (!shopAddress.trim()) errors.push("Shop Address is required.");
+    if (!shopAddress.trim() || shopAddress.trim().length < 10) errors.push("Shop Address is required and min 10 chars.");
     return errors;
   };
 
@@ -133,7 +134,7 @@ const ShopProfilePage: React.FC = () => {
     // Handle manual map click to set shop position
     newMap.on('click', async (e: any) => {
       const coords = e.lngLat;
-      if (marker) marker.remove();
+      if (marker && typeof marker.remove === 'function') marker.remove();
       const newMarker = new mapboxgl.Marker().setLngLat(coords).addTo(newMap);
       setMarker(newMarker);
       const address = await reverseGeocode(coords.lng, coords.lat);
@@ -184,6 +185,24 @@ const ShopProfilePage: React.FC = () => {
     }
   };
 
+  const handleFindMyLocation = () => {
+    if (!map) return;
+    displayStatus('Detecting your location...', 'info');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { longitude, latitude } = pos.coords;
+        if (marker) marker.remove();
+        const newMarker = new mapboxgl.Marker({ color: "#10B981" })
+          .setLngLat([longitude, latitude])
+          .addTo(map);
+        setMarker(newMarker);
+        map.flyTo({ center: [longitude, latitude], zoom: 14 });
+        displayStatus('Location found! Adjust if needed.', 'success');
+      },
+      () => displayStatus('Could not fetch location. Allow permission.', 'error')
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors = validateForm();
@@ -228,11 +247,11 @@ const ShopProfilePage: React.FC = () => {
 
       if (data.success) {
         displayStatus('Shop profile saved successfully! Redirecting...', 'success');
+        setSuccess(true);
         const redirectId = data.user?.id || userId;
         
         setTimeout(() => {
-          const googleParam = urlGoogleId ? `google_id=${urlGoogleId}&` : '';
-          window.location.href = `https://www.krishi.site/dashboard1?${googleParam}id=${redirectId}`;
+          window.location.href = `https://www.krishi.site/dashboard1?${urlGoogleId ? `google_id=${urlGoogleId}&` : ''}id=${redirectId}`;
         }, 1200);
       } else {
         throw new Error(data.error || 'Shop profile save failed');
@@ -325,6 +344,14 @@ const ShopProfilePage: React.FC = () => {
     checkFormValidity();
   }, [shopName, shopNumber, shopAddress]);
 
+  useEffect(() => {
+    if (!shopName.trim()) {
+      document.getElementById('shopName')?.focus();
+    } else if (shopName && !shopAddress.trim()) {
+      document.getElementById('shopAddress')?.focus();
+    }
+  }, [errorModal, shopName, shopAddress]);
+
   const handleShopNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
     setShopNumber(value);
@@ -359,6 +386,21 @@ const ShopProfilePage: React.FC = () => {
             .shop-profile-card { padding: 32px 24px !important; }
             .shop-profile-title { font-size: 20px !important; }
           }
+
+          @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+          }
+
+          .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+          }
+
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+          }
         ` }} />
 
         {/* Background Effects */}
@@ -387,6 +429,9 @@ const ShopProfilePage: React.FC = () => {
               {/* Title */}
               <h1 className="shop-profile-title text-center text-[24px] font-bold text-white mb-2">Shop Profile Setup</h1>
               <p className="shop-profile-subtitle text-center text-base text-[#94a3b8] mb-8">Complete your shop details to get started</p>
+              <p className="text-center text-sm text-[#64748b] mb-4">
+                Step 2 of 2 — Complete your shop details
+              </p>
 
               {/* Status Message */}
               {statusMessage && (
@@ -409,13 +454,20 @@ const ShopProfilePage: React.FC = () => {
                   <input
                     type="text"
                     id="shopName"
+                    minLength={3}
+                    maxLength={30}
+                    placeholder="e.g., GreenField Agro Mart"
                     className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
-                    placeholder="Enter your shop name"
-                    maxLength={100}
                     required
                     value={shopName}
                     onChange={(e) => setShopName(e.target.value)}
                   />
+                  {shopName.length > 0 && shopName.length < 3 && (
+                    <p className="text-red-400 text-xs mt-1">Name too short (min 3 chars)</p>
+                  )}
+                  {shopName.length >= 3 && shopName.length <= 30 && (
+                    <p className="text-green-400 text-xs mt-1">✓ Looks good</p>
+                  )}
                 </div>
 
                 {/* Shop Contact Number */}
@@ -448,21 +500,44 @@ const ShopProfilePage: React.FC = () => {
                   <textarea
                     id="shopAddress"
                     className="input-field textarea-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] min-h-[100px] resize-vertical"
-                    placeholder="Full shop address (street, city, pincode, etc.)"
+                    placeholder="e.g., Near Krishi Market, Main Road, Kolhapur - 416001"
                     rows={3}
-                    maxLength={500}
+                    maxLength={200}
                     required
                     value={shopAddress}
                     onChange={(e) => setShopAddress(e.target.value)}
                   />
+                  {shopAddress.length > 0 && shopAddress.length < 10 && (
+                    <p className="text-red-400 text-xs mt-1">Please enter a full address</p>
+                  )}
+                  {shopAddress.length >= 10 && shopAddress.length <= 200 && (
+                    <p className="text-green-400 text-xs mt-1">✓ Address looks valid</p>
+                  )}
                   
                   {/* Map Container */}
                   <div className="map-container mt-4 rounded-[12px] overflow-hidden border border-white/10">
-                    <div id="map" className="h-[200px] w-full" />
+                    {!map ? (
+                      <div className="h-[200px] w-full flex items-center justify-center bg-[#0D1117]/60 text-[#64748b] rounded-[12px] border border-white/10 animate-pulse">
+                        Loading map...
+                      </div>
+                    ) : (
+                      <div id="map" className="h-[200px] w-full" />
+                    )}
                   </div>
+                  <button
+                    onClick={handleFindMyLocation}
+                    className="mt-3 w-full bg-slate-800/60 hover:bg-slate-800/80 border border-white/10 rounded-[12px] px-4 py-3 text-sm font-semibold text-white transition-all duration-300"
+                  >
+                    📍 Find My Location
+                  </button>
                   <p className="map-instructions text-xs text-[#94a3b8] mt-2 text-center">
                     Click on the map to set your shop location
                   </p>
+                  {shopAddress && (
+                    <p className="text-xs text-center text-[#9ef87a] mt-2">
+                      📍 {shopAddress}
+                    </p>
+                  )}
                 </div>
 
                 {/* Save Button */}
@@ -472,7 +547,14 @@ const ShopProfilePage: React.FC = () => {
                   className="save-button w-full bg-gradient-to-br from-[#9ef87a] to-[#009e57] text-white border-none rounded-[12px] px-4 py-4 text-base font-semibold transition-all duration-300 shadow-[0_4px_15px_rgba(0,158,87,0.4)] hover:from-[#aefc90] hover:to-[#00b066] hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(0,158,87,0.6)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-[0_4px_15px_rgba(0,158,87,0.4)]"
                   disabled={saveDisabled || loading}
                 >
-                  {loading ? 'Saving...' : 'Save Shop Profile'}
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-1">
+                      <span className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:-0.2s]" />
+                      <span className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:-0.1s]" />
+                      <span className="w-2 h-2 bg-white rounded-full animate-bounce" />
+                      <span>Saving...</span>
+                    </span>
+                  ) : 'Save Shop Profile'}
                 </button>
               </form>
 
@@ -485,10 +567,17 @@ const ShopProfilePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Success Overlay */}
+      {success && (
+        <div className="fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-[9999] text-green-400 text-lg font-semibold animate-fadeIn">
+          ✅ Shop Profile Saved!<br />Redirecting to dashboard...
+        </div>
+      )}
+
       {/* Error Modal */}
       {errorModal.length > 0 && (
         <div className="modal-backdrop fixed inset-0 bg-black/80 flex justify-center items-center z-50">
-          <div className="modal-content bg-[#0f172a]/90 backdrop-blur-xl border border-white/10 rounded-[16px] p-6 w-[90%] max-w-[400px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+          <div className={`modal-content bg-[#0f172a]/90 backdrop-blur-xl border border-white/10 rounded-[16px] p-6 w-[90%] max-w-[400px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] ${errorModal.length > 0 ? 'animate-[shake_0.3s_ease-in-out]' : ''}`}>
             <div className="modal-header flex items-center gap-3 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
