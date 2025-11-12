@@ -17,8 +17,8 @@ const ShopProfilePage: React.FC = () => {
   const [errorModal, setErrorModal] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
-  const [map, setMap] = useState<any>(null);
-  const [marker, setMarker] = useState<any>(null);
+  const mapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
 
   // URL params
   const searchParams = useSearchParams();
@@ -103,7 +103,7 @@ const ShopProfilePage: React.FC = () => {
           const newMarker = new mapboxgl.Marker({ color: "#10B981" })
             .setLngLat([userLng, userLat])
             .addTo(newMap);
-          setMarker(newMarker);
+          markerRef.current = newMarker;
 
           displayStatus('Location found! Adjust marker near your shop.', 'success');
         };
@@ -132,28 +132,28 @@ const ShopProfilePage: React.FC = () => {
 
     // Handle manual map click to set shop position
     newMap.on('click', async (e: any) => {
-  const coords = e.lngLat;
+      const coords = e.lngLat;
 
-  // 🔹 Remove existing marker (ensures only one)
-  if (marker) {
-    marker.remove();
-  }
+      // 🔹 Remove old marker (ensures only one stays)
+      if (markerRef.current) {
+        markerRef.current.remove();
+      }
 
-  // 🔹 Add new marker at clicked position
-  const newMarker = new mapboxgl.Marker({ color: "#10B981" })
-    .setLngLat(coords)
-    .addTo(newMap);
+      // 🔹 Add new single marker
+      const newMarker = new mapboxgl.Marker({ color: "#10B981" })
+        .setLngLat(coords)
+        .addTo(newMap);
 
-  setMarker(newMarker);
+      markerRef.current = newMarker; // store new marker reference
 
-  // 🔹 Reverse geocode to fetch readable address
-  const address = await reverseGeocode(coords.lng, coords.lat);
-  setShopAddress(address);
-  checkFormValidity();
-  displayStatus('Shop location selected!', 'success');
-});
+      // 🔹 Get address from coordinates
+      const address = await reverseGeocode(coords.lng, coords.lat);
+      setShopAddress(address);
+      checkFormValidity();
+      displayStatus('Shop location selected!', 'success');
+    });
 
-    setMap(newMap);
+    mapRef.current = newMap;
   };
 
   const reverseGeocode = async (lng: number, lat: number): Promise<string> => {
@@ -179,16 +179,18 @@ const ShopProfilePage: React.FC = () => {
   };
 
   const geocodeExistingAddress = async (address: string) => {
-    if (!address || !map) return;
+    if (!address || !mapRef.current) return;
     try {
       const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${MAPBOX_TOKEN}&country=IN&language=en&limit=1`);
       const data = await res.json();
       if (data.features.length > 0) {
         const coords = data.features[0].center;
-        map.flyTo({ center: coords, zoom: 15 });
-        if (marker) marker.remove();
-        const newMarker = new (window as any).mapboxgl.Marker().setLngLat(coords).addTo(map);
-        setMarker(newMarker);
+        mapRef.current.flyTo({ center: coords, zoom: 15 });
+        if (markerRef.current) markerRef.current.remove();
+        const newMarker = new (window as any).mapboxgl.Marker({ color: "#10B981" })
+          .setLngLat(coords)
+          .addTo(mapRef.current);
+        markerRef.current = newMarker;
       }
     } catch (err) {
       console.error('Geocoding existing address failed:', err);
