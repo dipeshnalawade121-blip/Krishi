@@ -22,6 +22,7 @@ const SignUpPage: React.FC = () => {
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | ''>('');
   const [successScreen, setSuccessScreen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
@@ -89,16 +90,6 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  const handleOtpInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setOtp(value);
-    if (value.length === 6 && /^\d{6}$/.test(value)) {
-      setVerifyOtpDisabled(false);
-    } else {
-      setVerifyOtpDisabled(true);
-    }
-  };
-
   const handleVerifyOtp = async () => {
     const phoneInput = mobile.replace(/[^0-9]/g, '');
     const otpValue = otp;
@@ -122,8 +113,11 @@ const SignUpPage: React.FC = () => {
         setButtonState('done');
         setVerified(true);
         setOtp('');
+        setOtpDigits(['', '', '', '', '', '']);
+        setOtpSectionActive(false);
         setVerifyOtpDisabled(true);
         setSubmitDisabled(false);
+        setIsOtpInvalid(false);
         console.log('Phone number successfully verified.');
       } else {
         setIsOtpInvalid(true);
@@ -407,30 +401,33 @@ const SignUpPage: React.FC = () => {
                     <input
                       type="tel"
                       id="reg-mobile"
-                      className={`input-field flex-1 w-full bg-[#0D1117] border ${mobile.length !== 10 && mobile.length > 0 ? 'border-red-500/50' : 'border-white/10'} rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]`}
+                      className={`input-field flex-1 w-full bg-[#0D1117] border ${verified ? 'border-green-500/50 bg-green-900/10 cursor-not-allowed opacity-75' : mobile.length !== 10 && mobile.length > 0 ? 'border-red-500/50' : 'border-white/10'} rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]`}
                       placeholder="Enter your mobile number"
                       maxLength={10}
                       required
                       value={mobile}
+                      disabled={verified}
                       onChange={(e) => setMobile(e.target.value)}
                     />
-                    <button
-                      type="button"
-                      id="reg-send-otp"
-                      className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
-                        sendOtpDisabled 
-                          ? 'opacity-50 cursor-not-allowed' 
-                          : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
-                      } ${
-                        countdown > 0 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : ''
-                      }`}
-                      disabled={sendOtpDisabled}
-                      onClick={handleSendOtp}
-                    >
-                      {countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Get OTP'}
-                    </button>
+                    {!verified && (
+                      <button
+                        type="button"
+                        id="reg-send-otp"
+                        className={`otp-button whitespace-nowrap px-5 py-4 text-sm font-semibold text-white transition-all duration-300 rounded-[12px] border border-white/10 ${
+                          sendOtpDisabled 
+                            ? 'opacity-50 cursor-not-allowed' 
+                            : 'bg-slate-800/60 hover:bg-slate-800/80 hover:border-[#9ef87a]/30'
+                        } ${
+                          countdown > 0 ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : ''
+                        }`}
+                        disabled={sendOtpDisabled}
+                        onClick={handleSendOtp}
+                      >
+                        {buttonState === 'loading' ? 'Sending...' : countdown > 0 ? `OTP sent! ${formatTime(countdown)}` : 'Get OTP'}
+                      </button>
+                    )}
                   </div>
-                  {mobile.length !== 10 && mobile.length > 0 && (
+                  {mobile.length !== 10 && mobile.length > 0 && !verified && (
                     <p className="text-red-400 text-xs mt-1">Enter a valid 10-digit number</p>
                   )}
                 </div>
@@ -500,19 +497,38 @@ const SignUpPage: React.FC = () => {
                   <label htmlFor="reg-password" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
                     Password
                   </label>
-                  <input
-                    type="password"
-                    id="reg-password"
-                    className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
-                    placeholder="Create a secure password"
-                    required
-                    value={password}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setPassword(val);
-                      setPasswordStrength(checkPasswordStrength(val));
-                    }}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="reg-password"
+                      className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 pr-12 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+                      placeholder="Create a secure password"
+                      required
+                      value={password}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPassword(val);
+                        setPasswordStrength(checkPasswordStrength(val));
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.5c-.49-2.7-2.38-4.69-5.34-5.42A9.026 9.026 0 0112 6.75c2.99 0 5.84-.9 8.36-2.67a9.026 9.026 0 01-5.34 5.42m0 0A9.026 9.026 0 0112 6.75m0 0a9.026 9.026 0 016.36 2.08M3.98 8.5m11.04 0A9.026 9.026 0 0112 6.75m0 0V3.08A9.026 9.026 0 0112 6.75" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.577-3.007-9.964-7.178z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                   <div
                     className={`h-1 rounded-full mt-2 transition-all ${
                       passwordStrength === 'weak'
