@@ -132,15 +132,26 @@ const ShopProfilePage: React.FC = () => {
 
     // Handle manual map click to set shop position
     newMap.on('click', async (e: any) => {
-      const coords = e.lngLat;
-      if (marker) marker.remove();
-      const newMarker = new mapboxgl.Marker().setLngLat(coords).addTo(newMap);
-      setMarker(newMarker);
-      const address = await reverseGeocode(coords.lng, coords.lat);
-      setShopAddress(address);
-      checkFormValidity();
-      displayStatus('Shop location selected!', 'success');
-    });
+  const coords = e.lngLat;
+
+  // 🔹 Remove existing marker (ensures only one)
+  if (marker) {
+    marker.remove();
+  }
+
+  // 🔹 Add new marker at clicked position
+  const newMarker = new mapboxgl.Marker({ color: "#10B981" })
+    .setLngLat(coords)
+    .addTo(newMap);
+
+  setMarker(newMarker);
+
+  // 🔹 Reverse geocode to fetch readable address
+  const address = await reverseGeocode(coords.lng, coords.lat);
+  setShopAddress(address);
+  checkFormValidity();
+  displayStatus('Shop location selected!', 'success');
+});
 
     setMap(newMap);
   };
@@ -401,22 +412,27 @@ const ShopProfilePage: React.FC = () => {
 
               {/* Shop Profile Form */}
               <form onSubmit={handleSubmit}>
-                {/* Shop Name */}
-                <div className="form-group mb-6">
-                  <label htmlFor="shopName" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                    Shop Name
-                  </label>
-                  <input
-                    type="text"
-                    id="shopName"
-                    className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
-                    placeholder="Enter your shop name"
-                    maxLength={100}
-                    required
-                    value={shopName}
-                    onChange={(e) => setShopName(e.target.value)}
-                  />
-                </div>
+                
+{/* Shop Name */}
+<div className="form-group mb-6">
+  <label htmlFor="shopName" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+    Shop Name
+  </label>
+  <input
+    type="text"
+    id="shopName"
+    className="input-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b]"
+    placeholder="Enter your shop name"
+    maxLength={30}   // 🔹 changed from 100 to 30
+    required
+    value={shopName}
+    onChange={(e) => setShopName(e.target.value)}
+  />
+  <p className="text-xs text-[#64748b] mt-1 text-right">
+    {shopName.length}/30
+  </p>
+</div>
+
 
                 {/* Shop Contact Number */}
                 <div className="form-group mb-6">
@@ -441,29 +457,32 @@ const ShopProfilePage: React.FC = () => {
                 </div>
 
                 {/* Shop Address */}
-                <div className="form-group mb-6">
-                  <label htmlFor="shopAddress" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
-                    Shop Address
-                  </label>
-                  <textarea
-                    id="shopAddress"
-                    className="input-field textarea-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] min-h-[100px] resize-vertical"
-                    placeholder="Full shop address (street, city, pincode, etc.)"
-                    rows={3}
-                    maxLength={500}
-                    required
-                    value={shopAddress}
-                    onChange={(e) => setShopAddress(e.target.value)}
-                  />
-                  
-                  {/* Map Container */}
-                  <div className="map-container mt-4 rounded-[12px] overflow-hidden border border-white/10">
-                    <div id="map" className="h-[200px] w-full" />
-                  </div>
-                  <p className="map-instructions text-xs text-[#94a3b8] mt-2 text-center">
-                    Click on the map to set your shop location
-                  </p>
-                </div>
+<div className="form-group mb-6">
+  <label htmlFor="shopAddress" className="input-label block text-sm font-semibold text-[#94a3b8] mb-2">
+    Shop Address
+  </label>
+  <textarea
+    id="shopAddress"
+    className="input-field textarea-field w-full bg-[#0D1117] border border-white/10 rounded-[12px] px-4 py-4 text-base text-white transition-all duration-300 focus:outline-none focus:border-[#9ef87a]/50 focus:ring-2 focus:ring-[#9ef87a]/20 placeholder:text-[#64748b] min-h-[100px] resize-vertical"
+    placeholder="Full shop address (street, city, pincode, etc.)"
+    rows={3}
+    maxLength={200}  // 🔹 changed from 500 to 200
+    required
+    value={shopAddress}
+    onChange={(e) => setShopAddress(e.target.value)}
+  />
+  <p className="text-xs text-[#64748b] mt-1 text-right">
+    {shopAddress.length}/200
+  </p>
+
+  {/* Map Container */}
+  <div className="map-container mt-4 rounded-[12px] overflow-hidden border border-white/10">
+    <div id="map" className="h-[200px] w-full" />
+  </div>
+  <p className="map-instructions text-xs text-[#94a3b8] mt-2 text-center">
+    Click on the map to set your shop location
+  </p>
+</div>
 
                 {/* Save Button */}
                 <button
