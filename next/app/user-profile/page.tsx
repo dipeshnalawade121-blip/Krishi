@@ -183,7 +183,7 @@ const CompleteProfilePage: React.FC = () => {
       const data = await response.json();
       hideLoader();
 
-      if (response.ok && data.success) {
+      {/*if (response.ok && data.success) {
         setMobileVerified(true);
         setOtp('');
         setVerifyOtpDisabled(true);
@@ -191,7 +191,33 @@ const CompleteProfilePage: React.FC = () => {
         setMobileLocked(true);
         displayStatus('Phone number verified successfully!', 'success');
         checkFormValidity();
-      } else {
+      }*/}
+
+
+      if (response.ok && data.success) {
+  // Mark verified
+  setMobileVerified(true);
+  setMobileLocked(true);
+  setOtp('');
+  setVerifyOtpDisabled(true);
+  setOtpSectionActive(false);
+
+  // 🛑 Stop and clear countdown timer
+  if (intervalRef.current) {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  }
+
+  // 🔄 Reset timer states and hide button
+  setCountdown(0);
+  setSendOtpDisabled(false); // not really needed now but safe reset
+
+  // ✅ Status + revalidate form
+  displayStatus('Phone number verified successfully!', 'success');
+  checkFormValidity();
+      }
+      
+      else {
         throw new Error(data.error || 'Invalid OTP');
       }
     } catch (error) {
