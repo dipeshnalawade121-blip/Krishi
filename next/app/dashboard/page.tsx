@@ -34,13 +34,14 @@ const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }: { ch
   </button>
 );
 
+
 // Input Field Component
 const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name }: { label: string; placeholder: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-indigo-500 transition duration-150">
       <div className="p-3 text-gray-400">
-        <Icon className="w-5 h-5" />
+        {Icon && <Icon className="w-5 h-5" />}
       </div>
       <input 
         type={type}
