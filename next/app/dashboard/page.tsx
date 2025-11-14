@@ -945,7 +945,7 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
                 disabled
                 type="password"
                 icon={Lock}
-                className="flex-1 mr-2"
+                
               />
               <SecondaryButton onClick={() => setShowPassChange(true)}>Change</SecondaryButton>
             </div>
