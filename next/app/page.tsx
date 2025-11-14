@@ -265,7 +265,7 @@ const App = () => {
                                           user.user_name.trim() !== '' && user.shop_name.trim() !== '' && user.shop_address.trim() !== '';
 
                 if (isProfileComplete) {
-                    window.location.href = `https://www.krishi.site/dashboard?id=${userId}`;
+                    window.location.href = `https://www.krishi.site/dashboard1?id=${userId}`;
                 } else {
                     window.location.href = `https://www.krishi.site/user-profile?google_id=${encodeURIComponent(user.google_id || '')}&id=${userId}`;
                 }
