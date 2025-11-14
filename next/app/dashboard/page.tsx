@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Eye, ArrowUpRight, ShoppingCart, Palette, Globe, Settings, Users, 
@@ -8,19 +8,52 @@ import {
   DollarSign, List, BookOpen, Layers, Check, Edit3, Trash2, Link
 } from 'lucide-react';
 
+// --- Types ---
+type ProductFormData = {
+  name: string;
+  mrp: string;
+  sellingPrice: string;
+  description: string;
+  usage: string;
+  categories: string[];
+};
+
+type BannerFormData = {
+  title: string;
+  url: string;
+};
+
+interface Product {
+  id: number;
+  name: string;
+  mrp: string;
+  sellingPrice: string;
+  description: string;
+  usage: string;
+  categories: string[];
+  photo: string | null;
+}
+
+interface Banner {
+  id: number;
+  title: string;
+  image: string | null;
+  url: string;
+}
+
 // --- Global State & Navigation Setup ---
 const VIEWS = {
   DASHBOARD: 'dashboard',
   PRODUCTS: 'products',
   ADD_PRODUCT: 'addProduct',
-  EDIT_PRODUCT: 'editProduct', // New for editing
+  EDIT_PRODUCT: 'editProduct',
   BANNERS: 'banners',
   ADD_BANNER: 'addBanner',
-  EDIT_BANNER: 'editBanner', // New for editing
+  EDIT_BANNER: 'editBanner',
 };
 
-// Mock data for products and banners
-const mockProducts = [
+// Mock data
+const mockProducts: Product[] = [
   {
     id: 1,
     name: "Ultra-Grow Fertilizer",
@@ -53,7 +86,7 @@ const mockProducts = [
   },
 ];
 
-const mockBanners = [
+const mockBanners: Banner[] = [
   {
     id: 1,
     title: "Monsoon Sale 2024",
@@ -298,34 +331,34 @@ const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory 
 // Generic Add/Edit Product/Banner Page (reusable)
 const renderProductForm = (
   setView: (view: string) => void,
-  initialData = null,
-  products = mockProducts,
+  initialData: Product | null | undefined = null,
+  products: Product[] = mockProducts,
   isEdit = false,
-  productId = null
+  productId?: string | number
 ) => {
-  const [formData, setFormData] = useState({
-    name: initialData?.name || '',
-    mrp: initialData?.mrp || '',
-    sellingPrice: initialData?.sellingPrice || '',
-    description: initialData?.description || '',
-    usage: initialData?.usage || '',
-    categories: initialData?.categories || [],
+  const [formData, setFormData] = useState<ProductFormData>({
+    name: (initialData as any)?.name || '',
+    mrp: (initialData as any)?.mrp || '',
+    sellingPrice: (initialData as any)?.sellingPrice || '',
+    description: (initialData as any)?.description || '',
+    usage: (initialData as any)?.usage || '',
+    categories: (initialData as any)?.categories || [],
   });
-  const [imagePreview, setImagePreview] = useState(initialData?.photo ? URL.createObjectURL(new Blob()) : null); // Mock for existing
+  const [imagePreview, setImagePreview] = useState((initialData as any)?.photo ? URL.createObjectURL(new Blob()) : null); // Mock for existing
   const [file, setFile] = useState<File | null>(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (errors[name as keyof typeof errors]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = 'Product name is required';
     if (!formData.sellingPrice || parseFloat(formData.sellingPrice) <= 0) newErrors.sellingPrice = 'Valid selling price is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
@@ -551,28 +584,28 @@ const renderProductListPage = (setView: (view: string) => void) => (
 // Similar for Banner Form and List
 const renderBannerForm = (
   setView: (view: string) => void,
-  initialData = null,
+  initialData: Banner | null | undefined = null,
   isEdit = false,
-  bannerId = null
+  bannerId?: string | number
 ) => {
-  const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    url: initialData?.url || '',
+  const [formData, setFormData] = useState<BannerFormData>({
+    title: (initialData as any)?.title || '',
+    url: (initialData as any)?.url || '',
   });
-  const [imagePreview, setImagePreview] = useState(initialData?.image ? URL.createObjectURL(new Blob()) : null);
+  const [imagePreview, setImagePreview] = useState((initialData as any)?.image ? URL.createObjectURL(new Blob()) : null);
   const [file, setFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (errors[name as keyof typeof errors]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = 'Banner title is required';
     if (!formData.url.trim()) newErrors.url = 'Destination URL is required';
     setErrors(newErrors);
@@ -748,17 +781,34 @@ const DashboardPage: React.FC = () => {
         return renderProductListPage(handleViewChange);
       case VIEWS.ADD_PRODUCT:
         return renderProductForm(handleViewChange);
-      case VIEWS.EDIT_PRODUCT:
-        // For edit, find product by id and pass initialData
-        const editProduct = mockProducts.find(p => p.id === parseInt(id || '0'));
+      case VIEWS.EDIT_PRODUCT: {
+        const editProductId = parseInt(id || '0');
+        const editProduct = mockProducts.find(p => p.id === editProductId);
+        if (!editProduct) {
+          return (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <p>Product not found</p>
+            </div>
+          );
+        }
         return renderProductForm(handleViewChange, editProduct, mockProducts, true, id);
+      }
       case VIEWS.BANNERS:
         return renderBannerListPage(handleViewChange);
       case VIEWS.ADD_BANNER:
         return renderBannerForm(handleViewChange);
-      case VIEWS.EDIT_BANNER:
-        const editBanner = mockBanners.find(b => b.id === parseInt(id || '0'));
+      case VIEWS.EDIT_BANNER: {
+        const editBannerId = parseInt(id || '0');
+        const editBanner = mockBanners.find(b => b.id === editBannerId);
+        if (!editBanner) {
+          return (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <p>Banner not found</p>
+            </div>
+          );
+        }
         return renderBannerForm(handleViewChange, editBanner, true, id);
+      }
       case VIEWS.DASHBOARD:
       default:
         return renderDashboard(handleViewChange);
