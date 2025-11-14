@@ -1078,22 +1078,29 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
 const DashboardPage: React.FC = () => {
   const [currentView, setCurrentView] = useState(VIEWS.DASHBOARD);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
   const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!userId) return;
-      try {
-        const res = await apiCall('get-user-profile', { id: userId });
-        if (res.success) {
-          setUserData(res.user);
-        }
-      } catch (e: any) {
-        console.error('Failed to fetch profile:', e.message);
-      }
-    };
-    fetchProfile();
-  }, [userId]);
+useEffect(() => {
+  const fetchProfile = async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await apiCall('get-user-profile', { id: userId });
+      if (res.success) setUserData(res.user);
+    } catch (e: any) {
+      console.error('Failed to fetch profile:', e.message);
+    } finally {
+      setLoading(false); // <-- IMPORTANT
+    }
+  };
+
+  fetchProfile();
+}, [userId]);
+
 
   const handleViewChange = (newView: string) => {
     setCurrentView(newView);
@@ -1104,13 +1111,14 @@ const DashboardPage: React.FC = () => {
     const baseView = viewParts[0];
     const id = viewParts[1] ? parseInt(viewParts[1]) : undefined;
 
-    if (!userData) {
-      return (
-        <div className="flex-1 flex items-center justify-center text-gray-500">
-          <p>Loading...</p>
-        </div>
-      );
-    }
+if (loading) {
+  return (
+    <div className="h-screen flex items-center justify-center text-gray-500">
+      <p>Loading...</p>
+    </div>
+  );
+}
+
 
     switch (baseView) {
       case VIEWS.PRODUCTS:
