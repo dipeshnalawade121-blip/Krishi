@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation'; // <-- NEW: For URL params
 import { motion } from 'framer-motion';
 import {
   Eye, ArrowUpRight, ShoppingCart, Palette, Globe, Settings, Users,
@@ -19,7 +20,7 @@ const apiCall = async (endpoint: string, body: any) => {
   }
   return res.json();
 };
-// --- Types ---
+// --- Types --- (unchanged)
 type ProductFormData = {
   name: string;
   mrp: string;
@@ -61,7 +62,7 @@ interface UserData {
   products: Product[];
   banners: Banner[];
 }
-// --- Global State & Navigation Setup ---
+// --- Global State & Navigation Setup --- (unchanged)
 const VIEWS = {
   DASHBOARD: 'dashboard',
   PRODUCTS: 'products',
@@ -73,8 +74,7 @@ const VIEWS = {
   USER_PROFILE: 'userProfile',
   SHOP_PROFILE: 'shopProfile',
 };
-// --- Custom Components ---
-// Button component for primary actions (Add, Save)
+// --- Custom Components --- (all unchanged: PrimaryButton, SecondaryButton, FormInput, FormTextarea, ImageUpload)
 const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }: { children: React.ReactNode; onClick?: () => void; icon?: React.ComponentType<{ className?: string }>; disabled?: boolean }) => (
   <button
     className={`w-full flex items-center justify-center p-4 rounded-xl font-semibold transition duration-200 shadow-md ${
@@ -89,7 +89,6 @@ const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }: { ch
     {children}
   </button>
 );
-// Secondary Button (e.g., Cancel, Edit)
 const SecondaryButton = ({ children, onClick, icon: Icon }: { children: React.ReactNode; onClick?: () => void; icon?: React.ComponentType<{ className?: string }> }) => (
   <button
     className="w-full flex items-center justify-center p-4 rounded-xl font-semibold border-2 border-gray-300 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 transition duration-200"
@@ -99,7 +98,6 @@ const SecondaryButton = ({ children, onClick, icon: Icon }: { children: React.Re
     {children}
   </button>
 );
-// Input Field Component with validation support
 const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name, error, step, disabled = false }: { label: string; placeholder?: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string; error?: string; step?: string; disabled?: boolean }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
@@ -125,7 +123,6 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
 );
-// Textarea Component with validation
 const FormTextarea = ({ label, placeholder, value, onChange, name, error, required = false, disabled = false }: { label: string; placeholder: string; value: string; onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; name?: string; error?: string; required?: boolean; disabled?: boolean }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
@@ -145,7 +142,6 @@ const FormTextarea = ({ label, placeholder, value, onChange, name, error, requir
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
 );
-// Image Upload Component
 const ImageUpload = ({ label, preview, onUpload, error }: { label: string; preview?: string | null; onUpload: () => void; error?: string }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -171,8 +167,7 @@ const ImageUpload = ({ label, preview, onUpload, error }: { label: string; previ
     <input type="file" accept="image/*" className="hidden" id="image-upload" />
   </div>
 );
-// --- Page View Functions ---
-// Renders the main dashboard view
+// --- Page View Functions --- (all unchanged: renderDashboard, CategoryModal, RenderProductForm, RenderProductListPage, RenderBannerForm, RenderBannerListPage, RenderUserProfile, RenderShopProfile)
 const renderDashboard = (setView: (view: string) => void, userData?: UserData) => {
   const ActionLink = ({ name, icon: Icon, targetView, isLogout = false }: { name: string; icon: React.ComponentType<{ className?: string }>; targetView: string; isLogout?: boolean }) => (
     <motion.button
@@ -197,7 +192,6 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
   );
   return (
     <div className="flex-1 flex flex-col">
-      {/* Header */}
       <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <motion.button
@@ -210,7 +204,6 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
         </motion.button>
       </div>
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-        {/* Content & Configuration */}
         <div>
           <h2 className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wider">Content & Configuration</h2>
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -220,7 +213,6 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
             <ActionLink name="Settings" icon={Settings} targetView={VIEWS.DASHBOARD} />
           </div>
         </div>
-        {/* Account */}
         <div>
           <h2 className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wider">Account</h2>
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -234,7 +226,6 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
     </div>
   );
 };
-// Category Modal
 const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory }: { isVisible: boolean; onClose: () => void; selectedCategories: string[]; toggleCategory: (category: string) => void }) => {
   const categories = ['Crop Nutrition', 'Crop Protection', 'Seeds', 'Hardware'];
   if (!isVisible) return null;
@@ -279,7 +270,7 @@ const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory 
     </motion.div>
   );
 };
-// Product Form Component
+// RenderProductForm (unchanged)
 const RenderProductForm = ({ setView, initialData, userData, setUserData, userId, isEdit, productId }: { setView: (view: string) => void; initialData?: Product; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string; isEdit: boolean; productId?: number }) => {
   const [formData, setFormData] = useState<ProductFormData>({
     name: initialData?.name || '',
@@ -351,7 +342,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
   const isFormValid = Object.keys(errors).length === 0 && formData.name && formData.sellingPrice && formData.description;
   return (
     <div className="flex-1 flex flex-col">
-      {/* Header */}
       <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
         <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
@@ -415,7 +405,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
             error={errors.description}
             required
           />
-         
           <FormTextarea
             label="Product Usage/Application"
             placeholder="Instructions on how to use the product effectively..."
@@ -441,7 +430,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
           </div>
         </motion.div>
       </div>
-      {/* Bottom Action Bar */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0 space-y-2">
         <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid || loading}>
           {isEdit ? 'Update Product' : 'Save Product'}
@@ -450,7 +438,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
           Cancel
         </SecondaryButton>
       </div>
-     
       <CategoryModal
         isVisible={showCategoryModal}
         onClose={() => setShowCategoryModal(false)}
@@ -460,7 +447,7 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
     </div>
   );
 };
-// Products List Page
+// RenderProductListPage (unchanged, with ?.)
 const RenderProductListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this product?')) return;
@@ -476,7 +463,6 @@ const RenderProductListPage = ({ setView, userData, setUserData, userId }: { set
   const products = userData?.products || [];
   return (
     <div className="flex-1 flex flex-col">
-      {/* Header */}
       <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
         <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
@@ -537,7 +523,7 @@ const RenderProductListPage = ({ setView, userData, setUserData, userId }: { set
     </div>
   );
 };
-// Banner Form Component
+// RenderBannerForm (unchanged)
 const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId, isEdit, bannerId }: { setView: (view: string) => void; initialData?: Banner; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string; isEdit: boolean; bannerId?: number }) => {
   const [formData, setFormData] = useState<BannerFormData>({
     title: initialData?.title || '',
@@ -595,7 +581,6 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
   const isFormValid = Object.keys(errors).length === 0 && formData.title && formData.url;
   return (
     <div className="flex-1 flex flex-col">
-      {/* Header */}
       <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
         <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
@@ -638,7 +623,6 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
           />
         </motion.div>
       </div>
-      {/* Bottom Action Bar */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0 space-y-2">
         <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid || loading}>
           {isEdit ? 'Update Banner' : 'Save Banner'}
@@ -650,7 +634,7 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
     </div>
   );
 };
-// Banners List Page
+// RenderBannerListPage (unchanged, with ?.)
 const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this banner?')) return;
@@ -666,7 +650,6 @@ const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setV
   const banners = userData?.banners || [];
   return (
     <div className="flex-1 flex flex-col">
-      {/* Header */}
       <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
         <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
@@ -728,7 +711,7 @@ const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setV
     </div>
   );
 };
-// User Profile Page
+// RenderUserProfile (unchanged, with ?.)
 const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const [showMobileChange, setShowMobileChange] = useState(false);
   const [newMobile, setNewMobile] = useState('');
@@ -796,7 +779,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
           animate={{ opacity: 1, y: 0 }}
           className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6"
         >
-          {/* Name */}
           <div>
             <FormInput
               label="Name"
@@ -806,7 +788,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
             />
             <p className="text-xs text-gray-500 mt-1">Google-linked — cannot change</p>
           </div>
-          {/* Email */}
           <div>
             <FormInput
               label="Email"
@@ -816,7 +797,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
             />
             <p className="text-xs text-gray-500 mt-1">Google-linked — cannot change</p>
           </div>
-          {/* Mobile */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
             <div className="flex justify-between items-center">
@@ -826,7 +806,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
                 value={userData?.mobile || ''}
                 disabled
                 icon={Phone}
-               
               />
               <SecondaryButton onClick={() => setShowMobileChange(true)}>Change</SecondaryButton>
             </div>
@@ -870,7 +849,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
               </motion.div>
             )}
           </div>
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="flex justify-between items-center">
@@ -881,7 +859,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
                 disabled
                 type="password"
                 icon={Lock}
-               
               />
               <SecondaryButton onClick={() => setShowPassChange(true)}>Change</SecondaryButton>
             </div>
@@ -923,7 +900,7 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
     </div>
   );
 };
-// Shop Profile Page
+// RenderShopProfile (unchanged, with ?.)
 const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const [formData, setFormData] = useState({
     shop_name: userData?.shop_name || '',
@@ -1000,37 +977,86 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
     </div>
   );
 };
-// --- Main Application Component ---
+// --- Main Application Component --- (UPDATED: URL param handling)
 const DashboardPage: React.FC = () => {
   const [currentView, setCurrentView] = useState(VIEWS.DASHBOARD);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
-useEffect(() => {
-  const fetchProfile = async () => {
-    if (!userId) {
-      setError('No user session found. Please log in.');
-      setLoading(false);
-      return;
-    }
-    try {
-      const res = await apiCall('get-user-profile', { id: userId });
-      if (res.success) {
-        setUserData(res.user);
-        setError(null);
-      } else {
-        throw new Error(res.message || 'Failed to load profile');
-      }
-    } catch (e: any) {
-      console.error('Failed to fetch profile:', e.message);
-      setError(e.message || 'Failed to load profile. Check your connection.');
-    } finally {
-      setLoading(false);
+  const searchParams = useSearchParams(); // <-- NEW: Read URL params
+  const userIdFromStorage = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+  const userIdFromUrl = searchParams.get('id'); // <-- NEW: Grab ?id= from URL
+  const userMobileFromUrl = searchParams.get('mobile'); // <-- NEW: For /user-profile fallback
+  const userGoogleIdFromUrl = searchParams.get('google_id'); // <-- NEW: For Google fallback
+
+  // <-- NEW: Helper to clear URL params after reading (clean URL)
+  const clearUrlParams = () => {
+    if (typeof window !== 'undefined' && window.history.replaceState) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('id');
+      url.searchParams.delete('mobile');
+      url.searchParams.delete('google_id');
+      window.history.replaceState({}, document.title, url.pathname);
     }
   };
-  fetchProfile();
-}, [userId]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      let effectiveUserId = userIdFromStorage || userIdFromUrl; // <-- NEW: Prefer storage, fallback to URL
+
+      if (!effectiveUserId) {
+        // <-- NEW: Fallback for /user-profile redirects (use mobile/google_id to fetch ID)
+        if (userMobileFromUrl) {
+          try {
+            const profileRes = await apiCall('get-user-profile', { mobile: userMobileFromUrl });
+            if (profileRes.success && profileRes.user) {
+              effectiveUserId = profileRes.user.id.toString();
+            }
+          } catch (e) {
+            console.error('Fallback fetch by mobile failed:', e);
+          }
+        } else if (userGoogleIdFromUrl) {
+          try {
+            const profileRes = await apiCall('get-user-profile', { google_id: userGoogleIdFromUrl });
+            if (profileRes.success && profileRes.user) {
+              effectiveUserId = profileRes.user.id.toString();
+            }
+          } catch (e) {
+            console.error('Fallback fetch by google_id failed:', e);
+          }
+        }
+      }
+
+      if (!effectiveUserId) {
+        setError('No user session found. Please log in.');
+        setLoading(false);
+        return;
+      }
+
+      // <-- NEW: Set to localStorage for future loads
+      localStorage.setItem('userId', effectiveUserId);
+
+      // Clear URL params now
+      clearUrlParams();
+
+      try {
+        const res = await apiCall('get-user-profile', { id: effectiveUserId });
+        if (res.success) {
+          setUserData(res.user);
+          setError(null);
+        } else {
+          throw new Error(res.message || 'Failed to load profile');
+        }
+      } catch (e: any) {
+        console.error('Failed to fetch profile:', e.message);
+        setError(e.message || 'Failed to load profile. Check your connection.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [userIdFromStorage, userIdFromUrl, userMobileFromUrl, userGoogleIdFromUrl]); // <-- NEW: Depend on URL params
+
   const handleViewChange = (newView: string) => {
     setCurrentView(newView);
   };
@@ -1038,13 +1064,13 @@ useEffect(() => {
     const viewParts = currentView.split('-');
     const baseView = viewParts[0];
     const id = viewParts[1] ? parseInt(viewParts[1]) : undefined;
-if (loading) {
-  return (
-    <div className="h-screen flex items-center justify-center text-gray-500">
-      <p>Loading...</p>
-    </div>
-  );
-}
+    if (loading) {
+      return (
+        <div className="h-screen flex items-center justify-center text-gray-500">
+          <p>Loading...</p>
+        </div>
+      );
+    }
     if (!userData) {
       return (
         <div className="h-screen flex flex-col items-center justify-center text-gray-500 space-y-4 p-4">
@@ -1069,9 +1095,9 @@ if (loading) {
     }
     switch (baseView) {
       case VIEWS.PRODUCTS:
-        return <RenderProductListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderProductListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} />;
       case VIEWS.ADD_PRODUCT:
-        return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
+        return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} isEdit={false} productId={undefined} />;
       case VIEWS.EDIT_PRODUCT:
         const editProduct = userData.products?.find(p => p.id === id);
         if (!editProduct) {
@@ -1081,11 +1107,11 @@ if (loading) {
             </div>
           );
         }
-        return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} productId={id} />;
+        return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} isEdit={true} productId={id} />;
       case VIEWS.BANNERS:
-        return <RenderBannerListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderBannerListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} />;
       case VIEWS.ADD_BANNER:
-        return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
+        return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} isEdit={false} bannerId={undefined} />;
       case VIEWS.EDIT_BANNER:
         const editBanner = userData.banners?.find(b => b.id === id);
         if (!editBanner) {
@@ -1095,11 +1121,11 @@ if (loading) {
             </div>
           );
         }
-        return <RenderBannerForm setView={handleViewChange} initialData={editBanner} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} bannerId={id} />;
+        return <RenderBannerForm setView={handleViewChange} initialData={editBanner} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} isEdit={true} bannerId={id} />;
       case VIEWS.USER_PROFILE:
-        return <RenderUserProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderUserProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} />;
       case VIEWS.SHOP_PROFILE:
-        return <RenderShopProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderShopProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userIdFromStorage || userIdFromUrl || ''} />;
       case VIEWS.DASHBOARD:
       default:
         return renderDashboard(handleViewChange, userData);
