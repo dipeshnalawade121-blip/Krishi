@@ -1126,7 +1126,7 @@ if (loading) {
       case VIEWS.ADD_PRODUCT:
         return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
       case VIEWS.EDIT_PRODUCT:
-        const editProduct = userData.products?.find(p => p.id === id);
+        const editProduct = userData!.products?.find(p => p.id === id);
         if (!editProduct) {
           return (
             <div className="flex-1 flex items-center justify-center text-gray-500">
