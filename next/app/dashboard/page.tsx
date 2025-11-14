@@ -2,21 +2,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { createClient } from '@supabase/supabase-js';
 import { 
   Eye, ArrowUpRight, ShoppingCart, Palette, Globe, Settings, Users, 
   Briefcase, HelpCircle, LogOut, Plus, ArrowLeft, Image as ImageIcon, Tag, 
   DollarSign, List, BookOpen, Layers, Check, Edit3, Trash2, Link, User, Phone, Mail, Lock
 } from 'lucide-react';
 
-// Supabase Config
-const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // API Helper
 const apiCall = async (endpoint: string, body: any) => {
-  const res = await fetch(`/${endpoint}`, {
+  const res = await fetch(`https://api.krishi.site/${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -26,18 +20,6 @@ const apiCall = async (endpoint: string, body: any) => {
     throw new Error(errorText || 'API request failed');
   }
   return res.json();
-};
-
-// Storage Upload Helper
-const uploadToStorage = async (file: File, folder: string): Promise<string> => {
-  const fileExt = file.name.split('.').pop() || 'jpg';
-  const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-  const { data, error } = await supabase.storage
-    .from('images')
-    .upload(`${folder}/${fileName}`, file, { upsert: true });
-  if (error) throw error;
-  const { data: urlData } = supabase.storage.from('images').getPublicUrl(data.path);
-  return urlData.publicUrl;
 };
 
 // --- Types ---
@@ -213,7 +195,14 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={`flex items-center justify-between w-full p-4 ${isLogout ? 'hover:bg-red-50 text-red-600' : 'hover:bg-gray-50 text-gray-800'} border-b border-gray-100 last:border-b-0 transition duration-150`}
-      onClick={() => setView(targetView)}
+      onClick={() => {
+        if (isLogout) {
+          localStorage.removeItem('userId');
+          window.location.href = '/';
+        } else {
+          setView(targetView);
+        }
+      }}
     >
       <div className="flex items-center">
         <Icon className={`w-5 h-5 mr-3 ${isLogout ? 'text-red-500' : 'text-gray-700'}`} />
@@ -355,18 +344,16 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
     });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
     if (!uploadedFile) return;
-    setLoading(true);
-    try {
-      const url = await uploadToStorage(uploadedFile, 'products');
-      setImagePreview(url);
-      setFormData(prev => ({ ...prev, photo: url }));
-    } catch (e: any) {
-      alert('Upload failed: ' + e.message);
-    }
-    setLoading(false);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setImagePreview(base64);
+      setFormData(prev => ({ ...prev, photo: base64 }));
+    };
+    reader.readAsDataURL(uploadedFile);
   };
 
   const handleSave = async () => {
@@ -619,18 +606,16 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
     if (!uploadedFile) return;
-    setLoading(true);
-    try {
-      const url = await uploadToStorage(uploadedFile, 'banners');
-      setImagePreview(url);
-      setFormData(prev => ({ ...prev, image: url }));
-    } catch (e: any) {
-      alert('Upload failed: ' + e.message);
-    }
-    setLoading(false);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setImagePreview(base64);
+      setFormData(prev => ({ ...prev, image: base64 }));
+    };
+    reader.readAsDataURL(uploadedFile);
   };
 
   const handleSave = async () => {
@@ -809,7 +794,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [mobileLoading, setMobileLoading] = useState(false);
   const [showPassChange, setShowPassChange] = useState(false);
-  const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
   const [passLoading, setPassLoading] = useState(false);
@@ -848,7 +832,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
     try {
       await apiCall('reset-password', { mobile: userData.mobile, password: newPass });
       setShowPassChange(false);
-      setCurrentPass('');
       setNewPass('');
       setConfirmPass('');
       alert('Password updated successfully!');
@@ -972,12 +955,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
               >
                 <h4 className="font-semibold mb-2">Change Password</h4>
                 <FormInput 
-                  label="Current Password"
-                  type="password"
-                  value={currentPass}
-                  onChange={(e) => setCurrentPass(e.target.value)}
-                />
-                <FormInput 
                   label="New Password"
                   type="password"
                   value={newPass}
@@ -997,7 +974,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
                 </PrimaryButton>
                 <SecondaryButton onClick={() => {
                   setShowPassChange(false);
-                  setCurrentPass('');
                   setNewPass('');
                   setConfirmPass('');
                 }}>Cancel</SecondaryButton>
