@@ -1,12 +1,44 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { createClient } from '@supabase/supabase-js';
 import { 
   Eye, ArrowUpRight, ShoppingCart, Palette, Globe, Settings, Users, 
   Briefcase, HelpCircle, LogOut, Plus, ArrowLeft, Image as ImageIcon, Tag, 
-  DollarSign, List, BookOpen, Layers, Check, Edit3, Trash2, Link
+  DollarSign, List, BookOpen, Layers, Check, Edit3, Trash2, Link, User, Phone, Mail, Lock
 } from 'lucide-react';
+
+// Supabase Config
+const SUPABASE_URL = 'https://adfxhdbkqbezzliycckx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZnhoZGJrcWJlenpsaXljY2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMTIxNjMsImV4cCI6MjA3Njg4ODE2M30.VHyryBwx19-KbBbEDaE-aySr0tn-pCERk9NZXQRzsYU';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// API Helper
+const apiCall = async (endpoint: string, body: any) => {
+  const res = await fetch(`/${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || 'API request failed');
+  }
+  return res.json();
+};
+
+// Storage Upload Helper
+const uploadToStorage = async (file: File, folder: string): Promise<string> => {
+  const fileExt = file.name.split('.').pop() || 'jpg';
+  const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+  const { data, error } = await supabase.storage
+    .from('images')
+    .upload(`${folder}/${fileName}`, file, { upsert: true });
+  if (error) throw error;
+  const { data: urlData } = supabase.storage.from('images').getPublicUrl(data.path);
+  return urlData.publicUrl;
+};
 
 // --- Types ---
 type ProductFormData = {
@@ -16,11 +48,13 @@ type ProductFormData = {
   description: string;
   usage: string;
   categories: string[];
+  photo: string | null;
 };
 
 type BannerFormData = {
   title: string;
   url: string;
+  image: string | null;
 };
 
 interface Product {
@@ -41,6 +75,18 @@ interface Banner {
   url: string;
 }
 
+interface UserData {
+  id: number;
+  user_name: string | null;
+  email: string | null;
+  mobile: string | null;
+  shop_name: string | null;
+  shop_number: string | null;
+  shop_address: string | null;
+  products: Product[];
+  banners: Banner[];
+}
+
 // --- Global State & Navigation Setup ---
 const VIEWS = {
   DASHBOARD: 'dashboard',
@@ -50,56 +96,9 @@ const VIEWS = {
   BANNERS: 'banners',
   ADD_BANNER: 'addBanner',
   EDIT_BANNER: 'editBanner',
+  USER_PROFILE: 'userProfile',
+  SHOP_PROFILE: 'shopProfile',
 };
-
-// Mock data
-const mockProducts: Product[] = [
-  {
-    id: 1,
-    name: "Ultra-Grow Fertilizer",
-    mrp: "100.00",
-    sellingPrice: "75.50",
-    description: "High-potency nitrogen fertilizer for rapid growth.",
-    usage: "Apply 2-3 kg per acre during planting.",
-    categories: ["Crop Nutrition"],
-    photo: null,
-  },
-  {
-    id: 2,
-    name: "PestGuard Spray",
-    mrp: "250.00",
-    sellingPrice: "200.00",
-    description: "Organic pest repellent for crop protection.",
-    usage: "Spray evenly on leaves every 7-10 days.",
-    categories: ["Crop Protection"],
-    photo: null,
-  },
-  {
-    id: 3,
-    name: "Premium Seeds Pack",
-    mrp: "500.00",
-    sellingPrice: "450.00",
-    description: "High-yield hybrid seeds for maize.",
-    usage: "Sow at 20-30 cm spacing in prepared soil.",
-    categories: ["Seeds"],
-    photo: null,
-  },
-];
-
-const mockBanners: Banner[] = [
-  {
-    id: 1,
-    title: "Monsoon Sale 2024",
-    image: null,
-    url: "https://yourshop.com/monsoon-sale",
-  },
-  {
-    id: 2,
-    title: "Harvest Festival Deals",
-    image: null,
-    url: "https://yourshop.com/harvest-deals",
-  },
-];
 
 // --- Custom Components ---
 
@@ -131,7 +130,7 @@ const SecondaryButton = ({ children, onClick, icon: Icon }: { children: React.Re
 );
 
 // Input Field Component with validation support
-const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name, error, step }: { label: string; placeholder: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string; error?: string; step?: string }) => (
+const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name, error, step, disabled = false }: { label: string; placeholder: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string; error?: string; step?: string; disabled?: boolean }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
       {label} {label.includes('Price') && <span className="text-red-500 ml-1">*</span>}
@@ -147,9 +146,10 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
         onChange={onChange}
         name={name}
         step={step}
+        disabled={disabled}
         className={`w-full pl-10 p-3 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-150 ${
           error ? 'border-red-500' : 'border-gray-300'
-        }`}
+        } ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
       />
     </div>
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
@@ -157,7 +157,7 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
 );
 
 // Textarea Component with validation
-const FormTextarea = ({ label, placeholder, value, onChange, name, error, required = false }: { label: string; placeholder: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; name?: string; error?: string; required?: boolean }) => (
+const FormTextarea = ({ label, placeholder, value, onChange, name, error, required = false, disabled = false }: { label: string; placeholder: string; value: string; onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; name?: string; error?: string; required?: boolean; disabled?: boolean }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
       {label} {required && <span className="text-red-500 ml-1">*</span>}
@@ -168,9 +168,10 @@ const FormTextarea = ({ label, placeholder, value, onChange, name, error, requir
       onChange={onChange}
       name={name}
       rows={3}
+      disabled={disabled}
       className={`w-full p-3 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-150 ${
         error ? 'border-red-500' : 'border-gray-300'
-      }`}
+      } ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
     />
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
@@ -206,7 +207,7 @@ const ImageUpload = ({ label, preview, onUpload, error }: { label: string; previ
 // --- Page View Functions ---
 
 // Renders the main dashboard view
-const renderDashboard = (setView: (view: string) => void) => {
+const renderDashboard = (setView: (view: string) => void, userData?: UserData) => {
   const ActionLink = ({ name, icon: Icon, targetView, isLogout = false }: { name: string; icon: React.ComponentType<{ className?: string }>; targetView: string; isLogout?: boolean }) => (
     <motion.button 
       whileHover={{ scale: 1.02 }}
@@ -220,20 +221,6 @@ const renderDashboard = (setView: (view: string) => void) => {
       </div>
       {!isLogout && <ArrowUpRight className="w-4 h-4 text-gray-400 transform rotate-45" />}
     </motion.button>
-  );
-
-  const MetricCard = ({ title, value, icon: Icon }: { title: string; value: string; icon: React.ComponentType<{ className?: string }> }) => (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="p-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg text-white flex items-center justify-between"
-    >
-      <div>
-        <p className="text-lg font-semibold opacity-90">{title}</p>
-        <p className="text-3xl font-extrabold mt-1">{value}</p>
-      </div>
-      <Icon className="w-12 h-12 opacity-70" />
-    </motion.div>
   );
 
   return (
@@ -252,9 +239,6 @@ const renderDashboard = (setView: (view: string) => void) => {
       </div>
 
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-        {/* Metrics */}
-        <MetricCard title="Page Visits (30 Days)" value="18,452" icon={Eye} />
-
         {/* Content & Configuration */}
         <div>
           <h2 className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wider">Content & Configuration</h2>
@@ -270,8 +254,8 @@ const renderDashboard = (setView: (view: string) => void) => {
         <div>
           <h2 className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wider">Account</h2>
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <ActionLink name="User Profile" icon={Users} targetView={VIEWS.DASHBOARD} />
-            <ActionLink name="Shop Profile" icon={Briefcase} targetView={VIEWS.DASHBOARD} />
+            <ActionLink name="User Profile" icon={Users} targetView={VIEWS.USER_PROFILE} />
+            <ActionLink name="Shop Profile" icon={Briefcase} targetView={VIEWS.SHOP_PROFILE} />
             <ActionLink name="Help & Support" icon={HelpCircle} targetView={VIEWS.DASHBOARD} />
             <ActionLink name="Logout" icon={LogOut} targetView={VIEWS.DASHBOARD} isLogout />
           </div>
@@ -329,26 +313,21 @@ const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory 
   );
 };
 
-// Generic Add/Edit Product/Banner Page (reusable)
-const renderProductForm = (
-  setView: (view: string) => void,
-  initialData: Product | null | undefined = null,
-  products: Product[] = mockProducts,
-  isEdit = false,
-  productId?: string | number
-) => {
+// Product Form Component
+const RenderProductForm = ({ setView, initialData, userData, setUserData, userId, isEdit, productId }: { setView: (view: string) => void; initialData?: Product; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string; isEdit: boolean; productId?: number }) => {
   const [formData, setFormData] = useState<ProductFormData>({
-    name: (initialData as any)?.name || '',
-    mrp: (initialData as any)?.mrp || '',
-    sellingPrice: (initialData as any)?.sellingPrice || '',
-    description: (initialData as any)?.description || '',
-    usage: (initialData as any)?.usage || '',
-    categories: (initialData as any)?.categories || [],
+    name: initialData?.name || '',
+    mrp: initialData?.mrp || '',
+    sellingPrice: initialData?.sellingPrice || '',
+    description: initialData?.description || '',
+    usage: initialData?.usage || '',
+    categories: initialData?.categories || [],
+    photo: initialData?.photo || null,
   });
-  const [imagePreview, setImagePreview] = useState((initialData as any)?.photo ? URL.createObjectURL(new Blob()) : null); // Mock for existing
-  const [file, setFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.photo || null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -376,20 +355,40 @@ const renderProductForm = (
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
-    if (uploadedFile) {
-      setFile(uploadedFile);
-      setImagePreview(URL.createObjectURL(uploadedFile));
+    if (!uploadedFile) return;
+    setLoading(true);
+    try {
+      const url = await uploadToStorage(uploadedFile, 'products');
+      setImagePreview(url);
+      setFormData(prev => ({ ...prev, photo: url }));
+    } catch (e: any) {
+      alert('Upload failed: ' + e.message);
     }
+    setLoading(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) return;
-    const dataToSave = { ...formData, photo: file || imagePreview };
-    console.log('--- Product Saved/Updated ---', dataToSave);
-    alert(isEdit ? 'Product updated successfully!' : 'Product saved successfully!');
-    setView(VIEWS.PRODUCTS);
+    setLoading(true);
+    try {
+      const saveData = { ...formData, id: initialData?.id || Date.now() };
+      let newProducts: Product[];
+      if (isEdit && productId) {
+        newProducts = userData.products.map(p => p.id === productId ? saveData as Product : p);
+      } else {
+        newProducts = [...(userData.products || []), saveData as Product];
+      }
+      if (newProducts.length > 50) throw new Error('Maximum 50 products allowed');
+      setUserData(prev => prev ? { ...prev, products: newProducts } : prev);
+      await apiCall('save-products', { id: userId, products: newProducts });
+      alert(isEdit ? 'Product updated successfully!' : 'Product saved successfully!');
+      setView(VIEWS.PRODUCTS);
+    } catch (e: any) {
+      alert(e.message);
+    }
+    setLoading(false);
   };
 
   const isFormValid = Object.keys(errors).length === 0 && formData.name && formData.sellingPrice && formData.description;
@@ -494,7 +493,7 @@ const renderProductForm = (
 
       {/* Bottom Action Bar */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0 space-y-2">
-        <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid}>
+        <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid || loading}>
           {isEdit ? 'Update Product' : 'Save Product'}
         </PrimaryButton>
         <SecondaryButton onClick={() => setView(VIEWS.PRODUCTS)} icon={ArrowLeft}>
@@ -513,89 +512,96 @@ const renderProductForm = (
 };
 
 // Products List Page
-const renderProductListPage = (setView: (view: string) => void) => (
-  <div className="flex-1 flex flex-col">
-    {/* Header */}
-    <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
-      <button 
-        className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
-        onClick={() => setView(VIEWS.DASHBOARD)}
-      >
-        <ArrowLeft className="w-6 h-6" />
-      </button>
-      <h1 className="text-2xl font-bold text-gray-900">Products ({mockProducts.length})</h1>
-      <motion.button 
-        whileHover={{ scale: 1.05 }}
-        className="flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition duration-150"
-        onClick={() => setView(VIEWS.ADD_PRODUCT)}
-      >
-        <Plus className="w-4 h-4 mr-1" />
-        Add Product
-      </motion.button>
-    </div>
+const RenderProductListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this product?')) return;
+    try {
+      const newProducts = userData.products.filter(p => p.id !== id);
+      setUserData(prev => prev ? { ...prev, products: newProducts } : prev);
+      await apiCall('save-products', { id: userId, products: newProducts });
+      alert('Product deleted!');
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
 
-    <div className="flex-1 p-4 overflow-y-auto space-y-4">
-      {mockProducts.map((product) => (
-        <motion.div 
-          key={product.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200"
+  const products = userData.products || [];
+
+  return (
+    <div className="flex-1 flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
+        <button 
+          className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
+          onClick={() => setView(VIEWS.DASHBOARD)}
         >
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
-              <div className="flex space-x-2">
-                <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition" onClick={() => setView(`${VIEWS.EDIT_PRODUCT}-${product.id}`)}>
-                  <Edit3 className="w-4 h-4" />
-                </motion.button>
-                <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" onClick={() => {
-                  if (confirm('Delete this product?')) {
-                    console.log('Deleted product', product.id);
-                    alert('Product deleted!');
-                  }
-                }}>
-                  <Trash2 className="w-4 h-4" />
-                </motion.button>
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-2xl font-bold text-gray-900">Products ({products.length})</h1>
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          className="flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition duration-150"
+          onClick={() => setView(VIEWS.ADD_PRODUCT)}
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add Product
+        </motion.button>
+      </div>
+
+      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+        {products.map((product) => (
+          <motion.div 
+            key={product.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200"
+          >
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
+                <div className="flex space-x-2">
+                  <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition" onClick={() => setView(`${VIEWS.EDIT_PRODUCT}-${product.id}`)}>
+                    <Edit3 className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" onClick={() => handleDelete(product.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-indigo-600 font-semibold text-lg">₹{product.sellingPrice}</span>
+                <span className="text-gray-500 line-through">₹{product.mrp}</span>
+              </div>
+              <div className="flex flex-wrap gap-1 mb-3">
+                {product.categories.map(cat => (
+                  <span key={cat} className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">{cat}</span>
+                ))}
               </div>
             </div>
-            <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-indigo-600 font-semibold text-lg">₹{product.sellingPrice}</span>
-              <span className="text-gray-500 line-through">₹{product.mrp}</span>
-            </div>
-            <div className="flex flex-wrap gap-1 mb-3">
-              {product.categories.map(cat => (
-                <span key={cat} className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">{cat}</span>
-              ))}
-            </div>
+          </motion.div>
+        ))}
+        {products.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>No products yet. Add one to get started!</p>
           </div>
-        </motion.div>
-      ))}
-      {mockProducts.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>No products yet. Add one to get started!</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-// Similar for Banner Form and List
-const renderBannerForm = (
-  setView: (view: string) => void,
-  initialData: Banner | null | undefined = null,
-  isEdit = false,
-  bannerId?: string | number
-) => {
+// Banner Form Component
+const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId, isEdit, bannerId }: { setView: (view: string) => void; initialData?: Banner; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string; isEdit: boolean; bannerId?: number }) => {
   const [formData, setFormData] = useState<BannerFormData>({
-    title: (initialData as any)?.title || '',
-    url: (initialData as any)?.url || '',
+    title: initialData?.title || '',
+    url: initialData?.url || '',
+    image: initialData?.image || null,
   });
-  const [imagePreview, setImagePreview] = useState((initialData as any)?.image ? URL.createObjectURL(new Blob()) : null);
-  const [file, setFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.image || null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -613,20 +619,40 @@ const renderBannerForm = (
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
-    if (uploadedFile) {
-      setFile(uploadedFile);
-      setImagePreview(URL.createObjectURL(uploadedFile));
+    if (!uploadedFile) return;
+    setLoading(true);
+    try {
+      const url = await uploadToStorage(uploadedFile, 'banners');
+      setImagePreview(url);
+      setFormData(prev => ({ ...prev, image: url }));
+    } catch (e: any) {
+      alert('Upload failed: ' + e.message);
     }
+    setLoading(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) return;
-    const dataToSave = { ...formData, image: file || imagePreview };
-    console.log('--- Banner Saved/Updated ---', dataToSave);
-    alert(isEdit ? 'Banner updated successfully!' : 'Banner saved successfully!');
-    setView(VIEWS.BANNERS);
+    setLoading(true);
+    try {
+      const saveData = { ...formData, id: initialData?.id || Date.now() };
+      let newBanners: Banner[];
+      if (isEdit && bannerId) {
+        newBanners = userData.banners.map(b => b.id === bannerId ? saveData as Banner : b);
+      } else {
+        newBanners = [...(userData.banners || []), saveData as Banner];
+      }
+      if (newBanners.length > 3) throw new Error('Maximum 3 banners allowed');
+      setUserData(prev => prev ? { ...prev, banners: newBanners } : prev);
+      await apiCall('save-banners', { id: userId, banners: newBanners });
+      alert(isEdit ? 'Banner updated successfully!' : 'Banner saved successfully!');
+      setView(VIEWS.BANNERS);
+    } catch (e: any) {
+      alert(e.message);
+    }
+    setLoading(false);
   };
 
   const isFormValid = Object.keys(errors).length === 0 && formData.title && formData.url;
@@ -682,7 +708,7 @@ const renderBannerForm = (
 
       {/* Bottom Action Bar */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0 space-y-2">
-        <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid}>
+        <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid || loading}>
           {isEdit ? 'Update Banner' : 'Save Banner'}
         </PrimaryButton>
         <SecondaryButton onClick={() => setView(VIEWS.BANNERS)} icon={ArrowLeft}>
@@ -693,80 +719,401 @@ const renderBannerForm = (
   );
 };
 
-const renderBannerListPage = (setView: (view: string) => void) => (
-  <div className="flex-1 flex flex-col">
-    {/* Header */}
-    <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
-      <button 
-        className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
-        onClick={() => setView(VIEWS.DASHBOARD)}
-      >
-        <ArrowLeft className="w-6 h-6" />
-      </button>
-      <h1 className="text-2xl font-bold text-gray-900">Banners ({mockBanners.length})</h1>
-      <motion.button 
-        whileHover={{ scale: 1.05 }}
-        className="flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition duration-150"
-        onClick={() => setView(VIEWS.ADD_BANNER)}
-      >
-        <Plus className="w-4 h-4 mr-1" />
-        Add Banner
-      </motion.button>
-    </div>
+// Banners List Page
+const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this banner?')) return;
+    try {
+      const newBanners = userData.banners.filter(b => b.id !== id);
+      setUserData(prev => prev ? { ...prev, banners: newBanners } : prev);
+      await apiCall('save-banners', { id: userId, banners: newBanners });
+      alert('Banner deleted!');
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
 
-    <div className="flex-1 p-4 overflow-y-auto space-y-4">
-      {mockBanners.map((banner) => (
+  const banners = userData.banners || [];
+
+  return (
+    <div className="flex-1 flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
+        <button 
+          className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
+          onClick={() => setView(VIEWS.DASHBOARD)}
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-2xl font-bold text-gray-900">Banners ({banners.length})</h1>
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          className="flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition duration-150"
+          onClick={() => setView(VIEWS.ADD_BANNER)}
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add Banner
+        </motion.button>
+      </div>
+
+      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+        {banners.map((banner) => (
+          <motion.div 
+            key={banner.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200"
+          >
+            <div className="relative h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              {banner.image ? (
+                <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-white text-center">
+                  <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-70" />
+                  <p className="text-sm">Banner Image</p>
+                </div>
+              )}
+            </div>
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-gray-900">{banner.title}</h3>
+                <div className="flex space-x-2">
+                  <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition" onClick={() => setView(`${VIEWS.EDIT_BANNER}-${banner.id}`)}>
+                    <Edit3 className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" onClick={() => handleDelete(banner.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 mb-3 truncate">URL: {banner.url}</p>
+            </div>
+          </motion.div>
+        ))}
+        {banners.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <Palette className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>No banners yet. Add one to get started!</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// User Profile Page
+const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
+  const [showMobileChange, setShowMobileChange] = useState(false);
+  const [newMobile, setNewMobile] = useState('');
+  const [otp, setOtp] = useState('');
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [mobileLoading, setMobileLoading] = useState(false);
+  const [showPassChange, setShowPassChange] = useState(false);
+  const [currentPass, setCurrentPass] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
+  const [passLoading, setPassLoading] = useState(false);
+
+  const handleSendOtp = async () => {
+    if (newMobile.length !== 10) return alert('Invalid phone number');
+    setMobileLoading(true);
+    try {
+      await apiCall('send-otp', { phone: newMobile });
+      setShowOtpInput(true);
+    } catch (e: any) {
+      alert(e.message);
+    }
+    setMobileLoading(false);
+  };
+
+  const handleVerifyMobile = async () => {
+    try {
+      await apiCall('verify-otp', { phone: newMobile, otp });
+      await apiCall('save-profile', { id: userId, mobile: newMobile });
+      setUserData(prev => prev ? { ...prev, mobile: newMobile } : prev);
+      setShowMobileChange(false);
+      setNewMobile('');
+      setOtp('');
+      setShowOtpInput(false);
+      alert('Mobile updated successfully!');
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    if (newPass.length < 6) return alert('Password too short');
+    if (newPass !== confirmPass) return alert('Passwords do not match');
+    setPassLoading(true);
+    try {
+      await apiCall('reset-password', { mobile: userData.mobile, password: newPass });
+      setShowPassChange(false);
+      setCurrentPass('');
+      setNewPass('');
+      setConfirmPass('');
+      alert('Password updated successfully!');
+    } catch (e: any) {
+      alert(e.message);
+    }
+    setPassLoading(false);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col">
+      <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
+        <button 
+          className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
+          onClick={() => setView(VIEWS.DASHBOARD)}
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-2xl font-bold text-gray-900">User Profile</h1>
+      </div>
+
+      <div className="flex-1 p-4 overflow-y-auto space-y-6">
         <motion.div 
-          key={banner.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200"
+          className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6"
         >
-          <div className="relative h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            {banner.image ? (
-              <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="text-white text-center">
-                <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-70" />
-                <p className="text-sm">Banner Image</p>
-              </div>
+          {/* Name */}
+          <div>
+            <FormInput 
+              label="Name"
+              value={userData.user_name || ''}
+              disabled
+              icon={User}
+            />
+            <p className="text-xs text-gray-500 mt-1">Google-linked — cannot change</p>
+          </div>
+
+          {/* Email */}
+          <div>
+            <FormInput 
+              label="Email"
+              value={userData.email || ''}
+              disabled
+              icon={Mail}
+            />
+            <p className="text-xs text-gray-500 mt-1">Google-linked — cannot change</p>
+          </div>
+
+          {/* Mobile */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+            <div className="flex justify-between items-center">
+              <FormInput 
+                value={userData.mobile || ''}
+                disabled
+                icon={Phone}
+                className="flex-1 mr-2"
+              />
+              <SecondaryButton onClick={() => setShowMobileChange(true)}>Change</SecondaryButton>
+            </div>
+            {showMobileChange && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4"
+              >
+                <h4 className="font-semibold mb-2">Change Mobile Number</h4>
+                <FormInput 
+                  label="New Mobile Number"
+                  placeholder="Enter 10-digit number"
+                  type="tel"
+                  value={newMobile}
+                  onChange={(e) => setNewMobile(e.target.value)}
+                />
+                {showOtpInput ? (
+                  <div className="space-y-2">
+                    <FormInput 
+                      label="Enter OTP"
+                      type="number"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                    />
+                    <PrimaryButton onClick={handleVerifyMobile} disabled={otp.length !== 6 || mobileLoading}>
+                      Verify & Save
+                    </PrimaryButton>
+                  </div>
+                ) : (
+                  <PrimaryButton onClick={handleSendOtp} disabled={newMobile.length !== 10 || mobileLoading}>
+                    {mobileLoading ? 'Sending...' : 'Send OTP'}
+                  </PrimaryButton>
+                )}
+                <SecondaryButton onClick={() => {
+                  setShowMobileChange(false);
+                  setNewMobile('');
+                  setOtp('');
+                  setShowOtpInput(false);
+                }}>Cancel</SecondaryButton>
+              </motion.div>
             )}
           </div>
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-gray-900">{banner.title}</h3>
-              <div className="flex space-x-2">
-                <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition" onClick={() => setView(`${VIEWS.EDIT_BANNER}-${banner.id}`)}>
-                  <Edit3 className="w-4 h-4" />
-                </motion.button>
-                <motion.button whileTap={{ scale: 0.95 }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" onClick={() => {
-                  if (confirm('Delete this banner?')) {
-                    console.log('Deleted banner', banner.id);
-                    alert('Banner deleted!');
-                  }
-                }}>
-                  <Trash2 className="w-4 h-4" />
-                </motion.button>
-              </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <div className="flex justify-between items-center">
+              <FormInput 
+                value="•••••••••"
+                disabled
+                type="password"
+                icon={Lock}
+                className="flex-1 mr-2"
+              />
+              <SecondaryButton onClick={() => setShowPassChange(true)}>Change</SecondaryButton>
             </div>
-            <p className="text-sm text-gray-600 mb-3 truncate">URL: {banner.url}</p>
+            {showPassChange && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4"
+              >
+                <h4 className="font-semibold mb-2">Change Password</h4>
+                <FormInput 
+                  label="Current Password"
+                  type="password"
+                  value={currentPass}
+                  onChange={(e) => setCurrentPass(e.target.value)}
+                />
+                <FormInput 
+                  label="New Password"
+                  type="password"
+                  value={newPass}
+                  onChange={(e) => setNewPass(e.target.value)}
+                />
+                <FormInput 
+                  label="Confirm New Password"
+                  type="password"
+                  value={confirmPass}
+                  onChange={(e) => setConfirmPass(e.target.value)}
+                />
+                <PrimaryButton 
+                  onClick={handleSavePassword} 
+                  disabled={newPass.length < 6 || newPass !== confirmPass || passLoading}
+                >
+                  {passLoading ? 'Saving...' : 'Save Password'}
+                </PrimaryButton>
+                <SecondaryButton onClick={() => {
+                  setShowPassChange(false);
+                  setCurrentPass('');
+                  setNewPass('');
+                  setConfirmPass('');
+                }}>Cancel</SecondaryButton>
+              </motion.div>
+            )}
           </div>
         </motion.div>
-      ))}
-      {mockBanners.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <Palette className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>No banners yet. Add one to get started!</p>
-        </div>
-      )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+// Shop Profile Page
+const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
+  const [formData, setFormData] = useState({
+    shop_name: userData.shop_name || '',
+    shop_number: userData.shop_number || '',
+    shop_address: userData.shop_address || '',
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async () => {
+    if (!formData.shop_name || !formData.shop_number || !formData.shop_address) return alert('All fields required');
+    setLoading(true);
+    try {
+      const res = await apiCall('save-shop-profile', { id: userId, ...formData });
+      if (res.success) {
+        setUserData(prev => prev ? { ...prev, ...formData } : prev);
+        alert('Shop profile saved!');
+      }
+    } catch (e: any) {
+      alert(e.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col">
+      <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
+        <button 
+          className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
+          onClick={() => setView(VIEWS.DASHBOARD)}
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-2xl font-bold text-gray-900">Shop Profile</h1>
+      </div>
+
+      <div className="flex-1 p-4 overflow-y-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6"
+        >
+          <FormInput 
+            label="Shop Name"
+            placeholder="Enter shop name"
+            value={formData.shop_name}
+            onChange={handleChange}
+            name="shop_name"
+            icon={Briefcase}
+          />
+          <FormInput 
+            label="Shop Number"
+            placeholder="Enter shop number"
+            value={formData.shop_number}
+            onChange={handleChange}
+            name="shop_number"
+            type="tel"
+            icon={Phone}
+          />
+          <FormTextarea 
+            label="Shop Address"
+            placeholder="Enter full shop address"
+            value={formData.shop_address || ''}
+            onChange={handleChange}
+            name="shop_address"
+          />
+        </motion.div>
+      </div>
+
+      <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0">
+        <PrimaryButton onClick={handleSave} disabled={loading}>
+          {loading ? 'Saving...' : 'Save Shop Profile'}
+        </PrimaryButton>
+      </div>
+    </div>
+  );
+};
 
 // --- Main Application Component ---
 
 const DashboardPage: React.FC = () => {
   const [currentView, setCurrentView] = useState(VIEWS.DASHBOARD);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!userId) return;
+      try {
+        const res = await apiCall('get-user-profile', { id: userId });
+        if (res.success) {
+          setUserData(res.user);
+        }
+      } catch (e: any) {
+        console.error('Failed to fetch profile:', e.message);
+      }
+    };
+    fetchProfile();
+  }, [userId]);
 
   const handleViewChange = (newView: string) => {
     setCurrentView(newView);
@@ -775,16 +1122,23 @@ const DashboardPage: React.FC = () => {
   const renderContent = () => {
     const viewParts = currentView.split('-');
     const baseView = viewParts[0];
-    const id = viewParts[1];
+    const id = viewParts[1] ? parseInt(viewParts[1]) : undefined;
+
+    if (!userData) {
+      return (
+        <div className="flex-1 flex items-center justify-center text-gray-500">
+          <p>Loading...</p>
+        </div>
+      );
+    }
 
     switch (baseView) {
       case VIEWS.PRODUCTS:
-        return renderProductListPage(handleViewChange);
+        return <RenderProductListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.ADD_PRODUCT:
-        return renderProductForm(handleViewChange);
-      case VIEWS.EDIT_PRODUCT: {
-        const editProductId = parseInt(id || '0');
-        const editProduct = mockProducts.find(p => p.id === editProductId);
+        return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
+      case VIEWS.EDIT_PRODUCT:
+        const editProduct = userData.products?.find(p => p.id === id);
         if (!editProduct) {
           return (
             <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -792,15 +1146,13 @@ const DashboardPage: React.FC = () => {
             </div>
           );
         }
-        return renderProductForm(handleViewChange, editProduct, mockProducts, true, id);
-      }
+        return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} productId={id} />;
       case VIEWS.BANNERS:
-        return renderBannerListPage(handleViewChange);
+        return <RenderBannerListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.ADD_BANNER:
-        return renderBannerForm(handleViewChange);
-      case VIEWS.EDIT_BANNER: {
-        const editBannerId = parseInt(id || '0');
-        const editBanner = mockBanners.find(b => b.id === editBannerId);
+        return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
+      case VIEWS.EDIT_BANNER:
+        const editBanner = userData.banners?.find(b => b.id === id);
         if (!editBanner) {
           return (
             <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -808,11 +1160,14 @@ const DashboardPage: React.FC = () => {
             </div>
           );
         }
-        return renderBannerForm(handleViewChange, editBanner, true, id);
-      }
+        return <RenderBannerForm setView={handleViewChange} initialData={editBanner} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} bannerId={id} />;
+      case VIEWS.USER_PROFILE:
+        return <RenderUserProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+      case VIEWS.SHOP_PROFILE:
+        return <RenderShopProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.DASHBOARD:
       default:
-        return renderDashboard(handleViewChange);
+        return renderDashboard(handleViewChange, userData);
     }
   };
 
