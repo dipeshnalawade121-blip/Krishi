@@ -1136,7 +1136,7 @@ if (loading) {
         }
         return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={true} productId={id} />;
       case VIEWS.BANNERS:
-        return <RenderBannerListPage setView={handleViewChange} userData={userData} setUserData={setUserData!} userId={userId || ''} />;
+        return <RenderBannerListPage setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.ADD_BANNER:
         return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
       case VIEWS.EDIT_BANNER:
