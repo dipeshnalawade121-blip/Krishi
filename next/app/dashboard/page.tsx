@@ -123,7 +123,7 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
       </div>
       <input 
         type={type}
-        placeholder={placeholder}
+        placeholder?={placeholder}
         value={value}
         onChange={onChange}
         name={name}
