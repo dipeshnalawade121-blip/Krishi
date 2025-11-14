@@ -131,7 +131,7 @@ const SecondaryButton = ({ children, onClick, icon: Icon }: { children: React.Re
 );
 
 // Input Field Component with validation support
-const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name, error }: { label: string; placeholder: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string; error?: string }) => (
+const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name, error, step }: { label: string; placeholder: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string; error?: string; step?: string }) => (
   <div className="mb-4">
     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
       {label} {label.includes('Price') && <span className="text-red-500 ml-1">*</span>}
@@ -146,6 +146,7 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
         value={value}
         onChange={onChange}
         name={name}
+        step={step}
         className={`w-full pl-10 p-3 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-150 ${
           error ? 'border-red-500' : 'border-gray-300'
         }`}
