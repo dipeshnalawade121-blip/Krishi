@@ -941,6 +941,8 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="flex justify-between items-center">
               <FormInput 
+                label="Password"
+                placeholder=""
                 value="•••••••••"
                 disabled
                 type="password"
