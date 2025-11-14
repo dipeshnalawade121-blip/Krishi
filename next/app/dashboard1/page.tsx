@@ -1,13 +1,11 @@
 'use client';
-
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Eye, ArrowUpRight, ShoppingCart, Palette, Globe, Settings, Users, 
-  Briefcase, HelpCircle, LogOut, Plus, ArrowLeft, Image as ImageIcon, Tag, 
+import {
+  Eye, ArrowUpRight, ShoppingCart, Palette, Globe, Settings, Users,
+  Briefcase, HelpCircle, LogOut, Plus, ArrowLeft, Image as ImageIcon, Tag,
   DollarSign, List, BookOpen, Layers, Check, Edit3, Trash2, Link, User, Phone, Mail, Lock
 } from 'lucide-react';
-
 // API Helper
 const apiCall = async (endpoint: string, body: any) => {
   const res = await fetch(`https://api.krishi.site/${endpoint}`, {
@@ -21,7 +19,6 @@ const apiCall = async (endpoint: string, body: any) => {
   }
   return res.json();
 };
-
 // --- Types ---
 type ProductFormData = {
   name: string;
@@ -32,13 +29,11 @@ type ProductFormData = {
   categories: string[];
   photo: string | null;
 };
-
 type BannerFormData = {
   title: string;
   url: string;
   image: string | null;
 };
-
 interface Product {
   id: number;
   name: string;
@@ -49,14 +44,12 @@ interface Product {
   categories: string[];
   photo: string | null;
 }
-
 interface Banner {
   id: number;
   title: string;
   image: string | null;
   url: string;
 }
-
 interface UserData {
   id: number;
   user_name: string | null;
@@ -68,7 +61,6 @@ interface UserData {
   products: Product[];
   banners: Banner[];
 }
-
 // --- Global State & Navigation Setup ---
 const VIEWS = {
   DASHBOARD: 'dashboard',
@@ -81,15 +73,13 @@ const VIEWS = {
   USER_PROFILE: 'userProfile',
   SHOP_PROFILE: 'shopProfile',
 };
-
 // --- Custom Components ---
-
 // Button component for primary actions (Add, Save)
 const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }: { children: React.ReactNode; onClick?: () => void; icon?: React.ComponentType<{ className?: string }>; disabled?: boolean }) => (
-  <button 
+  <button
     className={`w-full flex items-center justify-center p-4 rounded-xl font-semibold transition duration-200 shadow-md ${
-      disabled 
-        ? 'bg-gray-400 cursor-not-allowed text-gray-500' 
+      disabled
+        ? 'bg-gray-400 cursor-not-allowed text-gray-500'
         : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white'
     }`}
     onClick={onClick}
@@ -99,10 +89,9 @@ const PrimaryButton = ({ children, onClick, icon: Icon, disabled = false }: { ch
     {children}
   </button>
 );
-
 // Secondary Button (e.g., Cancel, Edit)
 const SecondaryButton = ({ children, onClick, icon: Icon }: { children: React.ReactNode; onClick?: () => void; icon?: React.ComponentType<{ className?: string }> }) => (
-  <button 
+  <button
     className="w-full flex items-center justify-center p-4 rounded-xl font-semibold border-2 border-gray-300 hover:border-indigo-500 hover:text-indigo-600 text-gray-700 transition duration-200"
     onClick={onClick}
   >
@@ -110,7 +99,6 @@ const SecondaryButton = ({ children, onClick, icon: Icon }: { children: React.Re
     {children}
   </button>
 );
-
 // Input Field Component with validation support
 const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'text', name, error, step, disabled = false }: { label: string; placeholder?: string; icon?: React.ComponentType<{ className?: string }>; value: string; onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; name?: string; error?: string; step?: string; disabled?: boolean }) => (
   <div className="mb-4">
@@ -121,7 +109,7 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         {Icon && <Icon className="w-5 h-5 text-gray-400" />}
       </div>
-      <input 
+      <input
         type={type}
         placeholder={placeholder}
         value={value}
@@ -137,7 +125,6 @@ const FormInput = ({ label, placeholder, icon: Icon, value, onChange, type = 'te
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
 );
-
 // Textarea Component with validation
 const FormTextarea = ({ label, placeholder, value, onChange, name, error, required = false, disabled = false }: { label: string; placeholder: string; value: string; onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; name?: string; error?: string; required?: boolean; disabled?: boolean }) => (
   <div className="mb-4">
@@ -158,7 +145,6 @@ const FormTextarea = ({ label, placeholder, value, onChange, name, error, requir
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
 );
-
 // Image Upload Component
 const ImageUpload = ({ label, preview, onUpload, error }: { label: string; preview?: string | null; onUpload: () => void; error?: string }) => (
   <div className="mb-4">
@@ -185,13 +171,11 @@ const ImageUpload = ({ label, preview, onUpload, error }: { label: string; previ
     <input type="file" accept="image/*" className="hidden" id="image-upload" />
   </div>
 );
-
 // --- Page View Functions ---
-
 // Renders the main dashboard view
 const renderDashboard = (setView: (view: string) => void, userData?: UserData) => {
   const ActionLink = ({ name, icon: Icon, targetView, isLogout = false }: { name: string; icon: React.ComponentType<{ className?: string }>; targetView: string; isLogout?: boolean }) => (
-    <motion.button 
+    <motion.button
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={`flex items-center justify-between w-full p-4 ${isLogout ? 'hover:bg-red-50 text-red-600' : 'hover:bg-gray-50 text-gray-800'} border-b border-gray-100 last:border-b-0 transition duration-150`}
@@ -211,13 +195,12 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
       {!isLogout && <ArrowUpRight className="w-4 h-4 text-gray-400 transform rotate-45" />}
     </motion.button>
   );
-
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <motion.button 
+        <motion.button
           whileHover={{ scale: 1.05 }}
           className="flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition duration-150"
           onClick={() => window.open('https://yourshop.com', '_blank')}
@@ -226,7 +209,6 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
           Visit Site
         </motion.button>
       </div>
-
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {/* Content & Configuration */}
         <div>
@@ -238,7 +220,6 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
             <ActionLink name="Settings" icon={Settings} targetView={VIEWS.DASHBOARD} />
           </div>
         </div>
-
         {/* Account */}
         <div>
           <h2 className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wider">Account</h2>
@@ -253,22 +234,19 @@ const renderDashboard = (setView: (view: string) => void, userData?: UserData) =
     </div>
   );
 };
-
 // Category Modal
 const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory }: { isVisible: boolean; onClose: () => void; selectedCategories: string[]; toggleCategory: (category: string) => void }) => {
   const categories = ['Crop Nutrition', 'Crop Protection', 'Seeds', 'Hardware'];
-
   if (!isVisible) return null;
-
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4"
@@ -279,14 +257,14 @@ const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory 
         </div>
         <div className="p-6 space-y-3 max-h-64 overflow-y-auto">
           {categories.map((category) => (
-            <motion.label 
+            <motion.label
               key={category}
               whileHover={{ x: 4 }}
               className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer"
             >
               <span className="text-gray-700 text-sm font-medium">{category}</span>
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={selectedCategories.includes(category)}
                 onChange={() => toggleCategory(category)}
                 className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
@@ -301,7 +279,6 @@ const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory 
     </motion.div>
   );
 };
-
 // Product Form Component
 const RenderProductForm = ({ setView, initialData, userData, setUserData, userId, isEdit, productId }: { setView: (view: string) => void; initialData?: Product; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string; isEdit: boolean; productId?: number }) => {
   const [formData, setFormData] = useState<ProductFormData>({
@@ -317,15 +294,12 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name as keyof typeof errors]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
-
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = 'Product name is required';
@@ -334,7 +308,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const toggleCategory = (category: string) => {
     setFormData(prev => {
       const newCategories = prev.categories.includes(category)
@@ -343,7 +316,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
       return { ...prev, categories: newCategories };
     });
   };
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
     if (!uploadedFile) return;
@@ -355,7 +327,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
     };
     reader.readAsDataURL(uploadedFile);
   };
-
   const handleSave = async () => {
     if (!validateForm()) return;
     setLoading(true);
@@ -377,14 +348,12 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
     }
     setLoading(false);
   };
-
   const isFormValid = Object.keys(errors).length === 0 && formData.name && formData.sellingPrice && formData.description;
-
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
-        <button 
+        <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
           onClick={() => setView(VIEWS.PRODUCTS)}
         >
@@ -392,14 +361,13 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
         </button>
         <h1 className="text-2xl font-bold text-gray-900">{isEdit ? 'Edit' : 'Add'} Product</h1>
       </div>
-
       <div className="flex-1 p-4 overflow-y-auto">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6"
         >
-          <FormInput 
+          <FormInput
             label="Product Name"
             placeholder="e.g., Ultra-Grow Fertilizer"
             icon={Tag}
@@ -408,17 +376,15 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
             onChange={handleChange}
             error={errors.name}
           />
-
-          <ImageUpload 
+          <ImageUpload
             label="Product Photo"
             preview={imagePreview}
             onUpload={() => fileInputRef.current?.click()}
             error={errors.photo}
           />
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput 
+            <FormInput
               label="MRP (Max Retail Price)"
               placeholder="100.00"
               icon={DollarSign}
@@ -428,7 +394,7 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
               value={formData.mrp}
               onChange={handleChange}
             />
-            <FormInput 
+            <FormInput
               label="Selling Price"
               placeholder="75.50"
               icon={DollarSign}
@@ -440,7 +406,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
               error={errors.sellingPrice}
             />
           </div>
-
           <FormTextarea
             label="Product Description"
             placeholder="A short, compelling summary of the product..."
@@ -450,7 +415,7 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
             error={errors.description}
             required
           />
-          
+         
           <FormTextarea
             label="Product Usage/Application"
             placeholder="Instructions on how to use the product effectively..."
@@ -458,10 +423,9 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
             value={formData.usage}
             onChange={handleChange}
           />
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Categories</label>
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.02 }}
               className="w-full flex items-center justify-between p-4 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition duration-150"
               onClick={() => setShowCategoryModal(true)}
@@ -477,7 +441,6 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
           </div>
         </motion.div>
       </div>
-
       {/* Bottom Action Bar */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0 space-y-2">
         <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid || loading}>
@@ -487,8 +450,8 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
           Cancel
         </SecondaryButton>
       </div>
-      
-      <CategoryModal 
+     
+      <CategoryModal
         isVisible={showCategoryModal}
         onClose={() => setShowCategoryModal(false)}
         selectedCategories={formData.categories}
@@ -497,13 +460,12 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
     </div>
   );
 };
-
 // Products List Page
 const RenderProductListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this product?')) return;
     try {
-      const newProducts = userData.products.filter(p => p.id !== id);
+      const newProducts = (userData?.products || []).filter(p => p.id !== id);
       setUserData(prev => prev ? { ...prev, products: newProducts } : prev);
       await apiCall('save-products', { id: userId, products: newProducts });
       alert('Product deleted!');
@@ -511,21 +473,19 @@ const RenderProductListPage = ({ setView, userData, setUserData, userId }: { set
       alert(e.message);
     }
   };
-
-  const products = userData.products || [];
-
+  const products = userData?.products || [];
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
-        <button 
+        <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
           onClick={() => setView(VIEWS.DASHBOARD)}
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Products ({products.length})</h1>
-        <motion.button 
+        <motion.button
           whileHover={{ scale: 1.05 }}
           className="flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition duration-150"
           onClick={() => setView(VIEWS.ADD_PRODUCT)}
@@ -534,10 +494,9 @@ const RenderProductListPage = ({ setView, userData, setUserData, userId }: { set
           Add Product
         </motion.button>
       </div>
-
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {products.map((product) => (
-          <motion.div 
+          <motion.div
             key={product.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -578,7 +537,6 @@ const RenderProductListPage = ({ setView, userData, setUserData, userId }: { set
     </div>
   );
 };
-
 // Banner Form Component
 const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId, isEdit, bannerId }: { setView: (view: string) => void; initialData?: Banner; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string; isEdit: boolean; bannerId?: number }) => {
   const [formData, setFormData] = useState<BannerFormData>({
@@ -589,15 +547,12 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
   const [imagePreview, setImagePreview] = useState(initialData?.image || null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name as keyof typeof errors]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
-
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = 'Banner title is required';
@@ -605,7 +560,6 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
     if (!uploadedFile) return;
@@ -617,7 +571,6 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
     };
     reader.readAsDataURL(uploadedFile);
   };
-
   const handleSave = async () => {
     if (!validateForm()) return;
     setLoading(true);
@@ -639,14 +592,12 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
     }
     setLoading(false);
   };
-
   const isFormValid = Object.keys(errors).length === 0 && formData.title && formData.url;
-
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
-        <button 
+        <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
           onClick={() => setView(VIEWS.BANNERS)}
         >
@@ -654,14 +605,13 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
         </button>
         <h1 className="text-2xl font-bold text-gray-900">{isEdit ? 'Edit' : 'Add'} Banner</h1>
       </div>
-
       <div className="flex-1 p-4 overflow-y-auto">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6"
         >
-          <FormInput 
+          <FormInput
             label="Banner Title"
             placeholder="e.g., Monsoon Sale 2024"
             icon={BookOpen}
@@ -670,16 +620,14 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
             onChange={handleChange}
             error={errors.title}
           />
-
-          <ImageUpload 
+          <ImageUpload
             label="Banner Image"
             preview={imagePreview}
             onUpload={() => fileInputRef.current?.click()}
             error={errors.image}
           />
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-
-          <FormInput 
+          <FormInput
             label="Destination URL"
             placeholder="https://yourshop.com/deals"
             icon={Link}
@@ -690,7 +638,6 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
           />
         </motion.div>
       </div>
-
       {/* Bottom Action Bar */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0 space-y-2">
         <PrimaryButton onClick={handleSave} icon={Check} disabled={!isFormValid || loading}>
@@ -703,13 +650,12 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
     </div>
   );
 };
-
 // Banners List Page
 const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this banner?')) return;
     try {
-      const newBanners = userData.banners.filter(b => b.id !== id);
+      const newBanners = (userData?.banners || []).filter(b => b.id !== id);
       setUserData(prev => prev ? { ...prev, banners: newBanners } : prev);
       await apiCall('save-banners', { id: userId, banners: newBanners });
       alert('Banner deleted!');
@@ -717,21 +663,19 @@ const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setV
       alert(e.message);
     }
   };
-
-  const banners = userData.banners || [];
-
+  const banners = userData?.banners || [];
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sticky top-0 z-10">
-        <button 
+        <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition"
           onClick={() => setView(VIEWS.DASHBOARD)}
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Banners ({banners.length})</h1>
-        <motion.button 
+        <motion.button
           whileHover={{ scale: 1.05 }}
           className="flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition duration-150"
           onClick={() => setView(VIEWS.ADD_BANNER)}
@@ -740,10 +684,9 @@ const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setV
           Add Banner
         </motion.button>
       </div>
-
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {banners.map((banner) => (
-          <motion.div 
+          <motion.div
             key={banner.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -785,7 +728,6 @@ const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setV
     </div>
   );
 };
-
 // User Profile Page
 const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const [showMobileChange, setShowMobileChange] = useState(false);
@@ -797,7 +739,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
   const [passLoading, setPassLoading] = useState(false);
-
   const handleSendOtp = async () => {
     if (newMobile.length !== 10) return alert('Invalid phone number');
     setMobileLoading(true);
@@ -809,7 +750,6 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
     }
     setMobileLoading(false);
   };
-
   const handleVerifyMobile = async () => {
     try {
       await apiCall('verify-otp', { phone: newMobile, otp });
@@ -824,13 +764,12 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
       alert(e.message);
     }
   };
-
   const handleSavePassword = async () => {
     if (newPass.length < 6) return alert('Password too short');
     if (newPass !== confirmPass) return alert('Passwords do not match');
     setPassLoading(true);
     try {
-      await apiCall('reset-password', { mobile: userData.mobile, password: newPass });
+      await apiCall('reset-password', { mobile: userData?.mobile, password: newPass });
       setShowPassChange(false);
       setNewPass('');
       setConfirmPass('');
@@ -840,11 +779,10 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
     }
     setPassLoading(false);
   };
-
   return (
     <div className="flex-1 flex flex-col">
       <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
-        <button 
+        <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
           onClick={() => setView(VIEWS.DASHBOARD)}
         >
@@ -852,57 +790,54 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
         </button>
         <h1 className="text-2xl font-bold text-gray-900">User Profile</h1>
       </div>
-
       <div className="flex-1 p-4 overflow-y-auto space-y-6">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6"
         >
           {/* Name */}
           <div>
-            <FormInput 
+            <FormInput
               label="Name"
-              value={userData.user_name || ''}
+              value={userData?.user_name || ''}
               disabled
               icon={User}
             />
             <p className="text-xs text-gray-500 mt-1">Google-linked — cannot change</p>
           </div>
-
           {/* Email */}
           <div>
-            <FormInput 
+            <FormInput
               label="Email"
-              value={userData.email || ''}
+              value={userData?.email || ''}
               disabled
               icon={Mail}
             />
             <p className="text-xs text-gray-500 mt-1">Google-linked — cannot change</p>
           </div>
-
           {/* Mobile */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
             <div className="flex justify-between items-center">
-              <FormInput 
+              <FormInput
                 label="Mobile Number"
                 placeholder=""
-                value={userData.mobile || ''}
+                value={userData?.mobile || ''}
                 disabled
                 icon={Phone}
-                
+               
               />
               <SecondaryButton onClick={() => setShowMobileChange(true)}>Change</SecondaryButton>
             </div>
             {showMobileChange && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4"
               >
                 <h4 className="font-semibold mb-2">Change Mobile Number</h4>
-                <FormInput 
+                <FormInput
                   label="New Mobile Number"
                   placeholder="Enter 10-digit number"
                   type="tel"
@@ -911,7 +846,7 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
                 />
                 {showOtpInput ? (
                   <div className="space-y-2">
-                    <FormInput 
+                    <FormInput
                       label="Enter OTP"
                       type="number"
                       value={otp}
@@ -935,43 +870,42 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
               </motion.div>
             )}
           </div>
-
           {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="flex justify-between items-center">
-              <FormInput 
+              <FormInput
                 label="Password"
                 placeholder=""
                 value="•••••••••"
                 disabled
                 type="password"
                 icon={Lock}
-                
+               
               />
               <SecondaryButton onClick={() => setShowPassChange(true)}>Change</SecondaryButton>
             </div>
             {showPassChange && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4"
               >
                 <h4 className="font-semibold mb-2">Change Password</h4>
-                <FormInput 
+                <FormInput
                   label="New Password"
                   type="password"
                   value={newPass}
                   onChange={(e) => setNewPass(e.target.value)}
                 />
-                <FormInput 
+                <FormInput
                   label="Confirm New Password"
                   type="password"
                   value={confirmPass}
                   onChange={(e) => setConfirmPass(e.target.value)}
                 />
-                <PrimaryButton 
-                  onClick={handleSavePassword} 
+                <PrimaryButton
+                  onClick={handleSavePassword}
                   disabled={newPass.length < 6 || newPass !== confirmPass || passLoading}
                 >
                   {passLoading ? 'Saving...' : 'Save Password'}
@@ -989,21 +923,18 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
     </div>
   );
 };
-
 // Shop Profile Page
 const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; userId: string }) => {
   const [formData, setFormData] = useState({
-    shop_name: userData.shop_name || '',
-    shop_number: userData.shop_number || '',
-    shop_address: userData.shop_address || '',
+    shop_name: userData?.shop_name || '',
+    shop_number: userData?.shop_number || '',
+    shop_address: userData?.shop_address || '',
   });
   const [loading, setLoading] = useState(false);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-
   const handleSave = async () => {
     if (!formData.shop_name || !formData.shop_number || !formData.shop_address) return alert('All fields required');
     setLoading(true);
@@ -1018,11 +949,10 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
     }
     setLoading(false);
   };
-
   return (
     <div className="flex-1 flex flex-col">
       <div className="p-4 border-b border-gray-100 flex items-center bg-white shadow-sm sticky top-0 z-10">
-        <button 
+        <button
           className="p-2 text-gray-600 hover:text-gray-900 rounded-lg transition mr-4"
           onClick={() => setView(VIEWS.DASHBOARD)}
         >
@@ -1030,14 +960,13 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Shop Profile</h1>
       </div>
-
       <div className="flex-1 p-4 overflow-y-auto">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 space-y-6"
         >
-          <FormInput 
+          <FormInput
             label="Shop Name"
             placeholder="Enter shop name"
             value={formData.shop_name}
@@ -1045,7 +974,7 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
             name="shop_name"
             icon={Briefcase}
           />
-          <FormInput 
+          <FormInput
             label="Shop Number"
             placeholder="Enter shop number"
             value={formData.shop_number}
@@ -1054,7 +983,7 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
             type="tel"
             icon={Phone}
           />
-          <FormTextarea 
+          <FormTextarea
             label="Shop Address"
             placeholder="Enter full shop address"
             value={formData.shop_address || ''}
@@ -1063,7 +992,6 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
           />
         </motion.div>
       </div>
-
       <div className="p-4 bg-gray-50 border-t border-gray-200 sticky bottom-0">
         <PrimaryButton onClick={handleSave} disabled={loading}>
           {loading ? 'Saving...' : 'Save Shop Profile'}
@@ -1072,45 +1000,44 @@ const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView
     </div>
   );
 };
-
 // --- Main Application Component ---
-
 const DashboardPage: React.FC = () => {
   const [currentView, setCurrentView] = useState(VIEWS.DASHBOARD);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
-
 useEffect(() => {
   const fetchProfile = async () => {
     if (!userId) {
+      setError('No user session found. Please log in.');
       setLoading(false);
       return;
     }
-
     try {
       const res = await apiCall('get-user-profile', { id: userId });
-      if (res.success) setUserData(res.user);
+      if (res.success) {
+        setUserData(res.user);
+        setError(null);
+      } else {
+        throw new Error(res.message || 'Failed to load profile');
+      }
     } catch (e: any) {
       console.error('Failed to fetch profile:', e.message);
+      setError(e.message || 'Failed to load profile. Check your connection.');
     } finally {
-      setLoading(false); // <-- IMPORTANT
+      setLoading(false);
     }
   };
-
   fetchProfile();
 }, [userId]);
-
-
   const handleViewChange = (newView: string) => {
     setCurrentView(newView);
   };
-
   const renderContent = () => {
     const viewParts = currentView.split('-');
     const baseView = viewParts[0];
     const id = viewParts[1] ? parseInt(viewParts[1]) : undefined;
-
 if (loading) {
   return (
     <div className="h-screen flex items-center justify-center text-gray-500">
@@ -1118,15 +1045,35 @@ if (loading) {
     </div>
   );
 }
-
-
+    if (!userData) {
+      return (
+        <div className="h-screen flex flex-col items-center justify-center text-gray-500 space-y-4 p-4">
+          <p>{error || 'Failed to load your profile. Please check your connection or login again.'}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          >
+            Retry
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem('userId');
+              window.location.href = '/';
+            }}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+          >
+            Logout & Re-login
+          </button>
+        </div>
+      );
+    }
     switch (baseView) {
       case VIEWS.PRODUCTS:
-        return <RenderProductListPage setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderProductListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.ADD_PRODUCT:
-        return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
+        return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
       case VIEWS.EDIT_PRODUCT:
-        const editProduct = userData!.products?.find(p => p.id === id);
+        const editProduct = userData.products?.find(p => p.id === id);
         if (!editProduct) {
           return (
             <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -1134,13 +1081,13 @@ if (loading) {
             </div>
           );
         }
-        return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={true} productId={id} />;
+        return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} productId={id} />;
       case VIEWS.BANNERS:
-        return <RenderBannerListPage setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderBannerListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.ADD_BANNER:
-        return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
+        return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
       case VIEWS.EDIT_BANNER:
-        const editBanner = userData!.banners?.find(b => b.id === id);
+        const editBanner = userData.banners?.find(b => b.id === id);
         if (!editBanner) {
           return (
             <div className="flex-1 flex items-center justify-center text-gray-500">
@@ -1148,17 +1095,16 @@ if (loading) {
             </div>
           );
         }
-        return <RenderBannerForm setView={handleViewChange} initialData={editBanner} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={true} bannerId={id} />;
+        return <RenderBannerForm setView={handleViewChange} initialData={editBanner} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} bannerId={id} />;
       case VIEWS.USER_PROFILE:
-        return <RenderUserProfile setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderUserProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.SHOP_PROFILE:
-        return <RenderShopProfile setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderShopProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.DASHBOARD:
       default:
-        return renderDashboard(handleViewChange, userData!);
+        return renderDashboard(handleViewChange, userData);
     }
   };
-
   return (
     <div className="h-screen bg-gray-50 flex flex-col font-sans antialiased overflow-hidden">
       <motion.div
@@ -1174,5 +1120,4 @@ if (loading) {
     </div>
   );
 };
-
 export default DashboardPage;
