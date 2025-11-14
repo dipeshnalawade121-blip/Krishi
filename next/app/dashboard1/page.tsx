@@ -1140,7 +1140,7 @@ if (loading) {
       case VIEWS.ADD_BANNER:
         return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
       case VIEWS.EDIT_BANNER:
-        const editBanner = userData.banners?.find(b => b.id === id);
+        const editBanner = userData!.banners?.find(b => b.id === id);
         if (!editBanner) {
           return (
             <div className="flex-1 flex items-center justify-center text-gray-500">
