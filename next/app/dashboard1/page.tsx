@@ -1122,7 +1122,7 @@ if (loading) {
 
     switch (baseView) {
       case VIEWS.PRODUCTS:
-        return <RenderProductListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderProductListPage setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.ADD_PRODUCT:
         return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
       case VIEWS.EDIT_PRODUCT:
