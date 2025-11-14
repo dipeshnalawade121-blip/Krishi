@@ -1124,7 +1124,7 @@ if (loading) {
       case VIEWS.PRODUCTS:
         return <RenderProductListPage setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.ADD_PRODUCT:
-        return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
+        return <RenderProductForm setView={handleViewChange} initialData={undefined} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={false} productId={undefined} />;
       case VIEWS.EDIT_PRODUCT:
         const editProduct = userData.products?.find(p => p.id === id);
         if (!editProduct) {
@@ -1134,11 +1134,11 @@ if (loading) {
             </div>
           );
         }
-        return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} productId={id} />;
+        return <RenderProductForm setView={handleViewChange} initialData={editProduct} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={true} productId={id} />;
       case VIEWS.BANNERS:
-        return <RenderBannerListPage setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderBannerListPage setView={handleViewChange} userData={userData} setUserData={setUserData!} userId={userId || ''} />;
       case VIEWS.ADD_BANNER:
-        return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
+        return <RenderBannerForm setView={handleViewChange} initialData={undefined} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={false} bannerId={undefined} />;
       case VIEWS.EDIT_BANNER:
         const editBanner = userData.banners?.find(b => b.id === id);
         if (!editBanner) {
@@ -1148,14 +1148,14 @@ if (loading) {
             </div>
           );
         }
-        return <RenderBannerForm setView={handleViewChange} initialData={editBanner} userData={userData} setUserData={setUserData} userId={userId || ''} isEdit={true} bannerId={id} />;
+        return <RenderBannerForm setView={handleViewChange} initialData={editBanner} userData={userData!} setUserData={setUserData} userId={userId || ''} isEdit={true} bannerId={id} />;
       case VIEWS.USER_PROFILE:
-        return <RenderUserProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderUserProfile setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.SHOP_PROFILE:
-        return <RenderShopProfile setView={handleViewChange} userData={userData} setUserData={setUserData} userId={userId || ''} />;
+        return <RenderShopProfile setView={handleViewChange} userData={userData!} setUserData={setUserData} userId={userId || ''} />;
       case VIEWS.DASHBOARD:
       default:
-        return renderDashboard(handleViewChange, userData);
+        return renderDashboard(handleViewChange, userData!);
     }
   };
 
