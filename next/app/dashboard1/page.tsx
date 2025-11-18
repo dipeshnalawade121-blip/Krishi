@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -334,7 +336,15 @@ const CategoryModal = ({ isVisible, onClose, selectedCategories, toggleCategory 
 };
 
 // Product Form Component
-const RenderProductForm = ({ setView, initialData, userData, setUserData, userId, isEdit, productId }: { setView: (view: string) => void; initialData?: Product; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>; userId: string; isEdit: boolean; productId?: number }) => {
+const RenderProductForm = ({ setView, initialData, userData, setUserData, userId, isEdit, productId }: { 
+  setView: (view: string) => void; 
+  initialData?: Product; 
+  userData: UserData; 
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; 
+  userId: string; 
+  isEdit: boolean; 
+  productId?: number 
+}) => {
   const [formData, setFormData] = useState<ProductFormData>({
     name: initialData?.name || '',
     mrp: initialData?.mrp || '',
@@ -530,7 +540,12 @@ const RenderProductForm = ({ setView, initialData, userData, setUserData, userId
 };
 
 // Products List Page
-const RenderProductListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>; userId: string }) => {
+const RenderProductListPage = ({ setView, userData, setUserData, userId }: { 
+  setView: (view: string) => void; 
+  userData: UserData; 
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; 
+  userId: string 
+}) => {
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this product?')) return;
     try {
@@ -611,7 +626,15 @@ const RenderProductListPage = ({ setView, userData, setUserData, userId }: { set
 };
 
 // Banner Form Component
-const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId, isEdit, bannerId }: { setView: (view: string) => void; initialData?: Banner; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>; userId: string; isEdit: boolean; bannerId?: number }) => {
+const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId, isEdit, bannerId }: { 
+  setView: (view: string) => void; 
+  initialData?: Banner; 
+  userData: UserData; 
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; 
+  userId: string; 
+  isEdit: boolean; 
+  bannerId?: number 
+}) => {
   const [formData, setFormData] = useState<BannerFormData>({
     title: initialData?.title || '',
     url: initialData?.url || '',
@@ -736,7 +759,12 @@ const RenderBannerForm = ({ setView, initialData, userData, setUserData, userId,
 };
 
 // Banners List Page
-const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>; userId: string }) => {
+const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { 
+  setView: (view: string) => void; 
+  userData: UserData; 
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; 
+  userId: string 
+}) => {
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this banner?')) return;
     try {
@@ -818,7 +846,12 @@ const RenderBannerListPage = ({ setView, userData, setUserData, userId }: { setV
 };
 
 // User Profile Page
-const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>; userId: string }) => {
+const RenderUserProfile = ({ setView, userData, setUserData, userId }: { 
+  setView: (view: string) => void; 
+  userData: UserData; 
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; 
+  userId: string 
+}) => {
   const [showMobileChange, setShowMobileChange] = useState(false);
   const [newMobile, setNewMobile] = useState('');
   const [otp, setOtp] = useState('');
@@ -1022,7 +1055,12 @@ const RenderUserProfile = ({ setView, userData, setUserData, userId }: { setView
 };
 
 // Shop Profile Page
-const RenderShopProfile = ({ setView, userData, setUserData, userId }: { setView: (view: string) => void; userData: UserData; setUserData: React.Dispatch<React.SetStateAction<UserData | null>; userId: string }) => {
+const RenderShopProfile = ({ setView, userData, setUserData, userId }: { 
+  setView: (view: string) => void; 
+  userData: UserData; 
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>; 
+  userId: string 
+}) => {
   const [formData, setFormData] = useState({
     shop_name: userData.shop_name || '',
     shop_number: userData.shop_number || '',
