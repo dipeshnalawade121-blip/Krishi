@@ -9,16 +9,17 @@ declare global {
 
 import React, { useState, useEffect, useCallback } from 'react';
 
-// Configuation Constants
+// Configuration Constants
 const BACKEND_URL = 'https://api.krishi.site';
 const GOOGLE_CLIENT_ID = '660849662071-887qddbcaq013hc3o369oimmbbsf74ov.apps.googleusercontent.com';
 
-// Custom CSS for complex backgrounds, animations, and gradients that are hard to express purely in Tailwind
+// Enhanced Custom CSS with responsive improvements
 const customStyles = `
 /* Global & Body Styles */
 body {
     font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
     color: #fff;
+    overflow-x: hidden;
 }
 
 /* Background & Aesthetics */
@@ -57,13 +58,53 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-/* Hero Title Gradients and Positioning */
+/* Hero Title Gradients and Positioning - RESPONSIVE */
 .hero-title {
   font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
-  font-size: 94px;
   font-weight: 900;
   line-height: 1;
+  margin: 0 auto;
 }
+
+/* Mobile First */
+.hero-title .hero-text {
+  font-size: 4.5rem; /* 72px on mobile */
+}
+
+.hero-sub {
+  font-size: 0.2em;
+  bottom: -2px;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .hero-title .hero-text {
+    font-size: 6rem; /* 96px on tablet */
+  }
+  .hero-sub {
+    font-size: 0.22em;
+    bottom: -3px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .hero-title .hero-text {
+    font-size: 7rem; /* 112px on desktop */
+  }
+  .hero-sub {
+    font-size: 0.25em;
+    bottom: -4px;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1280px) {
+  .hero-title .hero-text {
+    font-size: 7.5rem; /* 120px on large desktop */
+  }
+}
+
 .hero-text {
   display: inline-block;
   background: linear-gradient(45deg, #27C48B 0%, #DDC53B 100%);
@@ -71,17 +112,15 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-fill-color: transparent;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  margin-top: -20px;
-  margin-bottom: -20px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-top: -0.5rem;
+  margin-bottom: -0.5rem;
 }
 .hero-sub {
   position: absolute;
-  bottom: -3px;
   left: 50%;
   transform: translateX(-40%);
-  font-size: 0.25em;
   font-weight: 800;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -189,12 +228,32 @@ body {
 /* GSI Button Override */
 .g_id_signin {
     border-radius: 9999px !important;
-   /* box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important; */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .g_id_signin:hover {
     transform: scale(1.02);
-  /*  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important; */
+}
+
+/* Responsive adjustments for step icons */
+@media (max-width: 480px) {
+  .step-icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .step-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* Ensure text remains readable on small devices */
+@media (max-width: 380px) {
+  .step-title {
+    font-size: 14px !important;
+  }
+  .step-description {
+    font-size: 11px !important;
+  }
 }
 `;
 
@@ -343,169 +402,161 @@ const App = () => {
                 <div className="sunray-effect absolute inset-0 pointer-events-none transform translate-z-0"></div>
             </div>
 
-            {/* Main Content Container (Mobile-First Max Width) */}
-            <div className="relative z-10 max-w-[380px] mx-auto px-6 pt-6">
-
-
-                {/* Header */}
-                <header className="flex items-center py-6 animate-in">
+            {/* Main Content Container - RESPONSIVE */}
+            <div className="relative z-10 w-full max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8 pt-4 sm:pt-6">
+                
+                {/* Header - RESPONSIVE */}
+                <header className="flex items-center py-4 sm:py-6 animate-in">
                     <div className="flex items-center cursor-pointer transition-all duration-300 gap-2">
                         <div className="logo-icon">
                             <KrishiLogoIcon />
                         </div>
-                        <span className="logo-text text-xl font-extrabold leading-none">krishi</span>
+                        <span className="logo-text text-lg sm:text-xl font-extrabold leading-none">krishi</span>
                     </div>
                 </header>
 
-                {/* Animated Glow Only 
-                <div className="animated-icon-wrapper flex justify-center mt-12 mb-6 relative animate-in delay-100">
-                    <div className="icon-glow absolute inset-0 bg-gradient-to-br from-green-400/40 to-emerald-500/40 rounded-xl"></div>
-                    <div className="relative z-20 w-16 h-16 bg-gradient-to-br from-green-400/20 to-emerald-500/20 backdrop-blur-md border border-green-400/30 rounded-xl flex items-center justify-center">
-                        {/* Leaf Icon 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ef87a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-                            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-                        </svg>
-                    </div>
-                </div>*/}
-
-                {/* Hero Section */}
-                <div className="text-center mb-8 animate-in delay-200">
+                {/* Hero Section - RESPONSIVE */}
+                <div className="text-center mb-6 sm:mb-8 lg:mb-10 animate-in delay-200">
                     <h1 className="hero-title relative inline-block text-white">
                         <span className="hero-text">कृषी</span>
                         <span className="hero-sub">.site</span>
                     </h1>
-                    <p className="text-2xl font-bold text-white mb-2">The fastest path from</p>
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">The fastest path from</p>
+                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                         farm to <span className="hero-highlight-span">digital market</span>
                     </p>
-                    <p className="mt-6 text-sm text-slate-400">
+                    <p className="mt-4 sm:mt-6 text-sm sm:text-base text-slate-400">
                         Already have an account? <a href="https://www.krishi.site/login" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">Sign in</a>
                     </p>
                 </div>
 
-                {/* Google Sign-in Button */}
-                <div className="animate-in delay-300 mb-4 flex justify-center" style={{ height: '50px' }}>
-                    {/* This DIV will be filled by the Google GSI script */}
-                    <div id="google-register-btn" className="g_id_signin"></div>
+                {/* Action Buttons Container - RESPONSIVE */}
+                <div className="max-w-md mx-auto w-full">
+                    {/* Google Sign-in Button */}
+                    <div className="animate-in delay-300 mb-4 flex justify-center" style={{ height: '50px' }}>
+                        {/* This DIV will be filled by the Google GSI script */}
+                        <div id="google-register-btn" className="g_id_signin w-full max-w-xs sm:max-w-sm"></div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="flex items-center my-4 sm:my-6 gap-3 sm:gap-4 animate-in delay-400">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
+                        <span className="text-xs sm:text-sm text-slate-500 whitespace-nowrap">Or start with login</span>
+                        <div className="flex-1 h-px bg-gradient-to-l from-transparent via-slate-700 to-transparent"></div>
+                    </div>
+
+                    {/* Login Button */}
+                    <div className="animate-in delay-500">
+                        <button 
+                            className="btn-login text-white w-full max-w-xs sm:max-w-sm mx-auto py-2 px-6 font-semibold border-none rounded-lg flex items-center justify-center gap-3 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 hover:scale-[1.02] active:scale-[0.98]"
+                            id="btn-login-ref" 
+                            onClick={() => window.location.href='https://www.krishi.site/signup'}
+                            disabled={isLoading}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
+                                <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
+                                <path d="M12 3v6"/>
+                            </svg>
+                            <span>Create an Account</span>
+                        </button>
+                    </div>
+
+                    {/* Terms - RESPONSIVE */}
+                    <p className="text-center text-xs sm:text-sm text-slate-500 mt-4 mb-6 sm:mb-8 leading-relaxed animate-in delay-600 px-2">
+                        नए उपयोगकर्ता: Register करें। मौजूदा उपयोगकर्ता: Login करें।<br className="hidden sm:block"/>
+                        यह मंच किसानों और कृषी-केंद्रों के लिए है।
+                    </p>
                 </div>
 
-                {/* Divider */}
-                <div className="flex items-center my-6 gap-4 animate-in delay-400">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
-                    <span className="text-sm text-slate-500">Or start with login</span>
-                    <div className="flex-1 h-px bg-gradient-to-l from-transparent via-slate-700 to-transparent"></div>
-                </div>
-
-                {/* Login Button */}
-                <div className="animate-in delay-500">
-                    <button 
-                        className="btn-login text-white w-full py-2 px-6 font-semibold border-none rounded-lg flex items-center justify-center gap-3 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/50 hover:scale-[1.02] active:scale-[0.98]"
-                        id="btn-login-ref" 
-                        onClick={() => window.location.href='https://www.krishi.site/signup'}
-                        disabled={isLoading}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
-                            <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
-                            <path d="M12 3v6"/>
-                        </svg>
-                        <span>Create an Account</span>
-                    </button>
-                </div>
-
-                {/* Terms */}
-                <p className="text-center text-xs text-slate-500 mt-4 mb-8 leading-relaxed animate-in delay-600">
-                    नए उपयोगकर्ता: Register करें। मौजूदा उपयोगकर्ता: Login करें।<br/>
-                    यह मंच किसानों और कृषी-केंद्रों के लिए है।
-                </p>
-
-                {/* Scroll Indicator */}
-                <div className="flex flex-col items-center mb-12 animate-in delay-700">
-                    <div className="flex items-center gap-2 text-sm text-[#009e57]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce">
+                {/* Scroll Indicator - RESPONSIVE */}
+                <div className="flex flex-col items-center mb-8 sm:mb-12 animate-in delay-700">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-[#009e57]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce">
                             <path d="m6 9 6 6 6-6"/>
                         </svg>
                         <span>Scroll to see your journey</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce">
                             <path d="m6 9 6 6 6-6"/>
                         </svg>
                     </div>
                 </div>
 
-                {/* Journey Card (Glass) */}
-                <div className="journey-card relative rounded-xl p-5 mb-16 overflow-hidden animate-in delay-800">
+                {/* Journey Card (Glass) - RESPONSIVE */}
+                <div className="journey-card relative rounded-xl p-4 sm:p-5 mb-12 sm:mb-16 overflow-hidden animate-in delay-800 max-w-2xl mx-auto">
 
-                    <h2 className="text-center text-xl font-extrabold text-white mb-5 relative z-20 leading-tight">Digital Krishi Store<br/>in 4 Steps</h2>
+                    <h2 className="text-center text-lg sm:text-xl md:text-2xl font-extrabold text-white mb-4 sm:mb-5 relative z-20 leading-tight">
+                        Digital Krishi Store<br/>in 4 Steps
+                    </h2>
 
                     {/* Step 1 */}
                     <div className="step flex mb-2 items-start cursor-pointer transition-all duration-300">
-                        <div className="step-icon-wrapper flex flex-col items-center mr-4 flex-shrink-0">
-                            <div className="step-icon w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-300">
+                        <div className="step-icon-wrapper flex flex-col items-center mr-3 sm:mr-4 flex-shrink-0">
+                            <div className="step-icon w-9 h-9 sm:w-[42px] sm:h-[42px] rounded-xl flex items-center justify-center transition-all duration-300">
                                 {/* Create Profile Icon (Seed) */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
                                 </svg>
                             </div>
                             <div className="step-connector w-0.5 h-6 my-0.5"></div>
                         </div>
                         <div className="step-content pt-0.5 flex-1 relative z-20">
-                            <h3 className="step-title text-[15px] font-bold text-white mb-0.5">Create a Profile</h3>
+                            <h3 className="step-title text-sm sm:text-[15px] font-bold text-white mb-0.5">Create a Profile</h3>
                             <p className="step-description text-xs text-slate-400 leading-snug">Sign up and tell us about your farm or agribusiness.</p>
                         </div>
                     </div>
 
                     {/* Step 2 */}
                     <div className="step flex mb-2 items-start cursor-pointer transition-all duration-300">
-                        <div className="step-icon-wrapper flex flex-col items-center mr-4 flex-shrink-0">
-                            <div className="step-icon w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-300">
+                        <div className="step-icon-wrapper flex flex-col items-center mr-3 sm:mr-4 flex-shrink-0">
+                            <div className="step-icon w-9 h-9 sm:w-[42px] sm:h-[42px] rounded-xl flex items-center justify-center transition-all duration-300">
                                 {/* Digital Store Icon (Shopping Bag) */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/><path d="M12 3v6"/>
                                 </svg>
                             </div>
                             <div className="step-connector w-0.5 h-6 my-0.5"></div>
                         </div>
                         <div className="step-content pt-0.5 flex-1 relative z-20">
-                            <h3 className="step-title text-[15px] font-bold text-white mb-0.5">Create Digital Store</h3>
+                            <h3 className="step-title text-sm sm:text-[15px] font-bold text-white mb-0.5">Create Digital Store</h3>
                             <p className="step-description text-xs text-slate-400 leading-snug">Add products, seeds, or fertilizers to your catalog.</p>
                         </div>
                     </div>
 
                     {/* Step 3 */}
                     <div className="step flex mb-2 items-start cursor-pointer transition-all duration-300">
-                        <div className="step-icon-wrapper flex flex-col items-center mr-4 flex-shrink-0">
-                            <div className="step-icon w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-300">
+                        <div className="step-icon-wrapper flex flex-col items-center mr-3 sm:mr-4 flex-shrink-0">
+                            <div className="step-icon w-9 h-9 sm:w-[42px] sm:h-[42px] rounded-xl flex items-center justify-center transition-all duration-300">
                                 {/* Publish Icon (Network) */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
                                 </svg>
                             </div>
                             <div className="step-connector w-0.5 h-6 my-0.5"></div>
                         </div>
                         <div className="step-content pt-0.5 flex-1 relative z-20">
-                            <h3 className="step-title text-[15px] font-bold text-white mb-0.5">Publish Online Store</h3>
+                            <h3 className="step-title text-sm sm:text-[15px] font-bold text-white mb-0.5">Publish Online Store</h3>
                             <p className="step-description text-xs text-slate-400 leading-snug">Set shipping options and payment methods, then go live!</p>
                         </div>
                     </div>
 
                     {/* Step 4 - Success */}
                     <div className="step step-success flex mb-0 items-start">
-                        <div className="step-icon-wrapper flex flex-col items-center mr-4 flex-shrink-0">
-                            <div className="step-icon w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-300 bg-[#9ef87a]/20 border border-[#9ef87a]/40">
+                        <div className="step-icon-wrapper flex flex-col items-center mr-3 sm:mr-4 flex-shrink-0">
+                            <div className="step-icon w-9 h-9 sm:w-[42px] sm:h-[42px] rounded-xl flex items-center justify-center transition-all duration-300 bg-[#9ef87a]/20 border border-[#9ef87a]/40">
                                 {/* Checkmark Icon */}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ef87a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ef87a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M20 6 9 17l-5-5"/>
                                 </svg>
                             </div>
                         </div>
                         <div className="step-content pt-0.5 flex-1 relative z-20">
-                            <h3 className="step-title text-[15px] font-bold text-[#009e57] mb-0.5 flex items-center gap-2">
+                            <h3 className="step-title text-sm sm:text-[15px] font-bold text-[#009e57] mb-0.5 flex items-center gap-2">
                                 Store Ready!
                                 <div className="success-dots flex gap-1">
-                                    <div className="success-dot w-[5px] h-[5px] bg-[#009e57] rounded-full" style={{ animationDelay: '0s' }}></div>
-                                    <div className="success-dot w-[5px] h-[5px] bg-[#009e57] rounded-full" style={{ animationDelay: '0.2s' }}></div>
-                                    <div className="success-dot w-[5px] h-[5px] bg-[#009e57] rounded-full" style={{ animationDelay: '0.4s' }}></div>
+                                    <div className="success-dot w-[4px] h-[4px] sm:w-[5px] sm:h-[5px] bg-[#009e57] rounded-full" style={{ animationDelay: '0s' }}></div>
+                                    <div className="success-dot w-[4px] h-[4px] sm:w-[5px] sm:h-[5px] bg-[#009e57] rounded-full" style={{ animationDelay: '0.2s' }}></div>
+                                    <div className="success-dot w-[4px] h-[4px] sm:w-[5px] sm:h-[5px] bg-[#009e57] rounded-full" style={{ animationDelay: '0.4s' }}></div>
                                 </div>
                             </h3>
                             <p className="step-description text-xs text-[#009e57] font-medium leading-snug">Manage orders, track sales, and grow your krishi business!</p>
@@ -526,4 +577,4 @@ const App = () => {
 
 export default function Page() {
   return <App />;
-                }
+}
